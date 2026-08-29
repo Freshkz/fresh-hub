@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --site-accent: #7C5CFF;
+  --site-accent-2: #33E6B0;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-text font-body antialiased;
+}
+
+.bg-accent {
+  background-color: var(--site-accent) !important;
+}
+
+.text-accent {
+  color: var(--site-accent) !important;
+}
+
+.border-accent {
+  border-color: var(--site-accent) !important;
+}
+
+.bg-accent2 {
+  background-color: var(--site-accent-2) !important;
+}
+
+.text-accent2 {
+  color: var(--site-accent-2) !important;
+}
+
+.card-hover {
+  @apply transition-colors duration-200;
+}
+.card-hover:hover {
+  border-color: rgba(124, 92, 255, 0.4);
+}
