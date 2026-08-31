@@ -62,7 +62,7 @@ export default function SocialsAdmin() {
         <div className="grid grid-cols-2 gap-3">
           <input placeholder="Nombre (ej. GitHub)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
-          <input placeholder="Ícono (nombre lucide-react, ej. Github)" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })}
+          <input placeholder="Ícono (Instagram, Github, Discord, TikTok o Steam)" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         </div>
         <input placeholder="URL" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })}
