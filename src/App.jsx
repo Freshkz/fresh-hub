@@ -14,6 +14,9 @@ import DownloadsAdmin from "./pages/admin/DownloadsAdmin";
 import NewsAdmin from "./pages/admin/NewsAdmin";
 import SocialsAdmin from "./pages/admin/SocialsAdmin";
 import SettingsAdmin from "./pages/admin/SettingsAdmin";
+import ProjectDetail from "./pages/Details/ProjectDetail";
+import DownloadDetail from "./pages/Details/DownloadDetail";
+import NewsDetail from "./pages/Details/NewsDetail";
 
 export default function App() {
   const settings = useSiteSettings();
@@ -27,6 +30,9 @@ export default function App() {
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/news" element={<News />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route path="/downloads/:id" element={<DownloadDetail />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/projects" element={<ProtectedRoute><ProjectsAdmin /></ProtectedRoute>} />

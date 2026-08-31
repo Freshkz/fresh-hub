@@ -9,6 +9,12 @@ export async function getProjects() {
   return data;
 }
 
+export async function getProject(id) {
+  const { data, error } = await supabase.from("projects").select("*").eq("id", id).single();
+  if (error) throw error;
+  return data;
+}
+
 export async function createProject(project) {
   const { data, error } = await supabase.from("projects").insert(project).select().single();
   if (error) throw error;

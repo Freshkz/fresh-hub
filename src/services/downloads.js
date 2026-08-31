@@ -12,6 +12,12 @@ export async function getDownloads() {
   return data;
 }
 
+export async function getDownload(id) {
+  const { data, error } = await supabase.from("downloads").select("*").eq("id", id).single();
+  if (error) throw error;
+  return data;
+}
+
 export async function uploadDownloadFile(file) {
   if (!file) throw new Error("Seleccioná un archivo para subir.");
 

@@ -1,8 +1,9 @@
 import Badge from "../ui/Badge";
+import { Link } from "react-router-dom";
 
 export default function ProjectCard({ project }) {
   return (
-    <div className="bg-surface border border-border rounded-2xl p-5 card-hover">
+    <Link to={`/projects/${project.id}`} className="block bg-surface border border-border rounded-2xl p-5 card-hover">
       <div className="h-28 rounded-lg mb-4 border border-border bg-gradient-to-br from-accent/15 to-accent2/10 flex items-center justify-center font-mono text-xs text-muted uppercase">
         {project.name}
       </div>
@@ -10,10 +11,10 @@ export default function ProjectCard({ project }) {
       <p className="text-sm text-muted mb-4">{project.description}</p>
       <div className="flex gap-2 flex-wrap">
         {project.featured && <Badge featured>Featured</Badge>}
-        {project.technologies.slice(0, 2).map((t) => (
+        {(project.technologies || []).slice(0, 2).map((t) => (
           <Badge key={t}>{t}</Badge>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,8 +1,9 @@
 const ICONS = { release: "🚀", project: "✨", update: "🔄" };
+import { Link } from "react-router-dom";
 
 export default function NewsItem({ item }) {
   return (
-    <div className="flex gap-3.5 py-4 border-b border-border last:border-b-0">
+    <Link to={`/news/${item.id}`} className="flex gap-3.5 py-4 border-b border-border last:border-b-0 hover:bg-surface2/40">
       <div className="w-8 h-8 shrink-0 rounded-lg bg-surface2 border border-border flex items-center justify-center text-sm">
         {ICONS[item.type] || "•"}
       </div>
@@ -12,6 +13,6 @@ export default function NewsItem({ item }) {
           {new Date(item.date).toLocaleDateString("es-AR")} · {item.type}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }

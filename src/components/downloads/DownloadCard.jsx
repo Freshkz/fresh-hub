@@ -1,20 +1,9 @@
 import Badge from "../ui/Badge";
+import { Link } from "react-router-dom";
 
 export default function DownloadCard({ item }) {
-  const href = item.download_url || "#";
-
   return (
-    <a
-      href={href}
-      target={href !== "#" ? "_blank" : undefined}
-      rel={href !== "#" ? "noreferrer" : undefined}
-      className="block bg-surface border border-border rounded-2xl p-5 card-hover no-underline"
-      onClick={(event) => {
-        if (!item.download_url) {
-          event.preventDefault();
-        }
-      }}
-    >
+    <Link to={`/downloads/${item.id}`} className="block bg-surface border border-border rounded-2xl p-5 card-hover no-underline">
       <div className="h-28 rounded-lg mb-4 border border-border bg-gradient-to-br from-accent/15 to-accent2/10 flex items-center justify-center font-mono text-xs text-muted">
         v{item.version} · {item.format}
       </div>
@@ -23,6 +12,6 @@ export default function DownloadCard({ item }) {
       <div className="flex gap-2 flex-wrap">
         {item.featured && <Badge featured>Latest</Badge>}
       </div>
-    </a>
+    </Link>
   );
 }

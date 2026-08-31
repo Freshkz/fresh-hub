@@ -9,6 +9,12 @@ export async function getNews() {
   return data;
 }
 
+export async function getNewsItem(id) {
+  const { data, error } = await supabase.from("news").select("*").eq("id", id).single();
+  if (error) throw error;
+  return data;
+}
+
 export async function createNews(item) {
   const { data, error } = await supabase.from("news").insert(item).select().single();
   if (error) throw error;
