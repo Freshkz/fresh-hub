@@ -5,10 +5,11 @@ const links = [
   { label: "Descargas", to: "/downloads" },
   { label: "Proyectos", to: "/projects" },
   { label: "Novedades", to: "/news" },
+  { label: "Changelog", to: "/changelog" },
 ];
 
 export default function Navbar({ settings = {} }) {
-  const siteName = settings.site_name || "FreshKZ";
+  const siteName = settings.site_name || "Fresh";
   const avatarUrl = settings.avatar_url || "";
 
   return (

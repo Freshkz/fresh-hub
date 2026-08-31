@@ -7,6 +7,7 @@ import NewsItem from "../../components/news/NewsItem";
 import { getProjects } from "../../services/projects";
 import { getDownloads } from "../../services/downloads";
 import { getNews } from "../../services/news";
+import { getSocials } from "../../services/socials";
 
 function SectionHead({ eyebrow, title, to }) {
   return (
@@ -25,6 +26,7 @@ export default function Home({ settings = {} }) {
   const [latestDownloads, setLatestDownloads] = useState([]);
   const [latestNews, setLatestNews] = useState([]);
   const [stats, setStats] = useState({});
+  const [discordLink, setDiscordLink] = useState(null);
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -39,11 +41,35 @@ export default function Home({ settings = {} }) {
       setLatestNews(data.filter((n) => n.published).slice(0, 3));
       setStats((current) => ({ ...current, news: data.length }));
     }).catch(() => {});
+    getSocials().then((data) => {
+      const discord = data.find((social) => {
+        const isEnabled = social.enabled !== false;
+        const label = social.name || "";
+        const url = social.url || "";
+        return isEnabled && (/discord/i.test(label) || /discord/i.test(url));
+      });
+      setDiscordLink(discord || null);
+    }).catch(() => {});
   }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-6">
       <Hero settings={settings} stats={stats} />
+
+      {discordLink && (
+        <section className="py-8">
+          <div className="rounded-2xl border border-border bg-surface p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="font-mono text-xs text-accent uppercase tracking-wider mb-2">Comunidad</div>
+              <h2 className="font-display text-xl font-semibold mb-1">Unite al Discord</h2>
+              <p className="text-sm text-muted">Charlas, novedades y comunidad en tiempo real.</p>
+            </div>
+            <a href={discordLink.url} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
+              Entrar al Discord
+            </a>
+          </div>
+        </section>
+      )}
 
       <section className="py-16">
         <SectionHead eyebrow="Featured" title="Proyectos destacados" to="/projects" />

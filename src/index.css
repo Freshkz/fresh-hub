@@ -9,8 +9,13 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   @apply bg-background text-text font-body antialiased;
+  background-image: radial-gradient(circle at top, rgba(124, 92, 255, 0.12), transparent 30%);
 }
 
 .bg-accent {
@@ -34,8 +39,47 @@ body {
 }
 
 .card-hover {
-  @apply transition-colors duration-200;
+  @apply transition-all duration-200;
 }
+
 .card-hover:hover {
   border-color: rgba(124, 92, 255, 0.4);
+}
+
+.interactive-card {
+  position: relative;
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.interactive-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.14), transparent 40%, rgba(51, 230, 176, 0.08));
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.interactive-card:hover {
+  border-color: rgba(124, 92, 255, 0.42);
+  box-shadow: 0 20px 40px -28px rgba(124, 92, 255, 0.7);
+}
+
+.interactive-card:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

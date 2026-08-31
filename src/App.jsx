@@ -17,6 +17,7 @@ import SettingsAdmin from "./pages/admin/SettingsAdmin";
 import ProjectDetail from "./pages/Details/ProjectDetail";
 import DownloadDetail from "./pages/Details/DownloadDetail";
 import NewsDetail from "./pages/Details/NewsDetail";
+import ChangelogPage from "./pages/Changelog";
 
 export default function App() {
   const settings = useSiteSettings();
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/news" element={<News />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/downloads/:id" element={<DownloadDetail />} />
           <Route path="/news/:id" element={<NewsDetail />} />
