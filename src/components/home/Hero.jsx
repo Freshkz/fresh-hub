@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import SocialGrid from "../social/SocialGrid";
 
 export default function Hero({ settings = {} }) {
@@ -41,12 +42,12 @@ export default function Hero({ settings = {} }) {
       </motion.p>
 
       <div className="flex gap-3 justify-center mb-8">
-        <button className="bg-accent text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-accentGlow">
+        <Link to="/projects" className="bg-accent text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-accentGlow">
           Explorar proyectos
-        </button>
-        <button className="border border-border text-sm font-medium px-5 py-3 rounded-xl">
+        </Link>
+        <Link to="/downloads" className="border border-border text-sm font-medium px-5 py-3 rounded-xl">
           Ver descargas
-        </button>
+        </Link>
       </div>
 
       <div className="mb-14">
