@@ -28,36 +28,34 @@ function normalizeSettings(row = {}) {
   };
 }
 
-function buildSettingsPayload(normalized, existing = null) {
-  const existingColumns = new Set(existing ? Object.keys(existing) : []);
-  const payload = {};
-
-  const fieldMap = [
-    ["site_name", ["site_name", "name", "title", "brand_name"]],
-    ["site_tagline", ["site_tagline", "tagline", "subtitle"]],
-    ["meta_title", ["meta_title", "seo_title", "site_name"]],
-    ["meta_description", ["meta_description", "seo_description", "description"]],
-    ["avatar_url", ["avatar_url", "logo_url", "avatar"]],
-    ["primary_color", ["primary_color", "accent_color", "color_primary"]],
-    ["secondary_color", ["secondary_color", "accent2_color", "color_secondary"]],
-    ["favicon_url", ["favicon_url", "favicon"]],
+function buildSettingsPayloadVariants(normalized) {
+  return [
+    {
+      site_name: normalized.site_name,
+      site_tagline: normalized.site_tagline,
+      meta_title: normalized.meta_title,
+      meta_description: normalized.meta_description,
+      avatar_url: normalized.avatar_url,
+      primary_color: normalized.primary_color,
+      secondary_color: normalized.secondary_color,
+      favicon_url: normalized.favicon_url,
+    },
+    {
+      name: normalized.site_name,
+      tagline: normalized.site_tagline,
+      seo_title: normalized.meta_title,
+      seo_description: normalized.meta_description,
+      avatar_url: normalized.avatar_url,
+      primary_color: normalized.primary_color,
+      secondary_color: normalized.secondary_color,
+      favicon_url: normalized.favicon_url,
+    },
   ];
+}
 
-  for (const [outputKey, candidateColumns] of fieldMap) {
-    const value = normalized[outputKey] ?? "";
-    const matched = candidateColumns.find((column) => existingColumns.has(column));
-
-    if (matched) {
-      payload[matched] = value;
-      continue;
-    }
-
-    if (!existing && ["site_name", "site_tagline", "meta_title", "meta_description", "avatar_url", "primary_color", "secondary_color", "favicon_url"].includes(outputKey)) {
-      payload[outputKey] = value;
-    }
-  }
-
-  return payload;
+function isMissingColumnError(error) {
+  const message = error?.message || "";
+  return /column .* does not exist|Could not find the '.*' column of 'settings' in the schema cache/i.test(message);
 }
 
 export async function getSettings() {
@@ -74,26 +72,33 @@ export async function saveSettings(formData) {
   if (fetchError) throw fetchError;
 
   const existing = Array.isArray(existingRows) && existingRows.length > 0 ? existingRows[0] : null;
-  const payload = buildSettingsPayload(normalized, existing);
+  const payloadVariants = buildSettingsPayloadVariants(normalized);
 
-  if (Object.keys(payload).length === 0) {
-    return normalizeSettings(existing || {});
+  let lastError = null;
+  for (const payload of payloadVariants) {
+    try {
+      if (!existing) {
+        const { data, error } = await supabase.from("settings").insert(payload).select().maybeSingle();
+        if (!error) return normalizeSettings(data || payload);
+        if (!isMissingColumnError(error)) throw error;
+      } else {
+        const hasIdColumn = Object.prototype.hasOwnProperty.call(existing, "id");
+        let query = supabase.from("settings").update(payload);
+
+        if (hasIdColumn) {
+          query = query.eq("id", existing.id);
+        }
+
+        const { data, error } = await query.select().maybeSingle();
+        if (!error) return normalizeSettings(data || { ...existing, ...payload });
+        if (!isMissingColumnError(error)) throw error;
+      }
+    } catch (error) {
+      lastError = error;
+      if (!isMissingColumnError(error)) throw error;
+    }
   }
 
-  if (!existing) {
-    const { data, error } = await supabase.from("settings").insert(payload).select().maybeSingle();
-    if (error) throw error;
-    return normalizeSettings(data || payload);
-  }
-
-  const hasIdColumn = Object.prototype.hasOwnProperty.call(existing, "id");
-  let query = supabase.from("settings").update(payload);
-
-  if (hasIdColumn) {
-    query = query.eq("id", existing.id);
-  }
-
-  const { data, error } = await query.select().maybeSingle();
-  if (error) throw error;
-  return normalizeSettings(data || { ...existing, ...payload });
+  if (lastError) throw lastError;
+  return normalizeSettings(existing || {});
 }
