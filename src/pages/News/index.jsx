@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMemo } from "react";
 import NewsItem from "../../components/news/NewsItem";
-import { getNews } from "../../services/news";
+import { getUnifiedNews } from "../../services/newsSources";
 
 export default function News() {
   const [news, setNews] = useState([]);
@@ -9,7 +9,9 @@ export default function News() {
   const [type, setType] = useState("all");
 
   useEffect(() => {
-    getNews().then((data) => setNews(data.filter((n) => n.published))).catch(() => {});
+    getUnifiedNews()
+      .then((data) => setNews(data.filter((n) => n.published !== false)))
+      .catch(() => {});
   }, []);
 
   const types = useMemo(() => [...new Set(news.map((item) => item.type).filter(Boolean))], [news]);

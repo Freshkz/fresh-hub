@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
 
-const empty = { title: "", description: "", type: "update", published: true, featured: false };
+const empty = { title: "", description: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
 
 export default function NewsAdmin() {
   const [items, setItems] = useState([]);
@@ -16,7 +16,7 @@ export default function NewsAdmin() {
     setErrorMsg("");
     try { setItems(await getNews()); }
     catch (err) { setErrorMsg(err.message || "Error cargando novedades"); }
-    setLoading(false);
+    finally { setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
@@ -26,7 +26,12 @@ export default function NewsAdmin() {
     setErrorMsg("");
     try {
       if (editingId) await updateNews(editingId, form);
-      else await createNews({ ...form, date: new Date().toISOString(), source: "admin" });
+      else await createNews({
+        ...form,
+        date: new Date().toISOString(),
+        source: form.source || "admin",
+        sourceId: form.sourceId || null,
+      });
       setForm(empty);
       setEditingId(null);
       load();
@@ -38,8 +43,13 @@ export default function NewsAdmin() {
   const startEdit = (n) => {
     setEditingId(n.id);
     setForm({
-      title: n.title, description: n.description || "", type: n.type,
-      published: n.published, featured: n.featured,
+      title: n.title,
+      description: n.description || "",
+      type: n.type,
+      published: n.published,
+      featured: n.featured,
+      source: n.source || "admin",
+      sourceId: n.sourceId || "",
     });
   };
 
@@ -65,7 +75,7 @@ export default function NewsAdmin() {
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
-        <div className="flex items-center gap-4">
+        <div className="grid md:grid-cols-2 gap-3">
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm">
             <option value="update">Update</option>
@@ -75,6 +85,19 @@ export default function NewsAdmin() {
             <option value="event">Event</option>
             <option value="other">Other</option>
           </select>
+          <select value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })}
+            className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm">
+            <option value="admin">Admin</option>
+            <option value="github">GitHub</option>
+            <option value="pwa">PWA</option>
+            <option value="api">FreshKZ API</option>
+            <option value="rss">RSS / Feed</option>
+          </select>
+        </div>
+        <input value={form.sourceId} onChange={(e) => setForm({ ...form, sourceId: e.target.value })}
+          placeholder="sourceId (opcional: GitHub, release, feed, etc.)"
+          className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
             Publicado
