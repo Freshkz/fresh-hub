@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Hero from "../../components/home/Hero";
 import ProjectCard from "../../components/projects/ProjectCard";
 import DownloadCard from "../../components/downloads/DownloadCard";
@@ -14,7 +15,7 @@ function SectionHead({ eyebrow, title, to }) {
         <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1.5">{eyebrow}</div>
         <h2 className="font-display text-xl font-semibold">{title}</h2>
       </div>
-      <a href={to} className="text-sm text-muted hover:text-text">Ver todos →</a>
+      <Link to={to} className="text-sm text-muted hover:text-text">Ver todos →</Link>
     </div>
   );
 }

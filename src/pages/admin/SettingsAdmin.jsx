@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getSettings, saveSettings } from "../../services/settings";
 
 const blank = {
@@ -60,7 +61,7 @@ export default function SettingsAdmin() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <a href="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</a>
+      <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="font-display text-xl font-semibold mt-2 mb-4">Settings — Admin</h1>
 
       {errorMsg && (

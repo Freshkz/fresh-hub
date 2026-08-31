@@ -1,4 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const links = [
   { to: "/admin/projects", label: "Projects" },
@@ -20,13 +21,13 @@ export default function Dashboard() {
       </div>
       <div className="grid grid-cols-2 gap-3">
         {links.map((l) => (
-          <a
+          <Link
             key={l.to}
-            href={l.to}
+            to={l.to}
             className="bg-surface border border-border rounded-xl px-5 py-4 text-sm font-medium hover:border-accent/40 transition-colors"
           >
             Gestionar {l.label} →
-          </a>
+          </Link>
         ))}
       </div>
     </div>

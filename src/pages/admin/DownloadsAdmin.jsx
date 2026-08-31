@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
 
 const empty = {
@@ -74,7 +75,7 @@ export default function DownloadsAdmin() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <a href="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</a>
+      <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="font-display text-xl font-semibold mt-2 mb-4">Downloads — Admin</h1>
 
       {errorMsg && (

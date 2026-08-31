@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
 
 const empty = { title: "", description: "", type: "update", published: true, featured: false };
@@ -50,7 +51,7 @@ export default function NewsAdmin() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <a href="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</a>
+      <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="font-display text-xl font-semibold mt-2 mb-4">News — Admin</h1>
 
       {errorMsg && (
