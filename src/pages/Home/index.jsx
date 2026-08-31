@@ -24,16 +24,26 @@ export default function Home({ settings = {} }) {
   const [featured, setFeatured] = useState([]);
   const [latestDownloads, setLatestDownloads] = useState([]);
   const [latestNews, setLatestNews] = useState([]);
+  const [stats, setStats] = useState({});
 
   useEffect(() => {
-    getProjects().then((data) => setFeatured(data.filter((p) => p.featured))).catch(() => {});
-    getDownloads().then((data) => setLatestDownloads(data.slice(0, 3))).catch(() => {});
-    getNews().then((data) => setLatestNews(data.filter((n) => n.published).slice(0, 3))).catch(() => {});
+    getProjects().then((data) => {
+      setFeatured(data.filter((p) => p.featured));
+      setStats((current) => ({ ...current, projects: data.length }));
+    }).catch(() => {});
+    getDownloads().then((data) => {
+      setLatestDownloads(data.slice(0, 3));
+      setStats((current) => ({ ...current, downloads: data.length }));
+    }).catch(() => {});
+    getNews().then((data) => {
+      setLatestNews(data.filter((n) => n.published).slice(0, 3));
+      setStats((current) => ({ ...current, news: data.length }));
+    }).catch(() => {});
   }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-6">
-      <Hero settings={settings} />
+      <Hero settings={settings} stats={stats} />
 
       <section className="py-16">
         <SectionHead eyebrow="Featured" title="Proyectos destacados" to="/projects" />

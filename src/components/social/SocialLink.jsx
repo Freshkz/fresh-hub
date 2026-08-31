@@ -1,10 +1,16 @@
-import * as Icons from "lucide-react";
-import { Link2 } from "lucide-react";
+import { Code2, Gamepad2, Link2, MessageCircle, Music2 } from "lucide-react";
+
+const ICONS = {
+  Github: Code2,
+  GitHub: Code2,
+  Discord: MessageCircle,
+  MessageCircle,
+  TikTok: Music2,
+  Steam: Gamepad2,
+};
 
 export default function SocialLink({ social }) {
-  // Buscamos el componente de ícono por el nombre guardado en la base de datos.
-  // Si no existe ese nombre en la librería, usamos un ícono genérico (Link2) para no romper nada.
-  const IconComponent = Icons[social.icon] || Link2;
+  const IconComponent = ICONS[social.icon] || Link2;
 
   return (
     <a

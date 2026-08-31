@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SocialGrid from "../social/SocialGrid";
 
-export default function Hero({ settings = {} }) {
+export default function Hero({ settings = {}, stats = {} }) {
   const siteName = settings.site_name || "FreshKZ";
   const tagline = settings.site_tagline || "Todo lo que hago, en un solo lugar";
   const parts = tagline.split(",");
@@ -68,11 +68,11 @@ export default function Hero({ settings = {} }) {
         <div className="px-4 py-3 font-mono text-xs text-muted space-y-1">
           <div className="flex justify-between">
             <span>projects</span>
-            <span className="text-text">8 <span className="text-accent2">active</span></span>
+            <span className="text-text">{stats.projects ?? "—"} <span className="text-accent2">active</span></span>
           </div>
           <div className="flex justify-between">
             <span>downloads</span>
-            <span className="text-text">24 files</span>
+            <span className="text-text">{stats.downloads ?? "—"} files</span>
           </div>
           <div className="flex justify-between">
             <span>status</span>
