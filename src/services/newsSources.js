@@ -28,6 +28,12 @@ export const NEWS_SOURCES = [
   },
 ];
 
+const GITHUB_REPOSITORIES = [
+  { owner: "Freshkz", repo: "Cupons", label: "Cupons" },
+  { owner: "Freshkz", repo: "fresh-hub", label: "Fresh Hub" },
+  { owner: "Freshkz", repo: "ai-stylist", label: "AI Stylist" },
+];
+
 function normalizeSourceEntry(entry) {
   return {
     ...entry,
@@ -41,37 +47,45 @@ function normalizeSourceEntry(entry) {
   };
 }
 
-export async function getAutomaticNews() {
-  const now = new Date();
+async function fetchReleases(repository) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repository.owner}/${repository.repo}/releases?per_page=5`, {
+      headers: { Accept: "application/vnd.github+json" },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`GitHub respondió ${response.status} para ${repository.repo}`);
+    return await response.json();
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
 
-  const entries = [
-    {
-      id: "github-fresh-release-v1-4-2",
-      title: "Fresh release v1.4.2",
-      description: "Nueva versión del hub con mejoras visuales y refactor del feed automático.",
+export async function getGitHubNews() {
+  const results = await Promise.allSettled(GITHUB_REPOSITORIES.map(async (repository) => {
+    const releases = await fetchReleases(repository);
+    return releases.map((release) => normalizeSourceEntry({
+      id: `github-${repository.repo}-${release.id}`,
+      title: `${repository.label}: ${release.name || release.tag_name}`,
+      description: release.body?.trim() || `Nueva release ${release.tag_name} disponible.`,
       type: "release",
-      date: new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString(),
-      url: "https://github.com/Freshkz/fresh-hub/releases",
+      date: release.published_at || release.created_at,
+      url: release.html_url,
       source: "github",
-      sourceId: "fresh-hub:release:v1.4.2",
-      featured: true,
+      sourceId: `github:${repository.owner}/${repository.repo}:release:${release.id}`,
+      featured: release.prerelease === false,
       published: true,
-    },
-    {
-      id: "pwa-ai-stylist-update",
-      title: "AI Stylist actualizado",
-      description: "Nuevas mejoras y ajustes de flujo para la experiencia de estilo con IA.",
-      type: "project",
-      date: new Date(now.getTime() - 1000 * 60 * 60 * 26).toISOString(),
-      url: "https://github.com/Freshkz",
-      source: "pwa",
-      sourceId: "ai-stylist:update:v2.1",
-      featured: false,
-      published: true,
-    },
-  ];
+    }));
+  }));
 
-  return entries.map(normalizeSourceEntry);
+  return results
+    .filter((result) => result.status === "fulfilled")
+    .flatMap((result) => result.value);
+}
+
+export async function getAutomaticNews() {
+  return getGitHubNews();
 }
 
 export async function getUnifiedNews() {
