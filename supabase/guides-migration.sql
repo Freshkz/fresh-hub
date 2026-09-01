@@ -15,6 +15,11 @@ create table if not exists public.guides (
   updated_at timestamptz not null default now()
 );
 
+alter table public.projects add column if not exists image text;
+alter table public.downloads add column if not exists image text;
+alter table public.news add column if not exists image text;
+alter table public.social_links add column if not exists icon_url text;
+
 alter table public.guides enable row level security;
 
 drop policy if exists "Public can read published guides" on public.guides;
