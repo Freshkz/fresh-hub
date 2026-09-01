@@ -73,6 +73,7 @@ export async function getGitHubNews() {
       date: release.published_at || release.created_at,
       url: release.html_url,
       source: "github",
+      serviceId: repository.repo === "fresh-hub" ? "fresh-hub" : repository.repo === "Cupons" ? "cupons" : "ai-stylist",
       sourceId: `github:${repository.owner}/${repository.repo}:release:${release.id}`,
       featured: release.prerelease === false,
       published: true,

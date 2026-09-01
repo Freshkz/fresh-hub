@@ -30,6 +30,7 @@ export default function Home({ settings = {} }) {
   const [discordLink, setDiscordLink] = useState(null);
   const [hubOnline, setHubOnline] = useState(null);
   const [systemServices, setSystemServices] = useState([]);
+  const [latestReleases, setLatestReleases] = useState({});
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -41,7 +42,14 @@ export default function Home({ settings = {} }) {
       setStats((current) => ({ ...current, downloads: data.length }));
     }).catch(() => {});
     getUnifiedNews().then((data) => {
+      const latestReleases = data
+        .filter((item) => item.source === "github" && item.serviceId)
+        .reduce((releases, item) => {
+          if (!releases[item.serviceId]) releases[item.serviceId] = item;
+          return releases;
+        }, {});
       setLatestNews(data.filter((n) => n.published).slice(0, 3));
+      setLatestReleases(latestReleases);
       setStats((current) => ({ ...current, news: data.length }));
     }).catch(() => {});
     getSocials().then((data) => {
@@ -61,7 +69,14 @@ export default function Home({ settings = {} }) {
 
   return (
     <div className="max-w-5xl mx-auto px-6">
-      <Hero settings={settings} stats={stats} systemServices={systemServices} />
+      <Hero
+        settings={settings}
+        stats={stats}
+        systemServices={systemServices.map((service) => ({
+          ...service,
+          latestRelease: latestReleases[service.id] || null,
+        }))}
+      />
 
       {discordLink && (
         <section className="py-8">

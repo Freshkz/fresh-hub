@@ -123,6 +123,11 @@ export default function Hero({ settings = {}, stats = {}, systemServices = [] })
                     <div className="relative h-20 overflow-hidden">
                       <img src={service.thumbnail} alt="" className="h-full w-full object-cover opacity-70 transition-transform duration-300 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-surface2 via-surface2/20 to-transparent" />
+                      {service.latestRelease && (
+                        <span title={service.latestRelease.title} className="absolute left-2 top-2 rounded-full border border-accent2/40 bg-accent2/20 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-accent2">
+                          News
+                        </span>
+                      )}
                       <span className={`absolute right-2 top-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] ${meta.text}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                         {meta.label}
