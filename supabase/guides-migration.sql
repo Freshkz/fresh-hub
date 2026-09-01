@@ -28,3 +28,18 @@ create policy "Authenticated users can manage guides"
   to authenticated
   using (true)
   with check (true);
+
+insert into storage.buckets (id, name, public)
+values ('media', 'media', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public can view media" on storage.objects;
+create policy "Public can view media"
+  on storage.objects for select
+  using (bucket_id = 'media');
+
+drop policy if exists "Authenticated users can upload media" on storage.objects;
+create policy "Authenticated users can upload media"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'media');

@@ -22,6 +22,14 @@ const ICONS = {
 };
 
 export default function SocialLink({ social }) {
+  if (social.icon_url) {
+    return (
+      <a href={social.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted hover:text-text">
+        <img src={social.icon_url} alt="" className="h-5 w-5 rounded object-contain" />
+        {social.name}
+      </a>
+    );
+  }
   const IconComponent = ICONS[social.icon] || Link2;
 
   return (

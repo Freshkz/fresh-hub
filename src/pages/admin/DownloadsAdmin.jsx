@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = {
   name: "", description: "", category: "", version: "", size: "",
-  format: "", download_url: "", featured: false, status: "published",
+  format: "", download_url: "", image: "", featured: false, status: "published",
 };
 
 export default function DownloadsAdmin() {
@@ -64,6 +65,7 @@ export default function DownloadsAdmin() {
       name: d.name, description: d.description || "", category: d.category || "",
       version: d.version || "", size: d.size || "", format: d.format || "",
       download_url: d.download_url || "", featured: d.featured, status: d.status,
+      image: d.image || "",
     });
   };
 
@@ -89,6 +91,7 @@ export default function DownloadsAdmin() {
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="downloads" label="Miniatura de la descarga" />
         <div className="grid grid-cols-2 gap-3">
           <input placeholder="Categoría (ej. Minecraft)" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />

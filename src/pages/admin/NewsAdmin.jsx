@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
-const empty = { title: "", description: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
+const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
 
 export default function NewsAdmin() {
   const [items, setItems] = useState([]);
@@ -45,6 +46,7 @@ export default function NewsAdmin() {
     setForm({
       title: n.title,
       description: n.description || "",
+      image: n.image || "",
       type: n.type,
       published: n.published,
       featured: n.featured,
@@ -75,6 +77,7 @@ export default function NewsAdmin() {
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="news" label="Miniatura de la novedad" />
         <div className="grid md:grid-cols-2 gap-3">
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm">

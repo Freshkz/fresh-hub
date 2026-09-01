@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSocials, createSocial, updateSocial, deleteSocial } from "../../services/socials";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
-const empty = { name: "", url: "", icon: "", enabled: true, order: 0 };
+const empty = { name: "", url: "", icon: "", icon_url: "", enabled: true, order: 0 };
 
 export default function SocialsAdmin() {
   const [items, setItems] = useState([]);
@@ -38,7 +39,7 @@ export default function SocialsAdmin() {
 
   const startEdit = (s) => {
     setEditingId(s.id);
-    setForm({ name: s.name, url: s.url, icon: s.icon || "", enabled: s.enabled, order: s.order });
+    setForm({ name: s.name, url: s.url, icon: s.icon || "", icon_url: s.icon_url || "", enabled: s.enabled, order: s.order });
   };
 
   const handleDelete = async (id) => {
@@ -65,6 +66,7 @@ export default function SocialsAdmin() {
           <input placeholder="Ícono (Instagram, Github, Discord, TikTok o Steam)" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         </div>
+        <MediaUploadField value={form.icon_url} onChange={(icon_url) => setForm({ ...form, icon_url })} folder="socials" label="Icono personalizado" />
         <input placeholder="URL" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <div className="flex items-center gap-4">

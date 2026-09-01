@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/projects";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
-const empty = { name: "", description: "", technologies: "", status: "active", featured: false };
+const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false };
 
 export default function ProjectsAdmin() {
   const [projects, setProjects] = useState([]);
@@ -47,6 +48,7 @@ export default function ProjectsAdmin() {
     setForm({
       name: p.name,
       description: p.description || "",
+      image: p.image || "",
       technologies: (p.technologies || []).join(", "),
       status: p.status,
       featured: p.featured,
@@ -75,6 +77,7 @@ export default function ProjectsAdmin() {
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="projects" label="Miniatura del proyecto" />
         <input placeholder="Tecnologías (separadas por coma)" value={form.technologies} onChange={(e) => setForm({ ...form, technologies: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         <div className="flex items-center gap-4">

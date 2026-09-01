@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSettings, saveSettings } from "../../services/settings";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const blank = {
   site_name: "",
@@ -109,18 +110,8 @@ export default function SettingsAdmin() {
           />
 
           <div className="grid md:grid-cols-2 gap-3">
-            <input
-              value={form.avatar_url}
-              onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
-              placeholder="URL del avatar/logo"
-              className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              value={form.favicon_url}
-              onChange={(e) => setForm({ ...form, favicon_url: e.target.value })}
-              placeholder="URL del favicon"
-              className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
-            />
+            <MediaUploadField value={form.avatar_url} onChange={(avatar_url) => setForm({ ...form, avatar_url })} folder="branding" label="Avatar / logo" />
+            <MediaUploadField value={form.favicon_url} onChange={(favicon_url) => setForm({ ...form, favicon_url })} folder="branding" label="Favicon" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">

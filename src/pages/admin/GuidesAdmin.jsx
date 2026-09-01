@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createGuide, deleteGuide, fetchGuides, updateGuide } from "../../services/guides";
+import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const initialForm = {
   title: "",
@@ -157,7 +158,7 @@ export default function GuidesAdmin() {
         <textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} placeholder="Resumen breve" className="min-h-[90px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
 
         <div className="grid gap-3 md:grid-cols-2">
-          <input value={form.image} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="URL de imagen" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
+          <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="guides" label="Miniatura de la guía" />
           <input value={form.tags} onChange={(event) => setForm({ ...form, tags: event.target.value })} placeholder="Etiquetas, separadas por coma" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
         </div>
 
@@ -189,7 +190,7 @@ export default function GuidesAdmin() {
                 <input value={part.title || ""} onChange={(event) => updatePart(index, "title", event.target.value)} placeholder={part.type === "quote" ? "Autor o contexto (opcional)" : "Título de sección (opcional)"} className="mb-2 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
                 {part.type === "image" ? (
                   <>
-                    <input value={part.url || ""} onChange={(event) => updatePart(index, "url", event.target.value)} placeholder="URL de la imagen (tierlist, mapa, ejemplo...)" className="mb-2 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
+                    <MediaUploadField value={part.url} onChange={(url) => updatePart(index, "url", url)} folder="guides/content" label="Imagen del bloque" />
                     <input value={part.caption || ""} onChange={(event) => updatePart(index, "caption", event.target.value)} placeholder="Descripción de la imagen" className="w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
                   </>
                 ) : (
