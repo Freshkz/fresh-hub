@@ -6,18 +6,24 @@ const configuredServices = [
     name: "Fresh Hub",
     description: "Centro principal del ecosistema Fresh.",
     type: "supabase",
+    href: "/",
+    thumbnail: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=700&q=80",
   },
   {
     id: "cupons",
     name: "Cupons",
     description: "Cupones, ofertas y novedades.",
     url: import.meta.env.VITE_CUPONS_STATUS_URL || "https://freshkz.github.io/Cupons/",
+    href: import.meta.env.VITE_CUPONS_STATUS_URL || "https://freshkz.github.io/Cupons/",
+    thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80",
   },
   {
     id: "ai-stylist",
     name: "AI Stylist",
     description: "Tu aplicación de estilismo con IA.",
     url: import.meta.env.VITE_AI_STYLIST_STATUS_URL || "https://ai-stylist-v56o.onrender.com/",
+    href: import.meta.env.VITE_AI_STYLIST_STATUS_URL || "https://ai-stylist-v56o.onrender.com/",
+    thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80",
   },
 ];
 

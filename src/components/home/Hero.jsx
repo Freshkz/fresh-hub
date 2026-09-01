@@ -24,6 +24,12 @@ export default function Hero({ settings = {}, systemServices = [] }) {
         animate: { opacity: 1, y: 0, filter: "blur(0px)" },
       };
 
+  const fallbackServices = [
+    { id: "fresh-hub", name: "Fresh Hub", status: "online", detail: "Comprobando...", href: "/", thumbnail: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=700&q=80" },
+    { id: "cupons", name: "Cupons", status: "pending", detail: "Comprobando...", href: "#", thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80" },
+    { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "Comprobando...", href: "#", thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80" },
+  ];
+
   return (
     <section className="relative overflow-hidden pt-24 pb-16 text-center">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -93,44 +99,55 @@ export default function Hero({ settings = {}, systemServices = [] }) {
       <motion.div
         {...animatedProps}
         transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.34, ease: "easeOut" }}
-        className="mx-auto max-w-2xl overflow-hidden rounded-[26px] border border-border bg-surface/85 text-left shadow-[0_30px_60px_-28px_rgba(124,92,255,0.5)] backdrop-blur-sm"
+        className="mx-auto max-w-4xl overflow-hidden rounded-[26px] border border-border bg-surface/85 text-left shadow-[0_30px_60px_-28px_rgba(124,92,255,0.5)] backdrop-blur-sm"
       >
         <div className="flex gap-1.5 border-b border-border bg-surface2 px-3.5 py-2.5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#f87171]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#fbbf24]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#4ade80]" />
         </div>
-        <div className="p-4 md:p-5">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent">Fresh ecosystem</div>
-              <p className="mt-1 font-display text-base font-semibold text-text">Todo lo que estás creando, conectado.</p>
+        <div className="grid gap-5 p-4 md:grid-cols-[1.4fr_0.8fr] md:p-5">
+          <div>
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent">Fresh ecosystem</div>
+                <p className="mt-1 font-display text-base font-semibold text-text">Todo lo que estás creando, conectado.</p>
+              </div>
+              <Link to="/status" className="text-xs text-muted transition-colors hover:text-text">Ver detalles →</Link>
             </div>
-            <Link to="/status" className="text-xs text-muted transition-colors hover:text-text">Ver detalles →</Link>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {(systemServices.length ? systemServices : fallbackServices).map((service) => {
+                const meta = STATUS_META[service.status] || STATUS_META.pending;
+                return (
+                  <a key={service.id} href={service.href || service.url || "#"} target={service.id === "fresh-hub" ? undefined : "_blank"} rel={service.id === "fresh-hub" ? undefined : "noreferrer"} className="group overflow-hidden rounded-2xl border border-border bg-surface2/70 transition-all hover:-translate-y-1 hover:border-accent/40">
+                    <div className="relative h-20 overflow-hidden">
+                      <img src={service.thumbnail} alt="" className="h-full w-full object-cover opacity-70 transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-surface2 via-surface2/20 to-transparent" />
+                      <span className={`absolute right-2 top-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] ${meta.text}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+                        {meta.label}
+                      </span>
+                    </div>
+                    <div className="px-3 pb-3">
+                      <p className="truncate text-xs font-medium text-text">{service.name}</p>
+                      <p className="mt-1 truncate text-[10px] text-muted">{service.detail}</p>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {(systemServices.length ? systemServices : [
-              { id: "fresh-hub", name: "Fresh Hub", status: "online", detail: "Comprobando..." },
-              { id: "cupons", name: "Cupons", status: "pending", detail: "Comprobando..." },
-              { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "Comprobando..." },
-            ]).map((service) => {
-              const meta = STATUS_META[service.status] || STATUS_META.pending;
-              return (
-                <div key={service.id} className="rounded-2xl border border-border bg-surface2/70 px-3 py-3 transition-colors hover:border-accent/30">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 font-mono text-[10px] font-bold text-accent">
-                      {service.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}
-                    </span>
-                    <span className={`flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] ${meta.text}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-                      {meta.label}
-                    </span>
-                  </div>
-                  <p className="truncate text-xs font-medium text-text">{service.name}</p>
-                  <p className="mt-1 truncate text-[10px] text-muted">{service.detail}</p>
-                </div>
-              );
-            })}
+          <div className="rounded-2xl border border-border bg-surface2/70 p-4 font-mono text-[11px] text-muted">
+            <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
+              <span className="uppercase tracking-[0.16em] text-accent">Live overview</span>
+              <span className="text-accent2">● connected</span>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between gap-3"><span>projects</span><span className="text-text">{stats.projects ?? "—"} <span className="text-accent2">active</span></span></div>
+              <div className="flex justify-between gap-3"><span>downloads</span><span className="text-text">{stats.downloads ?? "—"} files</span></div>
+              <div className="flex justify-between gap-3"><span>updates</span><span className="text-text">{stats.news ?? "—"} posts</span></div>
+              <div className="flex justify-between gap-3"><span>status</span><span className="text-accent2">● all systems normal</span></div>
+            </div>
           </div>
         </div>
       </motion.div>
