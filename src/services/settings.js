@@ -70,18 +70,39 @@ function isMissingColumnError(error) {
   return /column .* does not exist|Could not find the '.*' column of 'settings' in the schema cache/i.test(message);
 }
 
+function isKeyValueRows(rows) {
+  return Array.isArray(rows) && rows.length > 0 && rows.every((row) => Object.prototype.hasOwnProperty.call(row, "key") && Object.prototype.hasOwnProperty.call(row, "value"));
+}
+
+function settingsFromKeyValueRows(rows) {
+  return rows.reduce((settings, row) => {
+    if (row.key) settings[row.key] = row.value ?? "";
+    return settings;
+  }, {});
+}
+
 export async function getSettings() {
-  const { data, error } = await supabase.from("settings").select("*").limit(1);
+  const { data, error } = await supabase.from("settings").select("*");
   if (error) throw error;
 
+  if (isKeyValueRows(data)) return normalizeSettings(settingsFromKeyValueRows(data));
   const row = Array.isArray(data) && data.length > 0 ? data[0] : null;
   return normalizeSettings(row || {});
 }
 
 export async function saveSettings(formData) {
   const normalized = normalizeSettings(formData);
-  const { data: existingRows, error: fetchError } = await supabase.from("settings").select("*").limit(1);
+  const { data: existingRows, error: fetchError } = await supabase.from("settings").select("*");
   if (fetchError) throw fetchError;
+
+  if (isKeyValueRows(existingRows) || (Array.isArray(existingRows) && existingRows.length === 0)) {
+    const keyValueRows = Object.entries(normalized)
+      .filter(([key]) => key !== "id")
+      .map(([key, value]) => ({ key, value: value ?? "" }));
+    const { error } = await supabase.from("settings").upsert(keyValueRows, { onConflict: "key" });
+    if (error) throw error;
+    return normalized;
+  }
 
   const existing = Array.isArray(existingRows) && existingRows.length > 0 ? existingRows[0] : null;
   const payloadVariants = buildSettingsPayloadVariants(normalized);
