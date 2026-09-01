@@ -9,7 +9,7 @@ const STATUS_META = {
   pending: { label: "Pending", dot: "bg-muted", text: "text-muted" },
 };
 
-export default function Hero({ settings = {}, systemServices = [] }) {
+export default function Hero({ settings = {}, stats = {}, systemServices = [] }) {
   const siteName = settings.site_name || "FreshKZ";
   const tagline = settings.site_tagline || "Todo lo que hago, en un solo lugar";
   const parts = tagline.split(",");
