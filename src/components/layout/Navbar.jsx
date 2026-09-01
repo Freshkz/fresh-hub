@@ -7,6 +7,7 @@ const links = [
   { label: "Novedades", to: "/news" },
   { label: "Guías", to: "/guides" },
   { label: "Changelog", to: "/changelog" },
+  { label: "Status", to: "/status" },
 ];
 
 export default function Navbar({ settings = {} }) {

@@ -8,6 +8,7 @@ import { getProjects } from "../../services/projects";
 import { getDownloads } from "../../services/downloads";
 import { getNews } from "../../services/news";
 import { getSocials } from "../../services/socials";
+import { getSystemStatus } from "../../services/systemStatus";
 
 function SectionHead({ eyebrow, title, to }) {
   return (
@@ -27,6 +28,7 @@ export default function Home({ settings = {} }) {
   const [latestNews, setLatestNews] = useState([]);
   const [stats, setStats] = useState({});
   const [discordLink, setDiscordLink] = useState(null);
+  const [hubOnline, setHubOnline] = useState(null);
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -50,6 +52,9 @@ export default function Home({ settings = {} }) {
       });
       setDiscordLink(discord || null);
     }).catch(() => {});
+    getSystemStatus().then(({ services }) => {
+      setHubOnline(services.find((service) => service.id === "fresh-hub")?.status === "online");
+    }).catch(() => setHubOnline(false));
   }, []);
 
   return (
@@ -70,6 +75,19 @@ export default function Home({ settings = {} }) {
           </div>
         </section>
       )}
+
+      <section className="pb-8">
+        <Link to="/status" className="group flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4 transition-colors hover:border-accent/35">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-wider text-accent">System status</div>
+            <p className="mt-1 text-sm text-muted">Consulta el estado de Fresh y sus aplicaciones.</p>
+          </div>
+          <span className="flex items-center gap-2 text-sm text-muted group-hover:text-text">
+            <span className={`h-2 w-2 rounded-full ${hubOnline === null ? "bg-muted" : hubOnline ? "bg-emerald-400" : "bg-red-400"}`} />
+            {hubOnline === null ? "Comprobando..." : hubOnline ? "Fresh online" : "Ver estado"} →
+          </span>
+        </Link>
+      </section>
 
       <section className="py-16">
         <SectionHead eyebrow="Featured" title="Proyectos destacados" to="/projects" />

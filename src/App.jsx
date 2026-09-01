@@ -21,6 +21,7 @@ import ChangelogPage from "./pages/Changelog";
 import GuidesPage from "./pages/Guides";
 import GuideDetailPage from "./pages/Guides/Detail";
 import GuidesAdmin from "./pages/admin/GuidesAdmin";
+import StatusPage from "./pages/Status";
 
 export default function App() {
   const settings = useSiteSettings();
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/guides" element={<GuidesPage />} />
           <Route path="/guides/:slug" element={<GuideDetailPage />} />
           <Route path="/changelog" element={<ChangelogPage />} />
+          <Route path="/status" element={<StatusPage />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/downloads/:id" element={<DownloadDetail />} />
           <Route path="/news/:id" element={<NewsDetail />} />
