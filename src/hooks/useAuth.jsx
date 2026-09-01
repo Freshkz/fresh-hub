@@ -13,6 +13,16 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
+    let refreshTimer;
+
+    const refreshSession = async () => {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) {
+        if (isInvalidTokenError(error)) await supabase.auth.signOut();
+        return;
+      }
+      if (mounted && data.session) setSession(data.session);
+    };
 
     const loadSession = async () => {
       try {
@@ -38,9 +48,18 @@ export function AuthProvider({ children }) {
       if (mounted) setSession(nextSession ?? null);
     });
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") refreshSession();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    refreshTimer = window.setInterval(refreshSession, 1000 * 60 * 10);
+
     return () => {
       mounted = false;
       listener.subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.clearInterval(refreshTimer);
     };
   }, []);
 

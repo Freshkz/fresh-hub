@@ -30,6 +30,8 @@ export default function AdminLogin() {
       } else {
         navigate("/admin/dashboard");
       }
+    } catch (err) {
+      setError(err.message || "No se pudo completar la solicitud.");
     } finally {
       setSubmitting(false);
     }
