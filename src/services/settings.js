@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS = {
   ecosystem_fresh_thumbnail: "",
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
+  og_image_url: "",
 };
 
 function normalizeSettings(row = {}) {
@@ -31,6 +32,7 @@ function normalizeSettings(row = {}) {
     ecosystem_fresh_thumbnail: row.ecosystem_fresh_thumbnail || "",
     ecosystem_cupons_thumbnail: row.ecosystem_cupons_thumbnail || "",
     ecosystem_ai_stylist_thumbnail: row.ecosystem_ai_stylist_thumbnail || "",
+    og_image_url: row.og_image_url || row.og_image || "",
   };
 }
 
@@ -48,6 +50,7 @@ function buildSettingsPayloadVariants(normalized) {
       ecosystem_fresh_thumbnail: normalized.ecosystem_fresh_thumbnail,
       ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
       ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
+      og_image_url: normalized.og_image_url,
     },
     {
       name: normalized.site_name,
@@ -61,6 +64,7 @@ function buildSettingsPayloadVariants(normalized) {
       ecosystem_fresh_thumbnail: normalized.ecosystem_fresh_thumbnail,
       ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
       ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
+      og_image_url: normalized.og_image_url,
     },
   ];
 }

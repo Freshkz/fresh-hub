@@ -15,6 +15,7 @@ const blank = {
   ecosystem_fresh_thumbnail: "",
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
+  og_image_url: "",
 };
 
 export default function SettingsAdmin() {
@@ -40,6 +41,7 @@ export default function SettingsAdmin() {
         ecosystem_fresh_thumbnail: settings.ecosystem_fresh_thumbnail || "",
         ecosystem_cupons_thumbnail: settings.ecosystem_cupons_thumbnail || "",
         ecosystem_ai_stylist_thumbnail: settings.ecosystem_ai_stylist_thumbnail || "",
+        og_image_url: settings.og_image_url || "",
       });
     } catch (err) {
       setErrorMsg(err.message || "No se pudo cargar la configuración.");
@@ -100,6 +102,8 @@ export default function SettingsAdmin() {
               className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
             />
           </div>
+
+          <MediaUploadField value={form.og_image_url} onChange={(og_image_url) => setForm({ ...form, og_image_url })} folder="branding" label="Imagen para compartir en redes" />
 
           <textarea
             value={form.site_tagline}

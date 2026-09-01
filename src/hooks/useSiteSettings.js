@@ -35,6 +35,24 @@ export default function useSiteSettings() {
     }
     meta.content = settings.meta_description || "";
 
+    const socialTags = [
+      ["property", "og:title", settings.meta_title || "Fresh Hub"],
+      ["property", "og:description", settings.meta_description || ""],
+      ["property", "og:image", settings.og_image_url || settings.avatar_url || "/favicon.svg"],
+      ["name", "twitter:title", settings.meta_title || "Fresh Hub"],
+      ["name", "twitter:description", settings.meta_description || ""],
+      ["name", "twitter:image", settings.og_image_url || settings.avatar_url || "/favicon.svg"],
+    ];
+    socialTags.forEach(([attribute, key, content]) => {
+      let tag = document.querySelector(`meta[${attribute}="${key}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attribute, key);
+        document.head.appendChild(tag);
+      }
+      tag.content = content;
+    });
+
     let favicon = document.querySelector('link[rel="icon"]');
     if (!favicon) {
       favicon = document.createElement("link");
