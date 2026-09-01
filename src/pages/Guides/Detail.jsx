@@ -48,11 +48,19 @@ export default function GuideDetailPage() {
             ))}
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 space-y-6">
             {guide.parts?.map((part, index) => (
-              <div key={`${part.type}-${index}`} className="rounded-2xl border border-border bg-surface2 p-4 text-sm leading-7 text-muted">
-                {part.content}
-              </div>
+              <section key={`${part.type}-${index}`} className={part.type === "image" ? "overflow-hidden rounded-2xl border border-border bg-surface2" : part.type === "quote" ? "rounded-2xl border border-accent/30 bg-accent/10 p-5 text-base leading-8 text-text" : "rounded-2xl border border-border bg-surface2 p-5 text-sm leading-7 text-muted"}>
+                {part.title && <h2 className="mb-3 font-display text-lg font-semibold text-text">{part.title}</h2>}
+                {part.type === "image" ? (
+                  <>
+                    <img src={part.url} alt={part.caption || part.title || guide.title} className="max-h-[620px] w-full object-contain" />
+                    {part.caption && <p className="p-4 text-sm text-muted">{part.caption}</p>}
+                  </>
+                ) : (
+                  <p className="whitespace-pre-line">{part.content}</p>
+                )}
+              </section>
             ))}
           </div>
 

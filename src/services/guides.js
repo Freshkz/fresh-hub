@@ -110,11 +110,11 @@ export function getGuides() {
   return sortGuides(readLocalGuides().filter((guide) => guide.published !== false));
 }
 
-export async function fetchGuides() {
+export async function fetchGuides({ includeDrafts = false } = {}) {
   try {
     const { data, error } = await supabase.from("guides").select("*").order("created_at", { ascending: false });
     if (!error && Array.isArray(data)) {
-      const normalized = data.map(normalizeGuide).filter((item) => item.published !== false);
+      const normalized = data.map(normalizeGuide).filter((item) => includeDrafts || item.published !== false);
       writeLocalGuides(normalized);
       return sortGuides(normalized);
     }
@@ -122,7 +122,8 @@ export async function fetchGuides() {
     // fallback to local storage / seed below
   }
 
-  return getGuides();
+  const localGuides = readLocalGuides();
+  return sortGuides(includeDrafts ? localGuides : localGuides.filter((guide) => guide.published !== false));
 }
 
 export function getGuideBySlug(slug) {

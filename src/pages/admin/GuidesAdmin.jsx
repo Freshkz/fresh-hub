@@ -9,7 +9,7 @@ const initialForm = {
   image: "",
   tags: "",
   links: "",
-  content: "",
+  parts: [{ type: "text", title: "", content: "" }],
   published: true,
   featured: false,
 };
@@ -35,14 +35,6 @@ function parseLinks(value) {
     .filter((link) => link.url);
 }
 
-function parseContent(value) {
-  return value
-    .split(/\n{2,}|\n/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .map((content) => ({ type: "text", content }));
-}
-
 function slugify(value) {
   return String(value || "guia").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -58,7 +50,7 @@ export default function GuidesAdmin() {
     setLoading(true);
     setErrorMsg("");
     try {
-      setItems(await fetchGuides());
+      setItems(await fetchGuides({ includeDrafts: true }));
     } catch (err) {
       setErrorMsg(err.message || "Error cargando guías");
     } finally {
@@ -80,7 +72,7 @@ export default function GuidesAdmin() {
       image: form.image,
       tags: parseTags(form.tags),
       links: parseLinks(form.links),
-      parts: parseContent(form.content),
+      parts: form.parts.filter((part) => part.content || part.url).map((part) => ({ ...part })),
       published: form.published,
       featured: form.featured,
       createdAt: new Date().toISOString(),
@@ -106,10 +98,28 @@ export default function GuidesAdmin() {
       image: item.image || "",
       tags: (item.tags || []).join(", "),
       links: (item.links || []).map((link) => `${link.label || "Link"} | ${link.url}`).join("\n"),
-      content: (item.parts || []).map((part) => part.content || "").join("\n\n"),
+      parts: (item.parts || []).length ? item.parts : [{ type: "text", title: "", content: "" }],
       published: item.published !== false,
       featured: Boolean(item.featured),
     });
+  };
+
+  const updatePart = (index, key, value) => {
+    setForm((current) => ({
+      ...current,
+      parts: current.parts.map((part, partIndex) => partIndex === index ? { ...part, [key]: value } : part),
+    }));
+  };
+
+  const addPart = (type) => {
+    setForm((current) => ({
+      ...current,
+      parts: [...current.parts, { type, title: "", content: "", url: "", caption: "" }],
+    }));
+  };
+
+  const removePart = (index) => {
+    setForm((current) => ({ ...current, parts: current.parts.filter((_, partIndex) => partIndex !== index) }));
   };
 
   const handleDelete = async (id) => {
@@ -153,7 +163,42 @@ export default function GuidesAdmin() {
 
         <textarea value={form.links} onChange={(event) => setForm({ ...form, links: event.target.value })} placeholder={'Links relacionados\nEtiqueta | https://ejemplo.com'} className="min-h-[120px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
 
-        <textarea value={form.content} onChange={(event) => setForm({ ...form, content: event.target.value })} placeholder="Contenido de la guía. Cada párrafo va en una línea nueva o doble salto." className="min-h-[180px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
+        <section className="rounded-2xl border border-border bg-surface2 p-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-text">Contenido amplio</h2>
+              <p className="mt-1 text-xs text-muted">Crea tantos bloques como necesites: texto, comentarios, tierlists e imágenes.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                ["text", "＋ Texto"],
+                ["image", "＋ Imagen"],
+                ["quote", "＋ Comentario"],
+              ].map(([type, label]) => (
+                <button key={type} type="button" onClick={() => addPart(type)} className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted hover:border-accent/50 hover:text-text">{label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            {form.parts.map((part, index) => (
+              <div key={`${part.type}-${index}`} className="rounded-xl border border-border bg-surface p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">{part.type === "image" ? "Imagen" : part.type === "quote" ? "Comentario destacado" : "Texto"} · bloque {index + 1}</span>
+                  {form.parts.length > 1 && <button type="button" onClick={() => removePart(index)} className="text-xs text-red-400 hover:text-red-300">Quitar</button>}
+                </div>
+                <input value={part.title || ""} onChange={(event) => updatePart(index, "title", event.target.value)} placeholder={part.type === "quote" ? "Autor o contexto (opcional)" : "Título de sección (opcional)"} className="mb-2 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
+                {part.type === "image" ? (
+                  <>
+                    <input value={part.url || ""} onChange={(event) => updatePart(index, "url", event.target.value)} placeholder="URL de la imagen (tierlist, mapa, ejemplo...)" className="mb-2 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
+                    <input value={part.caption || ""} onChange={(event) => updatePart(index, "caption", event.target.value)} placeholder="Descripción de la imagen" className="w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm outline-none focus:border-accent" />
+                  </>
+                ) : (
+                  <textarea value={part.content || ""} onChange={(event) => updatePart(index, "content", event.target.value)} placeholder={part.type === "quote" ? "Escribe tu comentario, consejo o advertencia..." : "Escribe todo lo necesario. Puedes usar varias líneas y párrafos..."} className="min-h-[130px] w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm leading-6 outline-none focus:border-accent" />
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
 
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-muted">
