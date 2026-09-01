@@ -6,7 +6,7 @@ import DownloadCard from "../../components/downloads/DownloadCard";
 import NewsItem from "../../components/news/NewsItem";
 import { getProjects } from "../../services/projects";
 import { getDownloads } from "../../services/downloads";
-import { getNews } from "../../services/news";
+import { getUnifiedNews } from "../../services/newsSources";
 import { getSocials } from "../../services/socials";
 import { getSystemStatus } from "../../services/systemStatus";
 
@@ -40,7 +40,7 @@ export default function Home({ settings = {} }) {
       setLatestDownloads(data.slice(0, 3));
       setStats((current) => ({ ...current, downloads: data.length }));
     }).catch(() => {});
-    getNews().then((data) => {
+    getUnifiedNews().then((data) => {
       setLatestNews(data.filter((n) => n.published).slice(0, 3));
       setStats((current) => ({ ...current, news: data.length }));
     }).catch(() => {});
