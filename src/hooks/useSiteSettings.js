@@ -35,6 +35,14 @@ export default function useSiteSettings() {
     }
     meta.content = settings.meta_description || "";
 
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.name = "robots";
+      document.head.appendChild(robots);
+    }
+    robots.content = "noindex, nofollow, noarchive";
+
     const socialTags = [
       ["property", "og:title", settings.meta_title || "Fresh Hub"],
       ["property", "og:description", settings.meta_description || ""],
