@@ -10,6 +10,9 @@ export const DEFAULT_SETTINGS = {
   meta_title: "Fresh Hub",
   meta_description: "Proyectos, descargas y novedades de Fresh.",
   favicon_url: "",
+  ecosystem_fresh_thumbnail: "",
+  ecosystem_cupons_thumbnail: "",
+  ecosystem_ai_stylist_thumbnail: "",
 };
 
 function normalizeSettings(row = {}) {
@@ -25,6 +28,9 @@ function normalizeSettings(row = {}) {
     meta_title: row.meta_title || row.seo_title || row.site_name || DEFAULT_SETTINGS.meta_title,
     meta_description: row.meta_description || row.seo_description || row.description || DEFAULT_SETTINGS.meta_description,
     favicon_url: row.favicon_url || row.favicon || "",
+    ecosystem_fresh_thumbnail: row.ecosystem_fresh_thumbnail || "",
+    ecosystem_cupons_thumbnail: row.ecosystem_cupons_thumbnail || "",
+    ecosystem_ai_stylist_thumbnail: row.ecosystem_ai_stylist_thumbnail || "",
   };
 }
 
@@ -39,6 +45,9 @@ function buildSettingsPayloadVariants(normalized) {
       primary_color: normalized.primary_color,
       secondary_color: normalized.secondary_color,
       favicon_url: normalized.favicon_url,
+      ecosystem_fresh_thumbnail: normalized.ecosystem_fresh_thumbnail,
+      ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
+      ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
     },
     {
       name: normalized.site_name,
@@ -49,6 +58,9 @@ function buildSettingsPayloadVariants(normalized) {
       primary_color: normalized.primary_color,
       secondary_color: normalized.secondary_color,
       favicon_url: normalized.favicon_url,
+      ecosystem_fresh_thumbnail: normalized.ecosystem_fresh_thumbnail,
+      ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
+      ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
     },
   ];
 }

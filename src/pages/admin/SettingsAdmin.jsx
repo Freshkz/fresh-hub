@@ -12,6 +12,9 @@ const blank = {
   meta_title: "",
   meta_description: "",
   favicon_url: "",
+  ecosystem_fresh_thumbnail: "",
+  ecosystem_cupons_thumbnail: "",
+  ecosystem_ai_stylist_thumbnail: "",
 };
 
 export default function SettingsAdmin() {
@@ -34,6 +37,9 @@ export default function SettingsAdmin() {
         meta_title: settings.meta_title || "",
         meta_description: settings.meta_description || "",
         favicon_url: settings.favicon_url || "",
+        ecosystem_fresh_thumbnail: settings.ecosystem_fresh_thumbnail || "",
+        ecosystem_cupons_thumbnail: settings.ecosystem_cupons_thumbnail || "",
+        ecosystem_ai_stylist_thumbnail: settings.ecosystem_ai_stylist_thumbnail || "",
       });
     } catch (err) {
       setErrorMsg(err.message || "No se pudo cargar la configuración.");
@@ -112,6 +118,16 @@ export default function SettingsAdmin() {
           <div className="grid md:grid-cols-2 gap-3">
             <MediaUploadField value={form.avatar_url} onChange={(avatar_url) => setForm({ ...form, avatar_url })} folder="branding" label="Avatar / logo" />
             <MediaUploadField value={form.favicon_url} onChange={(favicon_url) => setForm({ ...form, favicon_url })} folder="branding" label="Favicon" />
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h2 className="mb-1 text-sm font-semibold">Miniaturas del ecosistema</h2>
+            <p className="mb-4 text-xs text-muted">Estas imágenes aparecen en el bloque Fresh Ecosystem de la home.</p>
+            <div className="space-y-4">
+              <MediaUploadField value={form.ecosystem_fresh_thumbnail} onChange={(ecosystem_fresh_thumbnail) => setForm({ ...form, ecosystem_fresh_thumbnail })} folder="ecosystem" label="Fresh Hub" />
+              <MediaUploadField value={form.ecosystem_cupons_thumbnail} onChange={(ecosystem_cupons_thumbnail) => setForm({ ...form, ecosystem_cupons_thumbnail })} folder="ecosystem" label="Cupons" />
+              <MediaUploadField value={form.ecosystem_ai_stylist_thumbnail} onChange={(ecosystem_ai_stylist_thumbnail) => setForm({ ...form, ecosystem_ai_stylist_thumbnail })} folder="ecosystem" label="AI Stylist" />
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">

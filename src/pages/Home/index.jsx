@@ -53,11 +53,11 @@ export default function Home({ settings = {} }) {
       });
       setDiscordLink(discord || null);
     }).catch(() => {});
-    getSystemStatus().then(({ services }) => {
+    getSystemStatus(settings).then(({ services }) => {
       setSystemServices(services);
       setHubOnline(services.find((service) => service.id === "fresh-hub")?.status === "online");
     }).catch(() => setHubOnline(false));
-  }, []);
+  }, [settings]);
 
   return (
     <div className="max-w-5xl mx-auto px-6">

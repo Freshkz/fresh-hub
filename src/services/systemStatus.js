@@ -1,6 +1,6 @@
 import { supabase } from "./supabaseClient";
 
-const configuredServices = [
+const defaultServices = [
   {
     id: "fresh-hub",
     name: "Fresh Hub",
@@ -26,6 +26,18 @@ const configuredServices = [
     thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80",
   },
 ];
+
+function getConfiguredServices(settings = {}) {
+  const thumbnailKeys = {
+    "fresh-hub": "ecosystem_fresh_thumbnail",
+    cupons: "ecosystem_cupons_thumbnail",
+    "ai-stylist": "ecosystem_ai_stylist_thumbnail",
+  };
+  return defaultServices.map((service) => ({
+    ...service,
+    thumbnail: settings[thumbnailKeys[service.id]] || service.thumbnail,
+  }));
+}
 
 function timeoutSignal(ms) {
   const controller = new AbortController();
@@ -54,8 +66,8 @@ async function checkService(service) {
   }
 }
 
-export async function getSystemStatus() {
+export async function getSystemStatus(settings = {}) {
   const checkedAt = new Date().toISOString();
-  const services = await Promise.all(configuredServices.map(checkService));
+  const services = await Promise.all(getConfiguredServices(settings).map(checkService));
   return { checkedAt, services };
 }

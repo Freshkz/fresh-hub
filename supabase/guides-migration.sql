@@ -19,6 +19,9 @@ alter table public.projects add column if not exists image text;
 alter table public.downloads add column if not exists image text;
 alter table public.news add column if not exists image text;
 alter table public.social_links add column if not exists icon_url text;
+alter table public.settings add column if not exists ecosystem_fresh_thumbnail text;
+alter table public.settings add column if not exists ecosystem_cupons_thumbnail text;
+alter table public.settings add column if not exists ecosystem_ai_stylist_thumbnail text;
 
 alter table public.guides enable row level security;
 
