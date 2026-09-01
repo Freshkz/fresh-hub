@@ -11,13 +11,13 @@ const configuredServices = [
     id: "cupons",
     name: "Cupons",
     description: "Cupones, ofertas y novedades.",
-    url: import.meta.env.VITE_CUPONS_STATUS_URL || "",
+    url: import.meta.env.VITE_CUPONS_STATUS_URL || "https://freshkz.github.io/Cupons/",
   },
   {
     id: "ai-stylist",
     name: "AI Stylist",
     description: "Tu aplicación de estilismo con IA.",
-    url: import.meta.env.VITE_AI_STYLIST_STATUS_URL || "",
+    url: import.meta.env.VITE_AI_STYLIST_STATUS_URL || "https://ai-stylist-v56o.onrender.com/",
   },
 ];
 

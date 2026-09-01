@@ -26,22 +26,19 @@ export default function Home({ settings = {} }) {
   const [featured, setFeatured] = useState([]);
   const [latestDownloads, setLatestDownloads] = useState([]);
   const [latestNews, setLatestNews] = useState([]);
-  const [stats, setStats] = useState({});
   const [discordLink, setDiscordLink] = useState(null);
   const [hubOnline, setHubOnline] = useState(null);
+  const [systemServices, setSystemServices] = useState([]);
 
   useEffect(() => {
     getProjects().then((data) => {
       setFeatured(data.filter((p) => p.featured));
-      setStats((current) => ({ ...current, projects: data.length }));
     }).catch(() => {});
     getDownloads().then((data) => {
       setLatestDownloads(data.slice(0, 3));
-      setStats((current) => ({ ...current, downloads: data.length }));
     }).catch(() => {});
     getNews().then((data) => {
       setLatestNews(data.filter((n) => n.published).slice(0, 3));
-      setStats((current) => ({ ...current, news: data.length }));
     }).catch(() => {});
     getSocials().then((data) => {
       const discord = data.find((social) => {
@@ -53,13 +50,14 @@ export default function Home({ settings = {} }) {
       setDiscordLink(discord || null);
     }).catch(() => {});
     getSystemStatus().then(({ services }) => {
+      setSystemServices(services);
       setHubOnline(services.find((service) => service.id === "fresh-hub")?.status === "online");
     }).catch(() => setHubOnline(false));
   }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-6">
-      <Hero settings={settings} stats={stats} />
+      <Hero settings={settings} systemServices={systemServices} />
 
       {discordLink && (
         <section className="py-8">
