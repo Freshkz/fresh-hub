@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { getProjects } from "../../services/projects";
 import { getDownloads } from "../../services/downloads";
 import { getNews } from "../../services/news";
+import { getGuides } from "../../services/guides";
 import { getSocials } from "../../services/socials";
 
 const links = [
   { to: "/admin/projects", label: "Projects" },
   { to: "/admin/downloads", label: "Downloads" },
   { to: "/admin/news", label: "News" },
+  { to: "/admin/guides", label: "Guides" },
   { to: "/admin/socials", label: "Social Links" },
   { to: "/admin/settings", label: "Settings" },
 ];
@@ -20,9 +22,15 @@ export default function Dashboard() {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    Promise.all([getProjects(), getDownloads(), getNews(), getSocials()])
-      .then(([projects, downloads, news, socials]) => {
-        setStats({ projects: projects.length, downloads: downloads.length, news: news.length, socials: socials.length });
+    Promise.all([getProjects(), getDownloads(), getNews(), getGuides(), getSocials()])
+      .then(([projects, downloads, news, guides, socials]) => {
+        setStats({
+          projects: projects.length,
+          downloads: downloads.length,
+          news: news.length,
+          guides: guides.length,
+          socials: socials.length,
+        });
       })
       .catch((err) => setErrorMsg(err.message || "No se pudieron cargar las estadísticas."));
   }, []);
@@ -36,11 +44,12 @@ export default function Dashboard() {
         </button>
       </div>
       {errorMsg && <p className="text-red-400 text-sm mb-4">{errorMsg}</p>}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         {[
           ["Proyectos", stats?.projects],
           ["Descargas", stats?.downloads],
           ["Novedades", stats?.news],
+          ["Guías", stats?.guides],
           ["Redes", stats?.socials],
         ].map(([label, value]) => (
           <div key={label} className="bg-surface border border-border rounded-xl px-4 py-4">

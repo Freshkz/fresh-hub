@@ -5,6 +5,7 @@ const links = [
   { label: "Descargas", to: "/downloads" },
   { label: "Proyectos", to: "/projects" },
   { label: "Novedades", to: "/news" },
+  { label: "Guías", to: "/guides" },
   { label: "Changelog", to: "/changelog" },
 ];
 

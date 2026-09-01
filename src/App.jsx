@@ -18,6 +18,9 @@ import ProjectDetail from "./pages/Details/ProjectDetail";
 import DownloadDetail from "./pages/Details/DownloadDetail";
 import NewsDetail from "./pages/Details/NewsDetail";
 import ChangelogPage from "./pages/Changelog";
+import GuidesPage from "./pages/Guides";
+import GuideDetailPage from "./pages/Guides/Detail";
+import GuidesAdmin from "./pages/admin/GuidesAdmin";
 
 export default function App() {
   const settings = useSiteSettings();
@@ -31,6 +34,8 @@ export default function App() {
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/news" element={<News />} />
+          <Route path="/guides" element={<GuidesPage />} />
+          <Route path="/guides/:slug" element={<GuideDetailPage />} />
           <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/downloads/:id" element={<DownloadDetail />} />
@@ -40,6 +45,7 @@ export default function App() {
           <Route path="/admin/projects" element={<ProtectedRoute><ProjectsAdmin /></ProtectedRoute>} />
           <Route path="/admin/downloads" element={<ProtectedRoute><DownloadsAdmin /></ProtectedRoute>} />
           <Route path="/admin/news" element={<ProtectedRoute><NewsAdmin /></ProtectedRoute>} />
+          <Route path="/admin/guides" element={<ProtectedRoute><GuidesAdmin /></ProtectedRoute>} />
           <Route path="/admin/socials" element={<ProtectedRoute><SocialsAdmin /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><SettingsAdmin /></ProtectedRoute>} />
         </Routes>
