@@ -1,14 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { createGuide, deleteGuide, fetchGuides, updateGuide } from "../../services/guides";
-import MediaUploadField from "../../components/admin/MediaUploadField";
+import TagSelector from "../../components/ui/TagSelector";
 
 const initialForm = {
   title: "",
   game: "Minecraft",
   summary: "",
   image: "",
-  tags: "",
+  tags: [],
   links: "",
   parts: [{ type: "text", title: "", content: "" }],
   published: true,
@@ -16,7 +13,9 @@ const initialForm = {
 };
 
 function parseTags(value) {
-  return value.split(",").map((item) => item.trim()).filter(Boolean);
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  return String(value).split(",").map((item) => item.trim()).filter(Boolean);
 }
 
 function parseLinks(value) {
@@ -97,7 +96,7 @@ export default function GuidesAdmin() {
       game: item.game || "Minecraft",
       summary: item.summary || "",
       image: item.image || "",
-      tags: (item.tags || []).join(", "),
+      tags: Array.isArray(item.tags) ? item.tags : (item.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
       links: (item.links || []).map((link) => `${link.label || "Link"} | ${link.url}`).join("\n"),
       parts: (item.parts || []).length ? item.parts : [{ type: "text", title: "", content: "" }],
       published: item.published !== false,
@@ -149,7 +148,13 @@ export default function GuidesAdmin() {
             {[
               "Minecraft",
               "CS2",
-              "Stardew Valley",
+              "Valorant",
+              "GTA V",
+              "Roblox",
+              "League of Legends",
+              "FiveM",
+              "Rust",
+              "Discord Bots",
               "General",
             ].map((game) => <option key={game} value={game}>{game}</option>)}
           </select>
@@ -157,10 +162,13 @@ export default function GuidesAdmin() {
 
         <textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} placeholder="Resumen breve" className="min-h-[90px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="guides" label="Miniatura de la guía" />
-          <input value={form.tags} onChange={(event) => setForm({ ...form, tags: event.target.value })} placeholder="Etiquetas, separadas por coma" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
-        </div>
+        <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="guides" label="Miniatura de la guía" />
+
+        <TagSelector
+          selectedTags={form.tags}
+          onChange={(newTags) => setForm({ ...form, tags: newTags })}
+          label="Etiquetas y Categorías de la Guía"
+        />
 
         <textarea value={form.links} onChange={(event) => setForm({ ...form, links: event.target.value })} placeholder={'Links relacionados\nEtiqueta | https://ejemplo.com'} className="min-h-[120px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
 

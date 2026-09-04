@@ -1,6 +1,18 @@
 import { supabase } from "./supabaseClient";
 
-export const guideCategories = ["Minecraft", "CS2", "Stardew Valley", , "Roblox", "Invincible: Guarding the Globe ", "General"];
+export const guideCategories = [
+  "Minecraft",
+  "CS2",
+  "Valorant",
+  "GTA V",
+  "Roblox",
+  "League of Legends",
+  "FiveM",
+  "Rust",
+  "Discord Bots",
+  "Stardew Valley",
+  "General",
+];
 
 export const guidesSeed = [
   {

@@ -79,3 +79,30 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
     xhr.send(file);
   });
 }
+
+/**
+ * Elimina automáticamente el archivo de Cloudflare R2 si la URL proviene del Worker.
+ * @param {string} downloadUrl
+ */
+export async function deleteFromR2(downloadUrl) {
+  if (!downloadUrl) return false;
+  try {
+    const settings = await getSettings().catch(() => ({}));
+    let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
+    if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
+      workerUrl = `https://${workerUrl}`;
+    }
+
+    if (!workerUrl || !downloadUrl.includes("/files/")) return false;
+
+    const fileKey = downloadUrl.split("/files/")[1];
+    if (!fileKey) return false;
+
+    const deleteTargetUrl = `${workerUrl.replace(/\/$/, "")}/files/${fileKey}`;
+    const res = await fetch(deleteTargetUrl, { method: "DELETE" });
+    return res.ok;
+  } catch (err) {
+    console.warn("No se pudo eliminar el archivo de Cloudflare R2:", err.message);
+    return false;
+  }
+}

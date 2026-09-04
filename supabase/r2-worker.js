@@ -2,7 +2,7 @@ export default {
   async fetch(request, env) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PUT, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, X-Upload-Role, X-File-Name",
     };
 
@@ -12,7 +12,7 @@ export default {
 
     const url = new URL(request.url);
 
-    // 1. Descarga / Servir archivos (GET /files/...)
+    // 1. Descargar o Servir archivos (GET /files/...)
     if (request.method === "GET" && url.pathname.startsWith("/files/")) {
       const key = url.pathname.replace("/files/", "");
       const object = await env.MY_BUCKET.get(key);
@@ -43,6 +43,25 @@ export default {
         const publicUrl = `${url.origin}/files/${key}`;
 
         return new Response(JSON.stringify({ success: true, key: key, url: publicUrl, folder: folder }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // 3. Borrado automático de archivos (DELETE /files/...)
+    if (request.method === "DELETE") {
+      try {
+        const key = url.pathname.replace("/files/", "");
+        if (key) {
+          await env.MY_BUCKET.delete(key);
+        }
+        return new Response(JSON.stringify({ success: true, deletedKey: key }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });

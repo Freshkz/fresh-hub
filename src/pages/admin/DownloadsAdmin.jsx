@@ -108,10 +108,17 @@ export default function DownloadsAdmin() {
     });
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Eliminar esta descarga?")) return;
-    try { await deleteDownload(id); load(); }
-    catch (err) { setErrorMsg(err.message || "Error eliminando descarga"); }
+  const handleDelete = async (id, downloadUrl) => {
+    if (!confirm("¿Eliminar esta descarga? (Se borrará también el archivo en R2 si corresponde)")) return;
+    try {
+      if (downloadUrl) {
+        await deleteFromR2(downloadUrl);
+      }
+      await deleteDownload(id);
+      load();
+    } catch (err) {
+      setErrorMsg(err.message || "Error eliminando descarga");
+    }
   };
 
   return (
@@ -215,7 +222,7 @@ export default function DownloadsAdmin() {
               </div>
               <div className="flex gap-3 text-sm">
                 <button onClick={() => startEdit(d)} className="text-muted hover:text-text">Editar</button>
-                <button onClick={() => handleDelete(d.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                <button onClick={() => handleDelete(d.id, d.download_url)} className="text-red-400 hover:text-red-300">Eliminar</button>
               </div>
             </div>
           ))}
