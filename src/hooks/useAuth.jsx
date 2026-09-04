@@ -46,16 +46,25 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  const userRole = useMemo(() => {
+    if (!session) return null;
+    return session.user?.user_metadata?.role || "admin";
+  }, [session]);
+
   const value = useMemo(() => ({
     session,
     loading,
-    isAdmin: Boolean(session),
+    role: userRole,
+    isAdmin: userRole === "admin",
+    isEditor: userRole === "editor",
+    canEdit: Boolean(session),
+    userEmail: session?.user?.email || "",
     signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signOut: () => supabase.auth.signOut(),
     resetPassword: (email) => supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}admin`,
     }),
-  }), [session, loading]);
+  }), [session, loading, userRole]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

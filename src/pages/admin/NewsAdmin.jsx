@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
+import { sendDiscordNotification } from "../../services/discord";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
@@ -26,13 +27,26 @@ export default function NewsAdmin() {
     e.preventDefault();
     setErrorMsg("");
     try {
-      if (editingId) await updateNews(editingId, form);
-      else await createNews({
-        ...form,
-        date: new Date().toISOString(),
-        source: form.source || "admin",
-        sourceId: form.sourceId || null,
-      });
+      if (editingId) {
+        await updateNews(editingId, form);
+      } else {
+        await createNews({
+          ...form,
+          date: new Date().toISOString(),
+          source: form.source || "admin",
+          sourceId: form.sourceId || null,
+        });
+
+        if (form.published) {
+          sendDiscordNotification({
+            title: form.title,
+            description: form.description,
+            imageUrl: form.image,
+            type: "Novedad",
+            color: 0x5865F2,
+          });
+        }
+      }
       setForm(empty);
       setEditingId(null);
       load();

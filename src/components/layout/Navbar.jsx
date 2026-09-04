@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const links = [
   { label: "Inicio", to: "/" },
@@ -13,6 +14,7 @@ const links = [
 export default function Navbar({ settings = {} }) {
   const siteName = settings.site_name || "Fresh";
   const avatarUrl = settings.avatar_url || "";
+  const { canEdit } = useAuth();
 
   return (
     <nav className="sticky top-0 z-20 backdrop-blur-md bg-background/70 border-b border-border">
@@ -33,10 +35,11 @@ export default function Navbar({ settings = {} }) {
           ))}
         </div>
         <Link
-          to="/admin"
-          className="text-xs px-3 py-2 rounded-lg border border-border text-muted hover:text-text hover:border-accent/40 transition-colors"
+          to={canEdit ? "/admin/dashboard" : "/admin"}
+          className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg border border-border text-muted hover:text-text hover:border-accent/40 transition-colors"
         >
-          Admin
+          {canEdit && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+          {canEdit ? "Dashboard" : "Admin"}
         </Link>
       </div>
     </nav>

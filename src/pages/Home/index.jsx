@@ -10,6 +10,8 @@ import { getUnifiedNews } from "../../services/newsSources";
 import { getSocials } from "../../services/socials";
 import { getSystemStatus } from "../../services/systemStatus";
 
+import DiscordWidget from "../../components/social/DiscordWidget";
+
 function SectionHead({ eyebrow, title, to }) {
   return (
     <div className="flex items-baseline justify-between mb-6">
@@ -78,20 +80,9 @@ export default function Home({ settings = {} }) {
         }))}
       />
 
-      {discordLink && (
-        <section className="py-8">
-          <div className="rounded-2xl border border-border bg-surface p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <div className="font-mono text-xs text-accent uppercase tracking-wider mb-2">Comunidad</div>
-              <h2 className="font-display text-xl font-semibold mb-1">Unite al Discord</h2>
-              <p className="text-sm text-muted">Charlas, novedades y comunidad en tiempo real.</p>
-            </div>
-            <a href={discordLink.url} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
-              Entrar al Discord
-            </a>
-          </div>
-        </section>
-      )}
+      <section className="py-6">
+        <DiscordWidget serverId={settings.discord_server_id} discordUrl={discordLink?.url} />
+      </section>
 
       <section className="pb-8">
         <Link to="/status" className="group flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4 transition-colors hover:border-accent/35">

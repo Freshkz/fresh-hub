@@ -7,11 +7,14 @@ export default function News() {
   const [news, setNews] = useState([]);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     getUnifiedNews()
       .then((data) => setNews(data.filter((n) => n.published !== false)))
-      .catch(() => {});
+      .catch((err) => console.error("Error al cargar novedades:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const types = useMemo(() => [...new Set(news.map((item) => item.type).filter(Boolean))], [news]);
@@ -35,10 +38,16 @@ export default function News() {
           {types.map((itemType) => <option key={itemType} value={itemType}>{itemType}</option>)}
         </select>
       </div>
-      <div className="bg-surface border border-border rounded-2xl px-5">
-        {filteredNews.map((n) => <NewsItem key={n.id} item={n} />)}
-      </div>
-      {filteredNews.length === 0 && <p className="text-sm text-muted mt-6">No encontramos novedades con esos filtros.</p>}
+      {loading ? (
+        <p className="text-sm text-muted animate-pulse py-8 text-center">Cargando novedades...</p>
+      ) : (
+        <>
+          <div className="bg-surface border border-border rounded-2xl px-5">
+            {filteredNews.map((n) => <NewsItem key={n.id} item={n} />)}
+          </div>
+          {filteredNews.length === 0 && <p className="text-sm text-muted mt-6">No encontramos novedades con esos filtros.</p>}
+        </>
+      )}
     </div>
   );
 }

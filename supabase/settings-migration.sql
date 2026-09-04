@@ -79,6 +79,26 @@ BEGIN
   ) = false THEN
     ALTER TABLE public.settings ADD COLUMN favicon_url text;
   END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'settings'
+      AND column_name = 'discord_webhook_url'
+  ) = false THEN
+    ALTER TABLE public.settings ADD COLUMN discord_webhook_url text;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'settings'
+      AND column_name = 'discord_server_id'
+  ) = false THEN
+    ALTER TABLE public.settings ADD COLUMN discord_server_id text;
+  END IF;
 END $$;
 
 UPDATE public.settings

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/projects";
+import { sendDiscordNotification } from "../../services/discord";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false };
@@ -33,8 +34,17 @@ export default function ProjectsAdmin() {
       technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean),
     };
     try {
-      if (editingId) await updateProject(editingId, payload);
-      else await createProject(payload);
+      if (editingId) {
+        await updateProject(editingId, payload);
+      } else {
+        const created = await createProject(payload);
+        sendDiscordNotification({
+          title: form.name,
+          description: form.description,
+          imageUrl: form.image,
+          type: "Proyecto",
+        });
+      }
       setForm(empty);
       setEditingId(null);
       load();

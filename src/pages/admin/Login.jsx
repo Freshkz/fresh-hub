@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function AdminLogin() {
@@ -9,8 +9,12 @@ export default function AdminLogin() {
   const [message, setMessage] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { signIn, resetPassword } = useAuth();
+  const { signIn, resetPassword, canEdit, loading } = useAuth();
   const navigate = useNavigate();
+
+  if (!loading && canEdit) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

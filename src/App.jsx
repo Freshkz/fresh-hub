@@ -48,8 +48,8 @@ export default function App() {
           <Route path="/admin/downloads" element={<ProtectedRoute><DownloadsAdmin /></ProtectedRoute>} />
           <Route path="/admin/news" element={<ProtectedRoute><NewsAdmin /></ProtectedRoute>} />
           <Route path="/admin/guides" element={<ProtectedRoute><GuidesAdmin /></ProtectedRoute>} />
-          <Route path="/admin/socials" element={<ProtectedRoute><SocialsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/settings" element={<ProtectedRoute><SettingsAdmin /></ProtectedRoute>} />
+          <Route path="/admin/socials" element={<ProtectedRoute requireAdmin><SocialsAdmin /></ProtectedRoute>} />
+          <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><SettingsAdmin /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer settings={settings} />

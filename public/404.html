@@ -1,18 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FreshKZ Hub</title>
     <script>
-      const path = window.location.pathname
-      const segments = path.split('/').filter(Boolean)
-      const repository = segments.length > 0 ? `/${segments[0]}` : ''
-      sessionStorage.redirect = `${repository}/index.html${window.location.search}${window.location.hash}`
+      const path = window.location.pathname;
+      const segments = path.split('/').filter(Boolean);
+      // For github pages project site, repository is the first segment (e.g., /fresh-hub)
+      const repository = segments.length > 0 ? '/' + segments[0] : '';
+      const redirectUrl = repository + '/?' + encodeURIComponent(path + window.location.search + window.location.hash);
+      sessionStorage.redirect = path + window.location.search + window.location.hash;
+      window.location.replace(repository + '/');
     </script>
-    <meta http-equiv="refresh" content="0;url=/" />
   </head>
   <body>
-    <p>Redirigiendo...</p>
+    <p>Cargando...</p>
   </body>
 </html>

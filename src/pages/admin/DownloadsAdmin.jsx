@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
+import { sendDiscordNotification } from "../../services/discord";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = {
@@ -49,8 +50,19 @@ export default function DownloadsAdmin() {
     e.preventDefault();
     setErrorMsg("");
     try {
-      if (editingId) await updateDownload(editingId, form);
-      else await createDownload({ ...form, release_date: new Date().toISOString() });
+      if (editingId) {
+        await updateDownload(editingId, form);
+      } else {
+        await createDownload({ ...form, release_date: new Date().toISOString() });
+        sendDiscordNotification({
+          title: `${form.name} ${form.version ? `(v${form.version})` : ""}`,
+          description: form.description,
+          url: form.download_url,
+          imageUrl: form.image,
+          type: "Descarga",
+          color: 0x33E6B0,
+        });
+      }
       setForm(empty);
       setEditingId(null);
       load();

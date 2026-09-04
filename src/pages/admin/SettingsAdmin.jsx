@@ -16,6 +16,8 @@ const blank = {
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
   og_image_url: "",
+  discord_webhook_url: "",
+  discord_server_id: "",
 };
 
 export default function SettingsAdmin() {
@@ -42,6 +44,8 @@ export default function SettingsAdmin() {
         ecosystem_cupons_thumbnail: settings.ecosystem_cupons_thumbnail || "",
         ecosystem_ai_stylist_thumbnail: settings.ecosystem_ai_stylist_thumbnail || "",
         og_image_url: settings.og_image_url || "",
+        discord_webhook_url: settings.discord_webhook_url || "",
+        discord_server_id: settings.discord_server_id || "",
       });
     } catch (err) {
       setErrorMsg(err.message || "No se pudo cargar la configuración.");
@@ -122,6 +126,25 @@ export default function SettingsAdmin() {
           <div className="grid md:grid-cols-2 gap-3">
             <MediaUploadField value={form.avatar_url} onChange={(avatar_url) => setForm({ ...form, avatar_url })} folder="branding" label="Avatar / logo" />
             <MediaUploadField value={form.favicon_url} onChange={(favicon_url) => setForm({ ...form, favicon_url })} folder="branding" label="Favicon" />
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h2 className="mb-1 text-sm font-semibold">Integración con Discord</h2>
+            <p className="mb-3 text-xs text-muted">Configura el Webhook para recibir avisos automáticos y el Server ID para mostrar la comunidad.</p>
+            <div className="space-y-3">
+              <input
+                value={form.discord_webhook_url}
+                onChange={(e) => setForm({ ...form, discord_webhook_url: e.target.value })}
+                placeholder="Discord Webhook URL (https://discord.com/api/webhooks/...)"
+                className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+              />
+              <input
+                value={form.discord_server_id}
+                onChange={(e) => setForm({ ...form, discord_server_id: e.target.value })}
+                placeholder="Discord Server ID (ej: 123456789012345678)"
+                className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
           </div>
 
           <div className="border-t border-border pt-4">

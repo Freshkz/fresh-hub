@@ -35,13 +35,14 @@ const GITHUB_REPOSITORIES = [
 ];
 
 function normalizeSourceEntry(entry) {
+  const isDbItem = Boolean(entry.id && !String(entry.id).startsWith("github-"));
   return {
     ...entry,
     id: entry.id || `${entry.source || "source"}-${entry.sourceId || entry.title}`,
     date: entry.date || new Date().toISOString(),
     published: entry.published ?? true,
-    source: entry.source || "github",
-    sourceId: entry.sourceId || `${entry.source || "source"}:${entry.title}`,
+    source: entry.source || (isDbItem ? "admin" : "github"),
+    sourceId: entry.sourceId || (isDbItem ? `db-news:${entry.id}` : `${entry.source || "github"}:${entry.title}`),
     featured: entry.featured ?? false,
     type: entry.type || "update",
   };
@@ -57,6 +58,9 @@ async function fetchReleases(repository) {
     });
     if (!response.ok) throw new Error(`GitHub respondió ${response.status} para ${repository.repo}`);
     return await response.json();
+  } catch (err) {
+    console.warn(`No se pudieron cargar releases de ${repository.repo}:`, err.message);
+    return [];
   } finally {
     window.clearTimeout(timeout);
   }
@@ -90,16 +94,18 @@ export async function getAutomaticNews() {
 }
 
 export async function getUnifiedNews() {
-  const [dbNews, autoNews] = await Promise.all([getNews(), getAutomaticNews()]);
+  const results = await Promise.allSettled([getNews(), getAutomaticNews()]);
+  const dbNews = results[0].status === "fulfilled" ? results[0].value || [] : [];
+  const autoNews = results[1].status === "fulfilled" ? results[1].value || [] : [];
 
-  const combined = [...(dbNews || []), ...autoNews];
+  const combined = [...dbNews, ...autoNews];
   const seen = new Map();
 
   return combined
     .filter(Boolean)
     .map((entry) => normalizeSourceEntry(entry))
     .filter((entry) => {
-      const dedupeKey = entry.sourceId || `${entry.source}:${entry.title}:${entry.date}`;
+      const dedupeKey = entry.sourceId || `${entry.source}:${entry.id}:${entry.title}`;
       if (seen.has(dedupeKey)) return false;
       seen.set(dedupeKey, true);
       return true;
