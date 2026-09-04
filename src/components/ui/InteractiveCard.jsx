@@ -9,6 +9,7 @@ export default function InteractiveCard({
   meta,
   tags = [],
   badge,
+  author,
   className = "",
   gradientClass = "from-accent/18 via-accent/8 to-transparent",
   thumbnail,
@@ -26,7 +27,7 @@ export default function InteractiveCard({
         <article className="interactive-card group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-border bg-surface/80 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] md:p-5">
           <div className={`relative mb-4 h-28 overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br ${gradientClass}`}>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_35%)]" />
-            <div className="absolute inset-x-3 top-3 flex items-center justify-between">
+            <div className="absolute inset-x-3 top-3 flex items-center justify-between z-10">
               {badge ? <Badge featured>{badge}</Badge> : <span className="h-2 w-2 rounded-full bg-accent2 shadow-[0_0_16px_rgba(51,230,176,0.9)]" />}
               {meta ? <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/75">{meta}</span> : null}
             </div>
@@ -41,9 +42,16 @@ export default function InteractiveCard({
 
           {children || (
             <>
-              <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="mb-2 flex items-start justify-between gap-2">
                 <h3 className="line-clamp-2 text-base font-semibold text-text">{title}</h3>
               </div>
+              {author && (
+                <div className="mb-2.5 flex items-center gap-1.5 text-[11px] text-muted">
+                  <span className="px-2 py-0.5 rounded-full bg-surface2 border border-border font-medium text-text/80">
+                    {author.role === "admin" ? "👑 Admin" : author.role === "editor" ? "👤 Colaborador" : `👤 ${author.name || "Usuario"}`}
+                  </span>
+                </div>
+              )}
               {description ? <p className="mb-4 line-clamp-3 text-sm leading-6 text-muted">{description}</p> : null}
               {tags.length > 0 ? (
                 <div className="mt-auto flex flex-wrap gap-2">

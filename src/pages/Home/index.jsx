@@ -11,6 +11,7 @@ import { getSocials } from "../../services/socials";
 import { getSystemStatus } from "../../services/systemStatus";
 
 import DiscordWidget from "../../components/social/DiscordWidget";
+import PrivateAccessModal from "../../components/ui/PrivateAccessModal";
 
 function SectionHead({ eyebrow, title, to }) {
   return (
@@ -33,6 +34,7 @@ export default function Home({ settings = {} }) {
   const [hubOnline, setHubOnline] = useState(null);
   const [systemServices, setSystemServices] = useState([]);
   const [latestReleases, setLatestReleases] = useState({});
+  const [privateAppModal, setPrivateAppModal] = useState(null);
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -74,10 +76,18 @@ export default function Home({ settings = {} }) {
       <Hero
         settings={settings}
         stats={stats}
+        onOpenPrivateApp={(app) => setPrivateAppModal(app)}
         systemServices={systemServices.map((service) => ({
           ...service,
           latestRelease: latestReleases[service.id] || null,
         }))}
+      />
+
+      <PrivateAccessModal
+        isOpen={Boolean(privateAppModal)}
+        onClose={() => setPrivateAppModal(null)}
+        targetApp={privateAppModal}
+        requiredPin={settings.private_apps_pin || "1234"}
       />
 
       <section className="py-6">

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/projects";
 import { sendDiscordNotification } from "../../services/discord";
+import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false };
 
 export default function ProjectsAdmin() {
+  const { userEmail, role } = useAuth();
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -37,7 +39,11 @@ export default function ProjectsAdmin() {
       if (editingId) {
         await updateProject(editingId, payload);
       } else {
-        const created = await createProject(payload);
+        await createProject({
+          ...payload,
+          author_email: userEmail,
+          author_role: role || "admin",
+        });
         sendDiscordNotification({
           title: form.name,
           description: form.description,

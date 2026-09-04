@@ -34,6 +34,15 @@ export default function DiscordWidget({ serverId, discordUrl }) {
   }, [serverId]);
 
   const inviteUrl = data?.instant_invite || discordUrl || "#";
+  const membersList = data?.members || [];
+
+  const prettyCount = membersList.filter(
+    (m) => !m.bot && !/cute helper/i.test(m.username || "")
+  ).length;
+
+  const helperCount = membersList.filter(
+    (m) => m.bot || /cute helper/i.test(m.username || "") || /bot/i.test(m.status || "")
+  ).length;
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-6 transition-all hover:border-accent/30 shadow-sm">
@@ -45,7 +54,7 @@ export default function DiscordWidget({ serverId, discordUrl }) {
             </svg>
           </div>
           <div>
-            <div className="flex items-center gap-2 font-mono text-xs text-accent uppercase tracking-wider mb-1">
+            <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-accent uppercase tracking-wider mb-1">
               <span>Comunidad Discord</span>
               {data?.presence_count !== undefined && (
                 <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-medium lowercase">
@@ -53,12 +62,24 @@ export default function DiscordWidget({ serverId, discordUrl }) {
                   {data.presence_count} online
                 </span>
               )}
+              {membersList.length > 0 && (
+                <>
+                  <span className="bg-[#5865F2]/10 text-[#5865F2] border border-[#5865F2]/20 px-2 py-0.5 rounded-full text-[10px] font-medium">
+                    🌸 {prettyCount > 0 ? prettyCount : membersList.length} Pretty Members
+                  </span>
+                  {helperCount > 0 && (
+                    <span className="bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full text-[10px] font-medium">
+                      🎀 {helperCount} Cute Helpers
+                    </span>
+                  )}
+                </>
+              )}
             </div>
             <h3 className="font-display text-lg font-semibold text-text">
               {data?.name || "Unite a nuestro servidor de Discord"}
             </h3>
             <p className="text-sm text-muted mt-0.5">
-              Charlas, lanzamientos, soporte y novedades de la comunidad en tiempo real.
+              Charlas, lanzamientos, soporte y comunidad en tiempo real.
             </p>
           </div>
         </div>

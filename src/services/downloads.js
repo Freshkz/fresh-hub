@@ -61,3 +61,16 @@ export async function deleteDownload(id) {
   const { error } = await supabase.from("downloads").delete().eq("id", id);
   if (error) throw error;
 }
+
+export async function rateDownload(id, score, currentSum = 0, currentCount = 0) {
+  const newSum = (currentSum || 0) + score;
+  const newCount = (currentCount || 0) + 1;
+  const { data, error } = await supabase
+    .from("downloads")
+    .update({ rating_sum: newSum, rating_count: newCount })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
 import { sendDiscordNotification } from "../../services/discord";
+import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
 
 export default function NewsAdmin() {
+  const { userEmail, role } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -35,6 +37,8 @@ export default function NewsAdmin() {
           date: new Date().toISOString(),
           source: form.source || "admin",
           sourceId: form.sourceId || null,
+          author_email: userEmail,
+          author_role: role || "admin",
         });
 
         if (form.published) {

@@ -9,7 +9,7 @@ const STATUS_META = {
   pending: { label: "Pending", dot: "bg-muted", text: "text-muted" },
 };
 
-export default function Hero({ settings = {}, stats = {}, systemServices = [] }) {
+export default function Hero({ settings = {}, stats = {}, systemServices = [], onOpenPrivateApp }) {
   const siteName = settings.site_name || "FreshKZ";
   const tagline = settings.site_tagline || "Todo lo que hago, en un solo lugar";
   const parts = tagline.split(",");
@@ -26,8 +26,8 @@ export default function Hero({ settings = {}, stats = {}, systemServices = [] })
 
   const fallbackServices = [
     { id: "fresh-hub", name: "Fresh Hub", status: "online", detail: "Comprobando...", href: "/", thumbnail: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=700&q=80" },
-    { id: "cupons", name: "Cupons", status: "pending", detail: "Comprobando...", href: "#", thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80" },
-    { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "Comprobando...", href: "#", thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80" },
+    { id: "cupons", name: "Cupons", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80", isPrivate: true },
+    { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80", isPrivate: true },
   ];
 
   return (
@@ -118,12 +118,35 @@ export default function Hero({ settings = {}, stats = {}, systemServices = [] })
             <div className="grid gap-2 sm:grid-cols-3">
               {(systemServices.length ? systemServices : fallbackServices).map((service) => {
                 const meta = STATUS_META[service.status] || STATUS_META.pending;
+                const isPrivate = service.isPrivate || service.id === "cupons" || service.id === "ai-stylist";
+
+                const handleClick = (e) => {
+                  if (isPrivate && onOpenPrivateApp) {
+                    e.preventDefault();
+                    onOpenPrivateApp({
+                      name: service.name,
+                      url: service.href || service.url || "#",
+                    });
+                  }
+                };
+
                 return (
-                  <a key={service.id} href={service.href || service.url || "#"} target={service.id === "fresh-hub" ? undefined : "_blank"} rel={service.id === "fresh-hub" ? undefined : "noreferrer"} className="group overflow-hidden rounded-2xl border border-border bg-surface2/70 transition-all hover:-translate-y-1 hover:border-accent/40">
+                  <a
+                    key={service.id}
+                    href={service.href || service.url || "#"}
+                    onClick={handleClick}
+                    target={service.id === "fresh-hub" ? undefined : "_blank"}
+                    rel={service.id === "fresh-hub" ? undefined : "noreferrer"}
+                    className="group overflow-hidden rounded-2xl border border-border bg-surface2/70 transition-all hover:-translate-y-1 hover:border-accent/40"
+                  >
                     <div className="relative h-20 overflow-hidden">
                       <img src={service.thumbnail} alt="" className="h-full w-full object-cover opacity-70 transition-transform duration-300 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-surface2 via-surface2/20 to-transparent" />
-                      {service.latestRelease && (
+                      {isPrivate ? (
+                        <span className="absolute left-2 top-2 rounded-full border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 font-mono text-[9px] font-semibold text-amber-300 backdrop-blur-md">
+                          🔒 Privada
+                        </span>
+                      ) : service.latestRelease && (
                         <span title={service.latestRelease.title} className="absolute left-2 top-2 rounded-full border border-accent/70 bg-accent px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_0_16px_rgba(124,92,255,0.55)]">
                           News
                         </span>
@@ -134,8 +157,11 @@ export default function Hero({ settings = {}, stats = {}, systemServices = [] })
                       </span>
                     </div>
                     <div className="px-3 pb-3">
-                      <p className="truncate text-xs font-medium text-text">{service.name}</p>
-                      <p className="mt-1 truncate text-[10px] text-muted">{service.detail}</p>
+                      <p className="truncate text-xs font-medium text-text flex items-center justify-between">
+                        <span>{service.name}</span>
+                        {isPrivate && <span className="text-[10px] text-amber-400 font-mono">PIN</span>}
+                      </p>
+                      <p className="mt-1 truncate text-[10px] text-muted">{isPrivate ? "Acceso Privado / Exclusivo" : service.detail}</p>
                     </div>
                   </a>
                 );

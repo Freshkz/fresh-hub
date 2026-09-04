@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
 import { sendDiscordNotification } from "../../services/discord";
+import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const empty = {
@@ -10,6 +11,7 @@ const empty = {
 };
 
 export default function DownloadsAdmin() {
+  const { userEmail, role } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -53,7 +55,12 @@ export default function DownloadsAdmin() {
       if (editingId) {
         await updateDownload(editingId, form);
       } else {
-        await createDownload({ ...form, release_date: new Date().toISOString() });
+        await createDownload({
+          ...form,
+          release_date: new Date().toISOString(),
+          author_email: userEmail,
+          author_role: role || "admin",
+        });
         sendDiscordNotification({
           title: `${form.name} ${form.version ? `(v${form.version})` : ""}`,
           description: form.description,

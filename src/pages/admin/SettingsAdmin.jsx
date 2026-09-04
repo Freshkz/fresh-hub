@@ -18,6 +18,7 @@ const blank = {
   og_image_url: "",
   discord_webhook_url: "",
   discord_server_id: "",
+  private_apps_pin: "1234",
 };
 
 export default function SettingsAdmin() {
@@ -46,6 +47,7 @@ export default function SettingsAdmin() {
         og_image_url: settings.og_image_url || "",
         discord_webhook_url: settings.discord_webhook_url || "",
         discord_server_id: settings.discord_server_id || "",
+        private_apps_pin: settings.private_apps_pin || "1234",
       });
     } catch (err) {
       setErrorMsg(err.message || "No se pudo cargar la configuración.");
@@ -126,6 +128,18 @@ export default function SettingsAdmin() {
           <div className="grid md:grid-cols-2 gap-3">
             <MediaUploadField value={form.avatar_url} onChange={(avatar_url) => setForm({ ...form, avatar_url })} folder="branding" label="Avatar / logo" />
             <MediaUploadField value={form.favicon_url} onChange={(favicon_url) => setForm({ ...form, favicon_url })} folder="branding" label="Favicon" />
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h2 className="mb-1 text-sm font-semibold">Seguridad y Aplicaciones Privadas</h2>
+            <p className="mb-3 text-xs text-muted">Define la clave secreta o PIN para acceder a Cupons y AI Stylist.</p>
+            <input
+              type="password"
+              value={form.private_apps_pin}
+              onChange={(e) => setForm({ ...form, private_apps_pin: e.target.value })}
+              placeholder="PIN Secreto (ej: 1234)"
+              className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+            />
           </div>
 
           <div className="border-t border-border pt-4">
