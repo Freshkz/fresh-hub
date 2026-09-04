@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
+import { uploadToR2 } from "../../services/r2Upload";
 import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
@@ -11,13 +12,14 @@ const empty = {
 };
 
 export default function DownloadsAdmin() {
-  const { userEmail, role } = useAuth();
+  const { userEmail, role, isAdmin } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const load = async () => {
     setLoading(true);
@@ -29,21 +31,39 @@ export default function DownloadsAdmin() {
 
   useEffect(() => { load(); }, []);
 
-  const handleFileUpload = async (event) => {
+  const handleFileUploadR2 = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
+    setUploadProgress(0);
     setErrorMsg("");
 
     try {
-      const publicUrl = await uploadDownloadFile(file);
-      setForm((current) => ({ ...current, download_url: publicUrl }));
-      setErrorMsg("");
+      const publicUrl = await uploadToR2({
+        file,
+        role: role || "editor",
+        onProgress: (percent) => setUploadProgress(percent),
+      });
+
+      // Calcular tamaño legible automáticamente
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      const sizeGb = (file.size / (1024 * 1024 * 1024)).toFixed(2);
+      const formattedSize = file.size > 1024 * 1024 * 1024 ? `${sizeGb} GB` : `${sizeMb} MB`;
+      const extension = file.name.split(".").pop()?.toUpperCase() || "ZIP";
+
+      setForm((current) => ({
+        ...current,
+        download_url: publicUrl,
+        size: current.size || formattedSize,
+        format: current.format || extension,
+        name: current.name || file.name.replace(/\.[^/.]+$/, ""),
+      }));
     } catch (err) {
-      setErrorMsg(err.message || "No se pudo subir el archivo.");
+      setErrorMsg(err.message || "No se pudo subir a Cloudflare R2.");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
       event.target.value = "";
     }
   };
@@ -122,24 +142,42 @@ export default function DownloadsAdmin() {
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-xs uppercase tracking-[0.18em] text-muted">Archivo de descarga</label>
-          <div className="flex items-center gap-3">
-            <input type="file" onChange={handleFileUpload} disabled={uploading}
-              className="block w-full text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-2 file:text-white file:font-medium" />
-            {uploading && <span className="text-xs text-muted">Subiendo…</span>}
+        <div className="space-y-2 border-t border-border pt-3">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs uppercase tracking-[0.18em] text-accent font-semibold">
+              Subida directa a Cloudflare R2 🚀
+            </label>
+            <span className="text-[11px] text-muted font-mono">
+              Límite: {isAdmin ? "5 GB (Admin)" : "1 GB (Editor)"}
+            </span>
           </div>
-          <p className="text-[11px] text-muted">
-            Si el bucket <span className="font-mono">downloads</span> no existe, créalo como público en Supabase Storage. También podés pegar la URL manualmente si ya tenés un archivo alojado.
-          </p>
+
+          <input
+            type="file"
+            onChange={handleFileUploadR2}
+            disabled={uploading}
+            className="block w-full text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-2 file:text-white file:font-medium"
+          />
+
+          {uploading && (
+            <div className="space-y-1 py-1">
+              <div className="w-full bg-surface2 rounded-full h-2 overflow-hidden border border-border">
+                <div
+                  className="bg-accent h-full transition-all duration-200"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-accent font-mono text-center">Subiendo a R2: {uploadProgress}%</p>
+            </div>
+          )}
         </div>
 
-        <input placeholder="URL de descarga (link a Cloudflare R2 u otro)" value={form.download_url} onChange={(e) => setForm({ ...form, download_url: e.target.value })}
-          className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        <input placeholder="URL de descarga (o link externo como Drive/Mediafire)" value={form.download_url} onChange={(e) => setForm({ ...form, download_url: e.target.value })}
+          className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent font-mono text-xs" />
 
         {form.download_url && (
           <a href={form.download_url} target="_blank" rel="noreferrer" className="inline-block text-xs text-accent underline">
-            Ver archivo actual
+            Ver archivo en R2 / externo →
           </a>
         )}
 

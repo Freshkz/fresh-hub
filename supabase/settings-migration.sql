@@ -99,6 +99,36 @@ BEGIN
   ) = false THEN
     ALTER TABLE public.settings ADD COLUMN discord_server_id text;
   END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'settings'
+      AND column_name = 'r2_worker_url'
+  ) = false THEN
+    ALTER TABLE public.settings ADD COLUMN r2_worker_url text;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'settings'
+      AND column_name = 'r2_admin_limit_gb'
+  ) = false THEN
+    ALTER TABLE public.settings ADD COLUMN r2_admin_limit_gb numeric DEFAULT 5;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'settings'
+      AND column_name = 'r2_editor_limit_gb'
+  ) = false THEN
+    ALTER TABLE public.settings ADD COLUMN r2_editor_limit_gb numeric DEFAULT 1;
+  END IF;
 END $$;
 
 UPDATE public.settings

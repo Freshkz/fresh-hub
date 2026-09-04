@@ -14,6 +14,12 @@ export const DEFAULT_SETTINGS = {
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
   og_image_url: "",
+  discord_webhook_url: "",
+  discord_server_id: "",
+  private_apps_pin: "1234",
+  r2_worker_url: "",
+  r2_admin_limit_gb: 5,
+  r2_editor_limit_gb: 1,
 };
 
 function normalizeSettings(row = {}) {
@@ -33,6 +39,12 @@ function normalizeSettings(row = {}) {
     ecosystem_cupons_thumbnail: row.ecosystem_cupons_thumbnail || "",
     ecosystem_ai_stylist_thumbnail: row.ecosystem_ai_stylist_thumbnail || "",
     og_image_url: row.og_image_url || row.og_image || "",
+    discord_webhook_url: row.discord_webhook_url || "",
+    discord_server_id: row.discord_server_id || "",
+    private_apps_pin: row.private_apps_pin || "1234",
+    r2_worker_url: row.r2_worker_url || "",
+    r2_admin_limit_gb: row.r2_admin_limit_gb ?? 5,
+    r2_editor_limit_gb: row.r2_editor_limit_gb ?? 1,
   };
 }
 
@@ -51,20 +63,12 @@ function buildSettingsPayloadVariants(normalized) {
       ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
       ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
       og_image_url: normalized.og_image_url,
-    },
-    {
-      name: normalized.site_name,
-      tagline: normalized.site_tagline,
-      seo_title: normalized.meta_title,
-      seo_description: normalized.meta_description,
-      avatar_url: normalized.avatar_url,
-      primary_color: normalized.primary_color,
-      secondary_color: normalized.secondary_color,
-      favicon_url: normalized.favicon_url,
-      ecosystem_fresh_thumbnail: normalized.ecosystem_fresh_thumbnail,
-      ecosystem_cupons_thumbnail: normalized.ecosystem_cupons_thumbnail,
-      ecosystem_ai_stylist_thumbnail: normalized.ecosystem_ai_stylist_thumbnail,
-      og_image_url: normalized.og_image_url,
+      discord_webhook_url: normalized.discord_webhook_url,
+      discord_server_id: normalized.discord_server_id,
+      private_apps_pin: normalized.private_apps_pin,
+      r2_worker_url: normalized.r2_worker_url,
+      r2_admin_limit_gb: normalized.r2_admin_limit_gb,
+      r2_editor_limit_gb: normalized.r2_editor_limit_gb,
     },
   ];
 }

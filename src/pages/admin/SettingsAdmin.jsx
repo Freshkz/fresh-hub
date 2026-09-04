@@ -19,6 +19,9 @@ const blank = {
   discord_webhook_url: "",
   discord_server_id: "",
   private_apps_pin: "1234",
+  r2_worker_url: "",
+  r2_admin_limit_gb: 5,
+  r2_editor_limit_gb: 1,
 };
 
 export default function SettingsAdmin() {
@@ -48,6 +51,9 @@ export default function SettingsAdmin() {
         discord_webhook_url: settings.discord_webhook_url || "",
         discord_server_id: settings.discord_server_id || "",
         private_apps_pin: settings.private_apps_pin || "1234",
+        r2_worker_url: settings.r2_worker_url || "",
+        r2_admin_limit_gb: settings.r2_admin_limit_gb ?? 5,
+        r2_editor_limit_gb: settings.r2_editor_limit_gb ?? 1,
       });
     } catch (err) {
       setErrorMsg(err.message || "No se pudo cargar la configuración.");
@@ -128,6 +134,41 @@ export default function SettingsAdmin() {
           <div className="grid md:grid-cols-2 gap-3">
             <MediaUploadField value={form.avatar_url} onChange={(avatar_url) => setForm({ ...form, avatar_url })} folder="branding" label="Avatar / logo" />
             <MediaUploadField value={form.favicon_url} onChange={(favicon_url) => setForm({ ...form, favicon_url })} folder="branding" label="Favicon" />
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h2 className="mb-1 text-sm font-semibold">Almacenamiento Cloudflare R2 y Límites</h2>
+            <p className="mb-3 text-xs text-muted">Configura la URL de tu Cloudflare Worker y ajusta los límites de tamaño máximo para ti y tus amigos.</p>
+            <div className="space-y-3">
+              <input
+                value={form.r2_worker_url}
+                onChange={(e) => setForm({ ...form, r2_worker_url: e.target.value })}
+                placeholder="Cloudflare Worker URL (ej: https://fresh-hub-r2-worker.subdominio.workers.dev)"
+                className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm font-mono"
+              />
+              <div className="grid md:grid-cols-2 gap-3">
+                <label className="block text-xs text-muted">
+                  Límite Admin (GB):
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={form.r2_admin_limit_gb}
+                    onChange={(e) => setForm({ ...form, r2_admin_limit_gb: parseFloat(e.target.value) || 5 })}
+                    className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  />
+                </label>
+                <label className="block text-xs text-muted">
+                  Límite Editor/Amigo (GB):
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={form.r2_editor_limit_gb}
+                    onChange={(e) => setForm({ ...form, r2_editor_limit_gb: parseFloat(e.target.value) || 1 })}
+                    className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="border-t border-border pt-4">
