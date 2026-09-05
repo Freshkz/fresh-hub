@@ -150,7 +150,7 @@ export default function GuidesAdmin() {
           <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Título de la guía" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" required />
           <select value={form.game} onChange={(event) => setForm({ ...form, game: event.target.value })} className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent">
             {[
-              "Minecraft",
+              "Invincible: Guarding the Globe",
               "CS2",
               "Valorant",
               "GTA V",
@@ -158,7 +158,7 @@ export default function GuidesAdmin() {
               "League of Legends",
               "FiveM",
               "Rust",
-              "Discord Bots",
+              "Minecraft",
               "General",
             ].map((game) => <option key={game} value={game}>{game}</option>)}
           </select>
