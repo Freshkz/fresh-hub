@@ -39,13 +39,27 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
     );
   }
 
+  // Paso 1: pedirle al Worker una URL prefirmada (esta petición es liviana, no lleva el archivo,
+  // así que nunca choca con el límite de tamaño del proxy de Cloudflare).
+  const presignUrl = new URL(`${workerUrl.replace(/\/$/, "")}/presign`);
+  presignUrl.searchParams.set("filename", file.name);
+  presignUrl.searchParams.set("role", role);
+
+  const presignRes = await fetch(presignUrl.toString());
+  if (!presignRes.ok) {
+    const text = await presignRes.text().catch(() => "");
+    throw new Error(`No se pudo generar la URL de subida (Status ${presignRes.status}): ${text}`);
+  }
+  const { uploadUrl, publicUrl, error: presignError } = await presignRes.json();
+  if (presignError) throw new Error(presignError);
+  if (!uploadUrl || !publicUrl) throw new Error("Respuesta de /presign incompleta.");
+
+  // Paso 2: subir el archivo DIRECTO a R2 con la URL prefirmada, sin pasar por el proxy del Worker.
+  // Importante: no seteamos Content-Type acá porque no fue incluido al firmar la URL — si lo
+  // mandamos, R2 rechaza la subida por firma inválida.
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", workerUrl, true);
-
-    xhr.setRequestHeader("X-Upload-Role", role);
-    xhr.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
-    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    xhr.open("PUT", uploadUrl, true);
 
     if (xhr.upload && onProgress) {
       xhr.upload.onprogress = (event) => {
@@ -58,22 +72,13 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          if (response.url) {
-            resolve(response.url);
-          } else {
-            reject(new Error("Respuesta de Cloudflare R2 sin URL válida."));
-          }
-        } catch {
-          reject(new Error("No se pudo interpretar la respuesta del Worker."));
-        }
+        resolve(publicUrl);
       } else {
         reject(new Error(`Error de subida a R2 (Status ${xhr.status}): ${xhr.responseText}`));
       }
     };
 
-    xhr.onerror = () => reject(new Error("Fallo de red al conectar con Cloudflare Worker."));
+    xhr.onerror = () => reject(new Error("Fallo de red al subir el archivo directo a R2."));
     xhr.onabort = () => reject(new Error("Subida cancelada."));
 
     xhr.send(file);

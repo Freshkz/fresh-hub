@@ -1,0 +1,14 @@
+{
+  "name": "freshkz-r2-worker",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20"
+  }
+}
