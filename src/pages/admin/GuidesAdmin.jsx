@@ -5,6 +5,8 @@ import GameTagSelect from "../../components/ui/GameTagSelect";
 import CategoryToggle from "../../components/ui/CategoryToggle";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
+import GuideCard from "../../components/guides/GuideCard";
+import GuideContent from "../../components/guides/GuideContent";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
 
 const initialForm = {
@@ -53,6 +55,8 @@ export default function GuidesAdmin() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [showFullPreview, setShowFullPreview] = useState(false);
+  const [showMiniPreview, setShowMiniPreview] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -146,8 +150,23 @@ export default function GuidesAdmin() {
     }
   };
 
+  const previewGuide = {
+    title: form.title || "Título de la guía",
+    summary: form.summary || "El resumen breve va a aparecer acá.",
+    image: form.image || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=900&q=80",
+    tags: form.tags.length ? form.tags : ["General"],
+    categories: form.categories,
+    slug: "preview",
+  };
+
+  const fullPreviewGuide = {
+    ...previewGuide,
+    parts: form.parts.filter((part) => part.content || part.url || part.title),
+    links: parseLinks(form.links),
+  };
+
   return (
-    <div className="mx-auto max-w-4xl px-6 py-16">
+    <div className="mx-auto max-w-6xl px-6 py-16">
       <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="mt-2 font-display text-xl font-semibold">Guías — Admin</h1>
 
@@ -155,9 +174,8 @@ export default function GuidesAdmin() {
         <p className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">{errorMsg}</p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-[28px] border border-border bg-surface p-5">
-
-
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_240px] lg:items-start">
+      <form onSubmit={handleSubmit} className="space-y-4 rounded-[28px] border border-border bg-surface p-5">
 
         <div className="grid gap-3 md:grid-cols-2">
           <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Título de la guía" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" required />
@@ -248,6 +266,31 @@ export default function GuidesAdmin() {
         </div>
       </form>
 
+      <div className="lg:sticky lg:top-6">
+        <button
+          type="button"
+          onClick={() => setShowMiniPreview((current) => !current)}
+          className="w-full rounded-xl border border-border px-3 py-2 text-xs text-muted hover:border-accent/50 hover:text-text"
+        >
+          {showMiniPreview ? "Ocultar vista previa" : "👁 Mostrar vista previa"}
+        </button>
+
+        {showMiniPreview && (
+          <div className="pointer-events-none mx-auto mt-3 max-w-[200px]">
+            <GuideCard guide={previewGuide} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowFullPreview(true)}
+          className="mt-3 w-full rounded-xl border border-border px-3 py-2 text-xs text-muted hover:border-accent/50 hover:text-text"
+        >
+          Ver guía completa (como quedará publicada)
+        </button>
+      </div>
+      </div>
+
       {loading ? (
         <p className="mt-6 text-sm text-muted">Cargando guías…</p>
       ) : (
@@ -267,6 +310,21 @@ export default function GuidesAdmin() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showFullPreview && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm">
+          <div className="mx-auto max-w-4xl px-6 py-10">
+            <button
+              type="button"
+              onClick={() => setShowFullPreview(false)}
+              className="mb-4 rounded-xl border border-border bg-surface px-4 py-2 text-sm text-text hover:border-accent/50"
+            >
+              ✕ Cerrar vista previa
+            </button>
+            <GuideContent guide={fullPreviewGuide} />
+          </div>
         </div>
       )}
 
