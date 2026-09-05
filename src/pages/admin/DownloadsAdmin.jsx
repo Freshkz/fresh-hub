@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
-import { uploadToR2 } from "../../services/r2Upload";
+import { uploadToR2, deleteFromR2 } from "../../services/r2Upload";
 import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
@@ -201,8 +201,8 @@ export default function DownloadsAdmin() {
           </label>
         </div>
         <div className="flex gap-2">
-          <button type="submit" className="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg">
-            {editingId ? "Guardar cambios" : "Crear descarga"}
+          <button type="submit" disabled={uploading} className="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            {uploading ? "Subiendo archivo..." : editingId ? "Guardar cambios" : "Crear descarga"}
           </button>
           {editingId && (
             <button type="button" onClick={() => { setEditingId(null); setForm(empty); }} className="text-sm text-muted">
