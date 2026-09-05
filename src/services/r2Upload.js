@@ -91,23 +91,26 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
  */
 export async function deleteFromR2(downloadUrl) {
   if (!downloadUrl) return false;
-  try {
-    const settings = await getSettings().catch(() => ({}));
-    let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
-    if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
-      workerUrl = `https://${workerUrl}`;
-    }
 
-    if (!workerUrl || !downloadUrl.includes("/files/")) return false;
-
-    const fileKey = downloadUrl.split("/files/")[1];
-    if (!fileKey) return false;
-
-    const deleteTargetUrl = `${workerUrl.replace(/\/$/, "")}/files/${fileKey}`;
-    const res = await fetch(deleteTargetUrl, { method: "DELETE" });
-    return res.ok;
-  } catch (err) {
-    console.warn("No se pudo eliminar el archivo de Cloudflare R2:", err.message);
-    return false;
+  const settings = await getSettings().catch(() => ({}));
+  let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
+  if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
+    workerUrl = `https://${workerUrl}`;
   }
+
+  if (!workerUrl) throw new Error("URL de Worker no configurada en Settings.");
+  if (!downloadUrl.includes("/files/")) return false; // no es un archivo de R2 (ej. link externo)
+
+  const fileKey = downloadUrl.split("/files/")[1];
+  if (!fileKey) throw new Error("No se pudo extraer la key del archivo desde la URL guardada.");
+
+  const deleteTargetUrl = `${workerUrl.replace(/\/$/, "")}/files/${fileKey}`;
+  const res = await fetch(deleteTargetUrl, { method: "DELETE" });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`El Worker rechazó el borrado (Status ${res.status}): ${text}`);
+  }
+
+  return true;
 }

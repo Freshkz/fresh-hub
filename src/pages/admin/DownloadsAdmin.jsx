@@ -5,6 +5,7 @@ import { uploadToR2, deleteFromR2 } from "../../services/r2Upload";
 import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 const empty = {
   name: "", description: "", category: "", version: "", size: "",
@@ -20,6 +21,7 @@ export default function DownloadsAdmin() {
   const [errorMsg, setErrorMsg] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -108,8 +110,15 @@ export default function DownloadsAdmin() {
     });
   };
 
-  const handleDelete = async (id, downloadUrl) => {
-    if (!confirm("¿Eliminar esta descarga? (Se borrará también el archivo en R2 si corresponde)")) return;
+  const handleDelete = (id, downloadUrl) => {
+    setPendingDelete({ id, downloadUrl });
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const { id, downloadUrl } = pendingDelete;
+    setPendingDelete(null);
+    setErrorMsg("");
     try {
       if (downloadUrl) {
         await deleteFromR2(downloadUrl);
@@ -228,6 +237,15 @@ export default function DownloadsAdmin() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!pendingDelete}
+        title="¿Eliminar esta descarga?"
+        message="Se va a borrar también el archivo en Cloudflare R2 si corresponde. Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
