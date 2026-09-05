@@ -1,4 +1,26 @@
 export const changelogEntries = [
+
+  {
+    version: "v1.4.3",
+    date: "2026-09-04",
+    title: "Subida de archivos grandes a R2 y fixes de Admin",
+    summary: "Migración completa a subida directa a Cloudflare R2 con URLs prefirmadas, sin límite de tamaño del proxy, más varias correcciones en el panel de Admin.",
+    added: [
+      "Subida de archivos a R2 vía URLs prefirmadas (sin límite de 100/200 MB del proxy de Cloudflare)",
+      "Worker de Cloudflare con endpoint /presign para firmar subidas directas a R2",
+      "Modal de confirmación estilizado para eliminar descargas, reemplazando el cartel nativo del navegador",
+    ],
+    fixed: [
+      "Eliminación de archivos en R2 ya no falla en silencio: ahora muestra el motivo exacto si algo sale mal",
+      "Se corrigió un conflicto de nombres que hacía que /admin/dashboard mostrara el panel de Downloads",
+      "El botón de crear descarga ya no se puede tocar mientras el archivo todavía se está subiendo",
+    ],
+    changed: [
+      "CORS configurado en el bucket de R2 para permitir subidas directas desde el navegador",
+    ],
+  },
+
+
   {
     version: "v1.4.2",
     date: "2026-08-31",
