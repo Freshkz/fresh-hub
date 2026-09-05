@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SocialGrid from "../social/SocialGrid";
-
+import { useAuth } from "../../hooks/useAuth";
 const STATUS_META = {
   online: { label: "Online", dot: "bg-emerald-400", text: "text-emerald-300" },
   degraded: { label: "Degraded", dot: "bg-amber-400", text: "text-amber-300" },
@@ -10,6 +10,7 @@ const STATUS_META = {
 };
 
 export default function Hero({ settings = {}, stats = {}, systemServices = [], onOpenPrivateApp }) {
+  const { isAdmin } = useAuth();
   const siteName = settings.site_name || "FreshKZ";
   const tagline = settings.site_tagline || "Todo lo que hago, en un solo lugar";
   const parts = tagline.split(",");
