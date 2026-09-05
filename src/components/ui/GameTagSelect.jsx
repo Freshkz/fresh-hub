@@ -59,7 +59,11 @@ export default function GameTagSelect({ selectedTags = [], onChange, options, la
 
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={closeModal}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+          onClick={closeModal}
+        >
           <div
             className="w-full max-w-sm rounded-2xl border border-border bg-surface p-5"
             onClick={(event) => event.stopPropagation()}

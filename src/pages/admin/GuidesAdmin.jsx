@@ -174,7 +174,7 @@ export default function GuidesAdmin() {
         <p className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">{errorMsg}</p>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_240px] lg:items-start">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_160px] lg:items-start">
       <form onSubmit={handleSubmit} className="space-y-4 rounded-[28px] border border-border bg-surface p-5">
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -266,17 +266,17 @@ export default function GuidesAdmin() {
         </div>
       </form>
 
-      <div className="lg:sticky lg:top-6">
+      <div className="lg:sticky lg:top-6 space-y-2">
         <button
           type="button"
           onClick={() => setShowMiniPreview((current) => !current)}
-          className="w-full rounded-xl border border-border px-3 py-2 text-xs text-muted hover:border-accent/50 hover:text-text"
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-[11px] leading-tight text-muted hover:border-accent/50 hover:text-text"
         >
-          {showMiniPreview ? "Ocultar vista previa" : "👁 Mostrar vista previa"}
+          {showMiniPreview ? "Ocultar vista previa" : "👁 Vista previa"}
         </button>
 
         {showMiniPreview && (
-          <div className="pointer-events-none mx-auto mt-3 max-w-[200px]">
+          <div className="pointer-events-none mx-auto w-full max-w-[140px] origin-top scale-90">
             <GuideCard guide={previewGuide} />
           </div>
         )}
@@ -284,9 +284,9 @@ export default function GuidesAdmin() {
         <button
           type="button"
           onClick={() => setShowFullPreview(true)}
-          className="mt-3 w-full rounded-xl border border-border px-3 py-2 text-xs text-muted hover:border-accent/50 hover:text-text"
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-[11px] leading-tight text-muted hover:border-accent/50 hover:text-text"
         >
-          Ver guía completa (como quedará publicada)
+          Ver guía completa
         </button>
       </div>
       </div>
@@ -314,7 +314,10 @@ export default function GuidesAdmin() {
       )}
 
       {showFullPreview && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm"
+          style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           <div className="mx-auto max-w-4xl px-6 py-10">
             <button
               type="button"

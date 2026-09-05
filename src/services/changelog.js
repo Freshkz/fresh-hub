@@ -1,5 +1,25 @@
 export const changelogEntries = [
 
+
+    {
+    version: "v1.5.0",
+    date: "2026-09-05",
+    title: "App instalable (PWA) y mejoras de mobile",
+    summary: "El hub ahora se puede instalar como app en el celular, se agregó navegación mobile completa, y se extendió la vista previa del Admin a Proyectos y Descargas.",
+    added: [
+      "Soporte PWA: el sitio se puede instalar en el celular o la compu como una app, con ícono propio y funcionamiento offline básico",
+      "Menú de navegación mobile (antes los links de Descargas, Proyectos, Novedades, etc. no se podían abrir en celular)",
+      "Vista previa (miniatura y página completa) agregada a Projects Admin y Downloads Admin, igual que ya tenía Guides",
+    ],
+    fixed: [
+      "Bug de PWA en iOS que impedía tocar el navbar (Dashboard/Admin) al quedar tapado por la barra de estado del sistema",
+      "Columna de vista previa en Guides Admin ocupaba demasiado espacio; se redujo su tamaño",
+    ],
+    changed: [
+      "Botones y miniaturas de la vista previa en Admin ahora son más compactos en todas las secciones",
+    ],
+  },
+  
   {
     version: "v1.4.3",
     date: "2026-09-04",

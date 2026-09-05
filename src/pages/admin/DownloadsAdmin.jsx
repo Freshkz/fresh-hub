@@ -6,6 +6,7 @@ import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
+import DownloadCard from "../../components/downloads/DownloadCard";
 
 const empty = {
   name: "", description: "", category: "", version: "", size: "",
@@ -22,6 +23,8 @@ export default function DownloadsAdmin() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [showMiniPreview, setShowMiniPreview] = useState(false);
+  const [showFullPreview, setShowFullPreview] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -130,8 +133,23 @@ export default function DownloadsAdmin() {
     }
   };
 
+  const previewDownload = {
+    id: "preview",
+    name: form.name || "Nombre de la descarga",
+    description: form.description || "La descripción va a aparecer acá.",
+    image: form.image,
+    category: form.category || "General",
+    version: form.version || "1.0",
+    size: form.size || "—",
+    format: form.format || "—",
+    download_url: form.download_url,
+    featured: form.featured,
+    rating_sum: 0,
+    rating_count: 0,
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="font-display text-xl font-semibold mt-2 mb-4">Downloads — Admin</h1>
 
@@ -141,7 +159,8 @@ export default function DownloadsAdmin() {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-5 mb-10 space-y-3">
+      <div className="grid gap-6 lg:grid-cols-[1fr_160px] lg:items-start mb-10">
+      <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-5 space-y-3">
         <input placeholder="Nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -221,6 +240,31 @@ export default function DownloadsAdmin() {
         </div>
       </form>
 
+      <div className="lg:sticky lg:top-6 space-y-2">
+        <button
+          type="button"
+          onClick={() => setShowMiniPreview((current) => !current)}
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-[11px] leading-tight text-muted hover:border-accent/50 hover:text-text"
+        >
+          {showMiniPreview ? "Ocultar vista previa" : "👁 Vista previa"}
+        </button>
+
+        {showMiniPreview && (
+          <div className="pointer-events-none mx-auto w-full max-w-[140px] origin-top scale-90">
+            <DownloadCard item={previewDownload} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowFullPreview(true)}
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-[11px] leading-tight text-muted hover:border-accent/50 hover:text-text"
+        >
+          Ver página completa
+        </button>
+      </div>
+      </div>
+
       {loading ? <p className="text-muted text-sm">Cargando...</p> : (
         <div className="space-y-2">
           {items.map((d) => (
@@ -246,6 +290,36 @@ export default function DownloadsAdmin() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      {showFullPreview && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm"
+          style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <div className="mx-auto max-w-3xl px-6 py-10">
+            <button
+              type="button"
+              onClick={() => setShowFullPreview(false)}
+              className="mb-4 rounded-xl border border-border bg-surface px-4 py-2 text-sm text-text hover:border-accent/50"
+            >
+              ✕ Cerrar vista previa
+            </button>
+            <article>
+              <h1 className="font-display text-3xl font-bold mb-3">{previewDownload.name}</h1>
+              <p className="text-muted leading-7 mb-6">{previewDownload.description}</p>
+              <div className="grid grid-cols-2 gap-3 text-sm mb-8">
+                <div className="bg-surface border border-border rounded-xl p-4">Versión: {previewDownload.version}</div>
+                <div className="bg-surface border border-border rounded-xl p-4">Formato: {previewDownload.format}</div>
+                <div className="bg-surface border border-border rounded-xl p-4">Tamaño: {previewDownload.size}</div>
+                <div className="bg-surface border border-border rounded-xl p-4">Categoría: {previewDownload.category}</div>
+              </div>
+              <span className="inline-block bg-accent text-white font-semibold px-5 py-3 rounded-xl opacity-70">
+                Descargar archivo
+              </span>
+            </article>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
