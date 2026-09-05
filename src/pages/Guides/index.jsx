@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import GuideCard from "../../components/guides/GuideCard";
 import { fetchGuides, guideGameOptions, guideContentCategories } from "../../services/guides";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function GuidesPage() {
+  const settings = useSiteSettings();
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGame, setSelectedGame] = useState("all");
@@ -114,7 +116,7 @@ export default function GuidesPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {filteredGuides.map((guide) => (
-          <GuideCard key={guide.id} guide={guide} />
+          <GuideCard key={guide.id} guide={{ ...guide, image: guide.image || settings.default_guide_thumbnail }} />
         ))}
       </div>
 

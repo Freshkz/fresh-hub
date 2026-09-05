@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useMemo } from "react";
 import DownloadCard from "../../components/downloads/DownloadCard";
 import { getDownloads } from "../../services/downloads";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function Downloads() {
+  const settings = useSiteSettings();
   const [downloads, setDownloads] = useState([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -35,7 +37,7 @@ export default function Downloads() {
         </select>
       </div>
       <div className="grid md:grid-cols-3 gap-4">
-        {filteredDownloads.map((d) => <DownloadCard key={d.id} item={d} />)}
+        {filteredDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} />)}
       </div>
       {filteredDownloads.length === 0 && <p className="text-sm text-muted mt-6">No encontramos descargas con esos filtros.</p>}
     </div>

@@ -16,6 +16,9 @@ const blank = {
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
   og_image_url: "",
+  default_guide_thumbnail: "",
+  default_project_thumbnail: "",
+  default_download_thumbnail: "",
   discord_webhook_url: "",
   discord_server_id: "",
   private_apps_pin: "1234",
@@ -48,6 +51,9 @@ export default function SettingsAdmin() {
         ecosystem_cupons_thumbnail: settings.ecosystem_cupons_thumbnail || "",
         ecosystem_ai_stylist_thumbnail: settings.ecosystem_ai_stylist_thumbnail || "",
         og_image_url: settings.og_image_url || "",
+        default_guide_thumbnail: settings.default_guide_thumbnail || "",
+        default_project_thumbnail: settings.default_project_thumbnail || "",
+        default_download_thumbnail: settings.default_download_thumbnail || "",
         discord_webhook_url: settings.discord_webhook_url || "",
         discord_server_id: settings.discord_server_id || "",
         private_apps_pin: settings.private_apps_pin || "1234",
@@ -209,6 +215,16 @@ export default function SettingsAdmin() {
               <MediaUploadField value={form.ecosystem_fresh_thumbnail} onChange={(ecosystem_fresh_thumbnail) => setForm({ ...form, ecosystem_fresh_thumbnail })} folder="ecosystem" label="Fresh Hub" />
               <MediaUploadField value={form.ecosystem_cupons_thumbnail} onChange={(ecosystem_cupons_thumbnail) => setForm({ ...form, ecosystem_cupons_thumbnail })} folder="ecosystem" label="Cupons" />
               <MediaUploadField value={form.ecosystem_ai_stylist_thumbnail} onChange={(ecosystem_ai_stylist_thumbnail) => setForm({ ...form, ecosystem_ai_stylist_thumbnail })} folder="ecosystem" label="AI Stylist" />
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h2 className="mb-1 text-sm font-semibold">Miniaturas por defecto</h2>
+            <p className="mb-4 text-xs text-muted">Se usan cuando una guía, proyecto o descarga no tiene imagen propia cargada.</p>
+            <div className="space-y-4">
+              <MediaUploadField value={form.default_guide_thumbnail} onChange={(default_guide_thumbnail) => setForm({ ...form, default_guide_thumbnail })} folder="branding" label="Guías" />
+              <MediaUploadField value={form.default_project_thumbnail} onChange={(default_project_thumbnail) => setForm({ ...form, default_project_thumbnail })} folder="branding" label="Proyectos" />
+              <MediaUploadField value={form.default_download_thumbnail} onChange={(default_download_thumbnail) => setForm({ ...form, default_download_thumbnail })} folder="branding" label="Descargas" />
             </div>
           </div>
 
