@@ -4,6 +4,7 @@ import SelectedTagsList from "../../components/ui/SelectedTagsList";
 import GameTagSelect from "../../components/ui/GameTagSelect";
 import CategoryToggle from "../../components/ui/CategoryToggle";
 import MediaUploadField from "../../components/admin/MediaUploadField";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
 
 const initialForm = {
@@ -51,6 +52,7 @@ export default function GuidesAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -128,8 +130,14 @@ export default function GuidesAdmin() {
     setForm((current) => ({ ...current, parts: current.parts.filter((_, partIndex) => partIndex !== index) }));
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar esta guía?")) return;
+  const handleDelete = (id) => {
+    setPendingDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete;
+    setPendingDelete(null);
     try {
       await deleteGuide(id);
       load();
@@ -261,6 +269,15 @@ export default function GuidesAdmin() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!pendingDelete}
+        title="¿Eliminar esta guía?"
+        message="Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
