@@ -18,7 +18,7 @@ export default function GuideCard({ guide }) {
             {(guide.tags && guide.tags[0]) || "General"}
           </span>
           {guide.categories?.[0] && (
-            <span className="absolute right-3 top-3 rounded-full border border-accent2/40 bg-background/60 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-accent2">
+            <span className="absolute right-3 bottom-3 rounded-full border border-accent2/40 bg-background/60 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-accent2">
               {guide.categories[0]}
             </span>
           )}

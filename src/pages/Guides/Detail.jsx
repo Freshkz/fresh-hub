@@ -54,9 +54,30 @@ export default function GuideDetailPage() {
           </div>
 
           <div className="mt-8 space-y-6">
+            {guide.parts?.filter((part) => part.title).length > 1 && (
+              <nav className="rounded-2xl border border-border bg-surface2 p-5">
+                <h2 className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-accent2">Contenido</h2>
+                <ol className="space-y-1.5">
+                  {guide.parts.map((part, index) =>
+                    part.title ? (
+                      <li key={`toc-${index}`}>
+                        <a href={`#seccion-${index}`} className="text-sm text-muted hover:text-accent transition-colors">
+                          {index + 1}. {part.title}
+                        </a>
+                      </li>
+                    ) : null
+                  )}
+                </ol>
+              </nav>
+            )}
+
             {guide.parts?.map((part, index) => (
-              <section key={`${part.type}-${index}`} className={part.type === "image" ? "overflow-hidden rounded-2xl border border-border bg-surface2" : part.type === "quote" ? "rounded-2xl border border-accent/30 bg-accent/10 p-5 text-base leading-8 text-text" : "rounded-2xl border border-border bg-surface2 p-5 text-sm leading-7 text-muted"}>
-                {part.title && <h2 className="mb-3 font-display text-lg font-semibold text-text">{part.title}</h2>}
+              <section
+                key={`${part.type}-${index}`}
+                id={`seccion-${index}`}
+                className={part.type === "image" ? "overflow-hidden rounded-2xl border border-border bg-surface2 scroll-mt-24" : part.type === "quote" ? "rounded-2xl border border-accent/30 bg-accent/10 p-5 text-base leading-8 text-text scroll-mt-24" : "rounded-2xl border border-border bg-surface2 p-5 text-sm leading-7 text-muted scroll-mt-24"}
+              >
+                {part.title && <h2 className="mb-3 font-display text-lg font-semibold text-text">{index + 1}. {part.title}</h2>}
                 {part.type === "image" ? (
                   <>
                     <img src={part.url} alt={part.caption || part.title || guide.title} className="max-h-[620px] w-full object-contain" />
@@ -68,6 +89,7 @@ export default function GuideDetailPage() {
               </section>
             ))}
           </div>
+
 
           {guide.links?.length > 0 && (
             <div className="mt-8">

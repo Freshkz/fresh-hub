@@ -23,6 +23,15 @@ export default function GuidesPage() {
     return Array.from(set);
   }, [guides]);
 
+  // Categorías disponibles: solo las que efectivamente tiene alguna guía publicada
+  const availableCategories = useMemo(() => {
+    const set = new Set();
+    guides.forEach((guide) => {
+      if (Array.isArray(guide.categories)) guide.categories.forEach((category) => set.add(category));
+    });
+    return guideContentCategories.filter((category) => set.has(category));
+  }, [guides]);
+
   const filteredGuides = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return guides.filter((guide) => {
@@ -61,61 +70,47 @@ export default function GuidesPage() {
         />
       </div>
 
-      {/* Filtro por juego/tema */}
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted mr-1">Juego:</span>
-        <button
-          onClick={() => setSelectedGame("all")}
-          className={`rounded-full px-3 py-1 text-xs transition-all ${
-            selectedGame === "all"
-              ? "bg-accent text-accent-contrast font-medium"
-              : "bg-surface-elevated text-muted hover:text-text border border-border"
-          }`}
-        >
-          Todos
-        </button>
-        {availableGames.map((game) => (
-          <button
-            key={game}
-            onClick={() => setSelectedGame(selectedGame === game ? "all" : game)}
-            className={`rounded-full px-3 py-1 text-xs transition-all ${
-              selectedGame === game
-                ? "bg-accent text-accent-contrast font-medium shadow-sm"
-                : "bg-surface-elevated text-muted hover:text-text border border-border"
-            }`}
+      <div className="mb-8 flex flex-wrap items-center gap-3">
+        <div className="relative">
+          <select
+            value={selectedGame}
+            onChange={(event) => setSelectedGame(event.target.value)}
+            className="appearance-none rounded-xl border border-border bg-surface px-3.5 py-2 pr-9 text-sm text-text outline-none transition-colors hover:border-accent/40 focus:border-accent"
           >
-            #{game}
+            <option value="all">Todos los juegos</option>
+            {availableGames.map((game) => (
+              <option key={game} value={game}>#{game}</option>
+            ))}
+          </select>
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">▾</span>
+        </div>
+
+        {availableCategories.length > 0 && (
+          <div className="relative">
+            <select
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value)}
+              className="appearance-none rounded-xl border border-border bg-surface px-3.5 py-2 pr-9 text-sm text-text outline-none transition-colors hover:border-accent2/40 focus:border-accent2"
+            >
+              <option value="all">Todas las categorías</option>
+              {availableCategories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">▾</span>
+          </div>
+        )}
+
+        {(selectedGame !== "all" || selectedCategory !== "all") && (
+          <button
+            onClick={() => { setSelectedGame("all"); setSelectedCategory("all"); }}
+            className="text-xs text-muted underline-offset-2 hover:text-text hover:underline"
+          >
+            Limpiar filtros
           </button>
-        ))}
+        )}
       </div>
 
-      {/* Filtro por categoría de contenido */}
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted mr-1">Categoría:</span>
-        <button
-          onClick={() => setSelectedCategory("all")}
-          className={`rounded-full px-3 py-1 text-xs transition-all ${
-            selectedCategory === "all"
-              ? "bg-accent2/30 text-accent2 font-medium"
-              : "bg-surface-elevated text-muted hover:text-text border border-border"
-          }`}
-        >
-          Todas
-        </button>
-        {guideContentCategories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(selectedCategory === category ? "all" : category)}
-            className={`rounded-full px-3 py-1 text-xs transition-all ${
-              selectedCategory === category
-                ? "bg-accent2/30 text-accent2 font-medium shadow-sm"
-                : "bg-surface-elevated text-muted hover:text-text border border-border"
-            }`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         {filteredGuides.map((guide) => (
