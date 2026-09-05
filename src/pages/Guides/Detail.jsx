@@ -31,17 +31,22 @@ export default function GuideDetailPage() {
       <div className="mt-6 overflow-hidden rounded-[28px] border border-border bg-surface">
         <img src={guide.image} alt={guide.title} className="h-64 w-full object-cover" />
         <div className="p-6 md:p-8">
-          <div className="mb-4 flex items-center gap-2">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-border bg-surface2 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
-              {guide.game}
+              {(guide.tags && guide.tags[0]) || "General"}
             </span>
+            {(guide.categories || []).map((category) => (
+              <span key={category} className="rounded-full border border-accent2/40 bg-accent2/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-accent2">
+                {category}
+              </span>
+            ))}
           </div>
 
           <h1 className="font-display text-3xl font-semibold">{guide.title}</h1>
           <p className="mt-4 text-base leading-7 text-muted">{guide.summary}</p>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {(guide.tags || []).map((tag) => (
+            {(guide.tags || []).slice(1).map((tag) => (
               <span key={tag} className="rounded-full border border-border bg-surface2 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
                 {tag}
               </span>

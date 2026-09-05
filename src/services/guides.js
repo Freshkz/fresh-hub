@@ -1,7 +1,10 @@
 import { supabase } from "./supabaseClient";
 
-export const guideCategories = [
-  "Minecraft",
+// Lista de JUEGOS/TEMAS. Se usa en el desplegable de "Juegos / Temas" del
+// admin (con opción de agregar uno propio) y en el filtro de la página
+// pública de Guías. Para sumar o sacar un juego, editá solo acá.
+export const guideGameOptions = [
+  "Invincible: Guarding the Globe",
   "CS2",
   "Valorant",
   "GTA V",
@@ -9,10 +12,67 @@ export const guideCategories = [
   "League of Legends",
   "FiveM",
   "Rust",
-  "Discord Bots",
+  "Naruto Shinobi Striker",
   "Stardew Valley",
+  "Fortnite",
+  "Apex Legends",
+  "Call of Duty",
+  "Rainbow Six Siege",
+  "ARK: Survival Evolved",
+  "Terraria",
+  "Among Us",
+  "Genshin Impact",
+  "EA FC",
+  "Minecraft",
+  "Dragon Ball Gekshin Squadra",
+  "Dayz",
+  "Dragon Ball Online",
+  "The Sims 4",
   "General",
 ];
+
+// Lista CERRADA de categorías de contenido (no admite texto libre, a
+// propósito, para que se mantenga prolija). Describe qué tipo de contenido
+// es la guía, sin importar de qué juego se trate.
+export const guideContentCategories = [
+  "Tutorial",
+  "Guía",
+  "Utilidad",
+  "Mods / Plugins",
+  "Scripts",
+  "Rendimiento / FPS",
+  "Servidores",
+];
+
+// Limpia una lista de valores: saca espacios de más, evita duplicados que
+// solo difieren en mayúsculas/minúsculas y, si el valor coincide con una
+// opción conocida, lo deja escrito exactamente como en esa lista.
+// Si `restrictToKnown` es true, descarta cualquier valor que no esté en
+// `knownOptions` (se usa para "categories", que es una lista cerrada).
+function normalizeList(rawList, knownOptions, { restrictToKnown = false } = {}) {
+  const list = Array.isArray(rawList)
+    ? rawList
+    : typeof rawList === "string"
+      ? rawList.split(",")
+      : [];
+
+  const seen = new Set();
+  const result = [];
+
+  list
+    .map((item) => String(item).trim())
+    .filter(Boolean)
+    .forEach((item) => {
+      const key = item.toLowerCase();
+      if (seen.has(key)) return;
+      const canonical = knownOptions.find((option) => option.toLowerCase() === key);
+      if (!canonical && restrictToKnown) return;
+      seen.add(key);
+      result.push(canonical || item);
+    });
+
+  return result;
+}
 
 export const guidesSeed = [
   {
@@ -80,14 +140,20 @@ export const guidesSeed = [
 const STORAGE_KEY = "freshkz-guides-local";
 
 function normalizeGuide(raw = {}) {
+  const tags = normalizeList(raw.tags, guideGameOptions);
+  const categories = normalizeList(raw.categories, guideContentCategories, { restrictToKnown: true });
   return {
     id: raw.id || `${raw.slug || raw.title || "guide"}-${Date.now()}`,
     slug: raw.slug || (raw.title || "guia").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
     title: raw.title || "Nueva guía",
     summary: raw.summary || "",
-    game: raw.game || "General",
+    // "game" ya no se elige a mano: se deriva del primer juego/tema elegido
+    // para no tener dos campos de categoría desincronizados. Se mantiene
+    // solo porque la tabla de Supabase lo requiere (columna not null).
+    game: tags[0] || raw.game || "General",
     image: raw.image || raw.image_url || "",
-    tags: Array.isArray(raw.tags) ? raw.tags : typeof raw.tags === "string" ? raw.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+    tags,
+    categories,
     links: Array.isArray(raw.links) ? raw.links : [],
     parts: Array.isArray(raw.parts) ? raw.parts : (raw.content ? [{ type: "text", content: raw.content }] : []),
     published: raw.published !== false,
@@ -157,6 +223,7 @@ export async function createGuide(payload) {
       game: normalized.game,
       image_url: normalized.image,
       tags: normalized.tags,
+      categories: normalized.categories,
       links: normalized.links,
       parts: normalized.parts,
       created_at: normalized.createdAt,
@@ -188,6 +255,7 @@ export async function updateGuide(id, payload) {
       game: normalized.game,
       image_url: normalized.image,
       tags: normalized.tags,
+      categories: normalized.categories,
       links: normalized.links,
       parts: normalized.parts,
       created_at: normalized.createdAt,

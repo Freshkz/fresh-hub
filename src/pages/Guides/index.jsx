@@ -1,27 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import GuideCard from "../../components/guides/GuideCard";
-import { fetchGuides, guideCategories } from "../../services/guides";
+import { fetchGuides, guideGameOptions, guideContentCategories } from "../../services/guides";
 
 export default function GuidesPage() {
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [game, setGame] = useState("all");
-  const [selectedTag, setSelectedTag] = useState("all");
+  const [selectedGame, setSelectedGame] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     fetchGuides().then(setGuides).finally(() => setLoading(false));
   }, []);
 
-  // Compute all available tags dynamically from guides + categories
-  const allAvailableTags = useMemo(() => {
-    const set = new Set();
-    guideCategories.forEach((cat) => set.add(cat));
+  // Juegos/temas disponibles: la lista fija + cualquier tag propio que ya se haya usado
+  const availableGames = useMemo(() => {
+    const set = new Set(guideGameOptions);
     guides.forEach((guide) => {
-      if (Array.isArray(guide.tags)) {
-        guide.tags.forEach((t) => set.add(t));
-      }
+      if (Array.isArray(guide.tags)) guide.tags.forEach((tag) => set.add(tag));
     });
     return Array.from(set);
   }, [guides]);
@@ -29,77 +26,93 @@ export default function GuidesPage() {
   const filteredGuides = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return guides.filter((guide) => {
-      const matchesGame = game === "all" || guide.game === game;
-      const matchesTag =
-        selectedTag === "all" ||
-        guide.game === selectedTag ||
-        (Array.isArray(guide.tags) && guide.tags.includes(selectedTag));
+      const matchesGame =
+        selectedGame === "all" ||
+        (Array.isArray(guide.tags) && guide.tags.includes(selectedGame));
+      const matchesCategory =
+        selectedCategory === "all" ||
+        (Array.isArray(guide.categories) && guide.categories.includes(selectedCategory));
       const matchesQuery =
         !normalizedQuery ||
-        [guide.title, guide.summary, guide.game, ...(guide.tags || [])]
+        [guide.title, guide.summary, ...(guide.tags || []), ...(guide.categories || [])]
           .join(" ")
           .toLowerCase()
           .includes(normalizedQuery);
-      return matchesGame && matchesTag && matchesQuery;
+      return matchesGame && matchesCategory && matchesQuery;
     });
-  }, [guides, game, selectedTag, query]);
+  }, [guides, selectedGame, selectedCategory, query]);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-16">
       <div className="mb-8 flex items-center justify-between gap-3">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.18em] text-accent">Guides</div>
-          <h1 className="mt-2 font-display text-3xl font-semibold">Guías por juego</h1>
+          <h1 className="mt-2 font-display text-3xl font-semibold">Guías</h1>
         </div>
         <Link to="/" className="text-sm text-muted hover:text-text">← Inicio</Link>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 md:flex-row">
+      <div className="mb-4">
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Buscar guía..."
-          className="flex-1 rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
+          className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
         />
-        <select
-          value={game}
-          onChange={(event) => {
-            setGame(event.target.value);
-            if (event.target.value !== "all") setSelectedTag("all");
-          }}
-          className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
-        >
-          <option value="all">Todos los juegos</option>
-          {guideCategories.map((category) => (
-            <option key={category} value={category}>{category}</option>
-          ))}
-        </select>
       </div>
 
-      {/* Interactive Tag Filter Chips */}
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted mr-1">Etiquetas:</span>
+      {/* Filtro por juego/tema */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-muted mr-1">Juego:</span>
         <button
-          onClick={() => { setSelectedTag("all"); setGame("all"); }}
+          onClick={() => setSelectedGame("all")}
           className={`rounded-full px-3 py-1 text-xs transition-all ${
-            selectedTag === "all" && game === "all"
+            selectedGame === "all"
               ? "bg-accent text-accent-contrast font-medium"
+              : "bg-surface-elevated text-muted hover:text-text border border-border"
+          }`}
+        >
+          Todos
+        </button>
+        {availableGames.map((game) => (
+          <button
+            key={game}
+            onClick={() => setSelectedGame(selectedGame === game ? "all" : game)}
+            className={`rounded-full px-3 py-1 text-xs transition-all ${
+              selectedGame === game
+                ? "bg-accent text-accent-contrast font-medium shadow-sm"
+                : "bg-surface-elevated text-muted hover:text-text border border-border"
+            }`}
+          >
+            #{game}
+          </button>
+        ))}
+      </div>
+
+      {/* Filtro por categoría de contenido */}
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-muted mr-1">Categoría:</span>
+        <button
+          onClick={() => setSelectedCategory("all")}
+          className={`rounded-full px-3 py-1 text-xs transition-all ${
+            selectedCategory === "all"
+              ? "bg-accent2/30 text-accent2 font-medium"
               : "bg-surface-elevated text-muted hover:text-text border border-border"
           }`}
         >
           Todas
         </button>
-        {allAvailableTags.map((tag) => (
+        {guideContentCategories.map((category) => (
           <button
-            key={tag}
-            onClick={() => setSelectedTag(selectedTag === tag ? "all" : tag)}
+            key={category}
+            onClick={() => setSelectedCategory(selectedCategory === category ? "all" : category)}
             className={`rounded-full px-3 py-1 text-xs transition-all ${
-              selectedTag === tag
-                ? "bg-accent text-accent-contrast font-medium shadow-sm"
+              selectedCategory === category
+                ? "bg-accent2/30 text-accent2 font-medium shadow-sm"
                 : "bg-surface-elevated text-muted hover:text-text border border-border"
             }`}
           >
-            #{tag}
+            {category}
           </button>
         ))}
       </div>
@@ -117,4 +130,3 @@ export default function GuidesPage() {
     </div>
   );
 }
-

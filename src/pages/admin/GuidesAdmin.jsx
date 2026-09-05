@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import TagSelector from "../../components/ui/TagSelector";
+import SelectedTagsList from "../../components/ui/SelectedTagsList";
+import GameTagSelect from "../../components/ui/GameTagSelect";
+import CategoryToggle from "../../components/ui/CategoryToggle";
 import MediaUploadField from "../../components/admin/MediaUploadField";
-import { fetchGuides, createGuide, updateGuide, deleteGuide } from "../../services/guides";
+import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
 
 const initialForm = {
   title: "",
-  game: "Minecraft",
   summary: "",
   image: "",
   tags: [],
+  categories: [],
   links: "",
   parts: [{ type: "text", title: "", content: "" }],
   published: true,
@@ -71,10 +73,10 @@ export default function GuidesAdmin() {
     const payload = {
       title: form.title,
       slug: slugify(form.title),
-      game: form.game,
       summary: form.summary,
       image: form.image,
       tags: parseTags(form.tags),
+      categories: form.categories,
       links: parseLinks(form.links),
       parts: form.parts.filter((part) => part.content || part.url).map((part) => ({ ...part })),
       published: form.published,
@@ -97,10 +99,10 @@ export default function GuidesAdmin() {
     setEditingId(item.id);
     setForm({
       title: item.title || "",
-      game: item.game || "Minecraft",
       summary: item.summary || "",
       image: item.image || "",
       tags: Array.isArray(item.tags) ? item.tags : (item.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
+      categories: Array.isArray(item.categories) ? item.categories : [],
       links: (item.links || []).map((link) => `${link.label || "Link"} | ${link.url}`).join("\n"),
       parts: (item.parts || []).length ? item.parts : [{ type: "text", title: "", content: "" }],
       published: item.published !== false,
@@ -146,32 +148,34 @@ export default function GuidesAdmin() {
       )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-[28px] border border-border bg-surface p-5">
+
+
+
         <div className="grid gap-3 md:grid-cols-2">
           <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Título de la guía" className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" required />
-          <select value={form.game} onChange={(event) => setForm({ ...form, game: event.target.value })} className="rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent">
-            {[
-              "Invincible: Guarding the Globe",
-              "CS2",
-              "Valorant",
-              "GTA V",
-              "Roblox",
-              "League of Legends",
-              "FiveM",
-              "Rust",
-              "Minecraft",
-              "General",
-            ].map((game) => <option key={game} value={game}>{game}</option>)}
-          </select>
+
+          <GameTagSelect
+            selectedTags={form.tags}
+            onChange={(newTags) => setForm({ ...form, tags: newTags })}
+            options={guideGameOptions}
+            label="Juegos / Temas (el primero es el principal)"
+          />
         </div>
+
+        <SelectedTagsList
+          tags={form.tags}
+          onRemove={(tag) => setForm({ ...form, tags: form.tags.filter((t) => t !== tag) })}
+        />
 
         <textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} placeholder="Resumen breve" className="min-h-[90px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
 
         <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="guides" label="Miniatura de la guía" />
 
-        <TagSelector
-          selectedTags={form.tags}
-          onChange={(newTags) => setForm({ ...form, tags: newTags })}
-          label="Etiquetas y Categorías de la Guía"
+        <CategoryToggle
+          selectedCategories={form.categories}
+          onChange={(newCategories) => setForm({ ...form, categories: newCategories })}
+          options={guideContentCategories}
+          label="Categoría del contenido"
         />
 
         <textarea value={form.links} onChange={(event) => setForm({ ...form, links: event.target.value })} placeholder={'Links relacionados\nEtiqueta | https://ejemplo.com'} className="min-h-[120px] w-full rounded-xl border border-border bg-surface2 px-3 py-2.5 text-sm outline-none focus:border-accent" />
@@ -244,7 +248,10 @@ export default function GuidesAdmin() {
             <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-text">{item.title}</p>
-                <p className="text-xs text-muted">{item.game} · {item.published ? "Publicada" : "Borrador"}</p>
+                <p className="text-xs text-muted">
+                  {(item.tags && item.tags[0]) || "General"}
+                  {item.categories?.length ? ` · ${item.categories.join(", ")}` : ""} · {item.published ? "Publicada" : "Borrador"}
+                </p>
               </div>
               <div className="flex gap-3 text-sm text-muted">
                 <button onClick={() => startEdit(item)} className="hover:text-text">Editar</button>
