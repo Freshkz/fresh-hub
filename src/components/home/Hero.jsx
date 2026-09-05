@@ -25,9 +25,9 @@ export default function Hero({ settings = {}, stats = {}, systemServices = [], o
       };
 
   const fallbackServices = [
-    { id: "fresh-hub", name: "Fresh Hub", status: "online", detail: "Comprobando...", href: "/", thumbnail: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=700&q=80" },
-    { id: "cupons", name: "Cupons", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80", isPrivate: true },
-    { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80", isPrivate: true },
+    { id: "fresh-hub", name: "Fresh Hub", status: "online", detail: "Comprobando...", href: "/", thumbnail: settings.ecosystem_fresh_thumbnail || "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=700&q=80" },
+    { id: "cupons", name: "Cupons", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: settings.ecosystem_cupons_thumbnail || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80", isPrivate: true },
+    { id: "ai-stylist", name: "AI Stylist", status: "pending", detail: "App Privada 🔒", href: "#", thumbnail: settings.ecosystem_ai_stylist_thumbnail || "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80", isPrivate: true },
   ];
 
   return (
