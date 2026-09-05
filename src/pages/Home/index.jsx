@@ -117,7 +117,7 @@ export default function Home({ settings = {} }) {
       <section className="py-16">
         <SectionHead eyebrow="Downloads" title="Últimas descargas" to="/downloads" />
         <div className="grid md:grid-cols-3 gap-4">
-          {latestDownloads.map((d) => <DownloadCard key={d.id} item={d} />)}
+          {latestDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} />)}
         </div>
       </section>
 
