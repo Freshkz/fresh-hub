@@ -5,6 +5,7 @@ import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ProjectCard from "../../components/projects/ProjectCard";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false };
 
@@ -17,6 +18,7 @@ export default function ProjectsAdmin() {
   const [errorMsg, setErrorMsg] = useState("");
   const [showMiniPreview, setShowMiniPreview] = useState(false);
   const [showFullPreview, setShowFullPreview] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -75,8 +77,14 @@ export default function ProjectsAdmin() {
     });
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Eliminar este proyecto?")) return;
+  const handleDelete = (id) => {
+    setPendingDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete;
+    setPendingDelete(null);
     try { await deleteProject(id); load(); }
     catch (err) { setErrorMsg(err.message || "Error eliminando proyecto"); }
   };
@@ -208,6 +216,14 @@ export default function ProjectsAdmin() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={!!pendingDelete}
+        title="¿Eliminar este proyecto?"
+        message="Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

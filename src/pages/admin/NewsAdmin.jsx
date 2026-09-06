@@ -4,6 +4,7 @@ import { getNews, createNews, updateNews, deleteNews } from "../../services/news
 import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false };
 
@@ -14,6 +15,7 @@ export default function NewsAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -74,8 +76,14 @@ export default function NewsAdmin() {
     });
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Eliminar esta novedad?")) return;
+  const handleDelete = (id) => {
+    setPendingDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete;
+    setPendingDelete(null);
     try { await deleteNews(id); load(); }
     catch (err) { setErrorMsg(err.message || "Error eliminando novedad"); }
   };
@@ -161,6 +169,14 @@ export default function NewsAdmin() {
           ))}
         </div>
       )}
+      <ConfirmModal
+        isOpen={!!pendingDelete}
+        title="¿Eliminar esta novedad?"
+        message="Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
