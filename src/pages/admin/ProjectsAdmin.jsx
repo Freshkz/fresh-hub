@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/projects";
+import { getDownloads } from "../../services/downloads";
 import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
@@ -8,11 +9,12 @@ import ProjectCard from "../../components/projects/ProjectCard";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
-const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false, visible_to: [] };
+const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false, visible_to: [], linked_download_id: "" };
 
 export default function ProjectsAdmin() {
   const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [projects, setProjects] = useState([]);
+  const [downloads, setDownloads] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +35,7 @@ export default function ProjectsAdmin() {
   };
 
   useEffect(() => { load(); }, []);
+  useEffect(() => { getDownloads().then(setDownloads).catch(() => {}); }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ export default function ProjectsAdmin() {
     const payload = {
       ...form,
       technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean),
+      linked_download_id: form.linked_download_id || null,
     };
     try {
       if (editingId) {
@@ -79,6 +83,7 @@ export default function ProjectsAdmin() {
       featured: p.featured,
       is_private: Boolean(p.is_private),
       visible_to: Array.isArray(p.visible_to) ? p.visible_to : [],
+      linked_download_id: p.linked_download_id || "",
     });
   };
 
@@ -124,6 +129,16 @@ export default function ProjectsAdmin() {
         <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="projects" label="Miniatura del proyecto" />
         <input placeholder="Tecnologías (separadas por coma)" value={form.technologies} onChange={(e) => setForm({ ...form, technologies: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+
+        <div>
+          <label className="mb-1 block text-xs uppercase tracking-[0.16em] text-muted">📥 Descarga vinculada (opcional)</label>
+          <select value={form.linked_download_id} onChange={(e) => setForm({ ...form, linked_download_id: e.target.value })}
+            className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent">
+            <option value="">— Ninguna —</option>
+            {downloads.map((d) => <option key={d.id} value={d.id}>{d.name} {d.version ? `(v${d.version})` : ""}</option>)}
+          </select>
+          <p className="mt-1 text-[11px] text-muted">Si este proyecto tiene un archivo para descargar, cargalo primero en Descargas y despues elegilo acá.</p>
+        </div>
         <div className="flex items-center gap-4">
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm">

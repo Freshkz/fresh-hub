@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import InteractiveCard from "../ui/InteractiveCard";
 import PrivateLock from "../ui/PrivateLock";
 
@@ -14,17 +15,28 @@ export default function ProjectCard({ project, settings = {} }) {
 
   return (
     <PrivateLock isPrivate={project.is_private} authorEmail={project.author_email} visibleTo={project.visible_to} lockIcon={settings.private_lock_projects}>
-      <InteractiveCard
-        to={`/projects/${project.id}`}
-        title={project.name}
-        description={project.description}
-        meta={project.category || "Project"}
-        badge={project.featured ? "Featured" : undefined}
-        author={authorObj}
-        tags={(project.technologies || []).slice(0, 2)}
-        gradientClass="from-accent/18 via-accent2/10 to-transparent"
-        thumbnail={thumbnail}
-      />
+      <div className="relative">
+        <InteractiveCard
+          to={`/projects/${project.id}`}
+          title={project.name}
+          description={project.description}
+          meta={project.category || "Project"}
+          badge={project.featured ? "Featured" : undefined}
+          author={authorObj}
+          tags={(project.technologies || []).slice(0, 2)}
+          gradientClass="from-accent/18 via-accent2/10 to-transparent"
+          thumbnail={thumbnail}
+        />
+        {project.linked_download_id && (
+          <Link
+            to={`/downloads/${project.linked_download_id}`}
+            onClick={(event) => event.stopPropagation()}
+            className="absolute bottom-3 right-3 z-10 rounded-full border border-accent/40 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-accent backdrop-blur hover:bg-accent hover:text-white transition-colors"
+          >
+            📥 Descargar
+          </Link>
+        )}
+      </div>
     </PrivateLock>
   );
 }

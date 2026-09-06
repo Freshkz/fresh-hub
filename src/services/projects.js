@@ -15,6 +15,17 @@ export async function getProject(id) {
   return data;
 }
 
+export async function getProjectByLinkedDownload(downloadId) {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("linked_download_id", downloadId)
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function createProject(project) {
   const { data, error } = await supabase.from("projects").insert(project).select().single();
   if (error) throw error;

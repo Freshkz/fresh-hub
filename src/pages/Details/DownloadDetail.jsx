@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDownload, rateDownload } from "../../services/downloads";
+import { getProjectByLinkedDownload } from "../../services/projects";
 import StarRating from "../../components/ui/StarRating";
 import PrivateGate from "../../components/ui/PrivateGate";
 import { useAuth } from "../../hooks/useAuth";
@@ -11,10 +12,12 @@ export default function DownloadDetail() {
   const { session } = useAuth();
   const settings = useSiteSettings();
   const [download, setDownload] = useState(null);
+  const [linkedProject, setLinkedProject] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     getDownload(id).then(setDownload).catch((err) => setError(err.message || "No se pudo cargar la descarga."));
+    getProjectByLinkedDownload(id).then(setLinkedProject).catch(() => {});
   }, [id]);
 
   const handleRate = async (score) => {
@@ -59,11 +62,22 @@ export default function DownloadDetail() {
         <div className="bg-surface border border-border rounded-xl p-4">Tamaño: {download.size || "—"}</div>
         <div className="bg-surface border border-border rounded-xl p-4">Categoría: {download.category || "—"}</div>
       </div>
-      {download.download_url ? (
-        <a href={download.download_url} target="_blank" rel="noreferrer" className="inline-block bg-accent text-white font-semibold px-5 py-3 rounded-xl">
-          Descargar archivo
-        </a>
-      ) : <p className="text-muted">Esta descarga todavía no tiene archivo.</p>}
+      <div className="flex flex-wrap gap-3">
+        {download.download_url ? (
+          <a href={download.download_url} target="_blank" rel="noreferrer" className="inline-block bg-accent text-white font-semibold px-5 py-3 rounded-xl">
+            Descargar archivo
+          </a>
+        ) : <p className="text-muted">Esta descarga todavía no tiene archivo.</p>}
+
+        {linkedProject && (
+          <Link
+            to={`/projects/${linkedProject.id}`}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-5 py-3 font-semibold text-text hover:border-accent/50 transition"
+          >
+            🧩 Ver proyecto
+          </Link>
+        )}
+      </div>
     </article>
   );
 }

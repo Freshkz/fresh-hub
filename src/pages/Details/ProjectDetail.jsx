@@ -31,6 +31,15 @@ export default function ProjectDetail() {
           <span key={technology} className="px-3 py-1.5 rounded-lg bg-surface2 border border-border text-sm">{technology}</span>
         ))}
       </div>
+
+      {project.linked_download_id && (
+        <Link
+          to={`/downloads/${project.linked_download_id}`}
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 font-semibold text-white hover:brightness-110 transition"
+        >
+          📥 Descargar este proyecto
+        </Link>
+      )}
     </article>
   );
 }
