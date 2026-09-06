@@ -54,7 +54,7 @@ function slugify(value) {
 }
 
 export default function GuidesAdmin() {
-  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
+  const { userEmail, role, isAdmin, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -348,8 +348,12 @@ export default function GuidesAdmin() {
                 </p>
               </div>
               <div className="flex gap-3 text-sm text-muted">
-                <button onClick={() => startEdit(item)} className="hover:text-text">Editar</button>
-                <button onClick={() => handleDelete(item.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                {(isAdmin || item.author_email === userEmail) && (
+                  <>
+                    <button onClick={() => startEdit(item)} className="hover:text-text">Editar</button>
+                    <button onClick={() => handleDelete(item.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                  </>
+                )}
               </div>
             </div>
           ))}

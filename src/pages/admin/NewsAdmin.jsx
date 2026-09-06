@@ -10,7 +10,7 @@ import VisibleToPicker from "../../components/admin/VisibleToPicker";
 const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", source_id: "", is_private: false, visible_to: [] };
 
 export default function NewsAdmin() {
-  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
+  const { userEmail, role, isAdmin, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -175,8 +175,12 @@ export default function NewsAdmin() {
                 <p className="text-xs text-muted">{n.type} · {n.source}</p>
               </div>
               <div className="flex gap-3 text-sm">
-                <button onClick={() => startEdit(n)} className="text-muted hover:text-text">Editar</button>
-                <button onClick={() => handleDelete(n.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                {(isAdmin || n.author_email === userEmail) && (
+                  <>
+                    <button onClick={() => startEdit(n)} className="text-muted hover:text-text">Editar</button>
+                    <button onClick={() => handleDelete(n.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                  </>
+                )}
               </div>
             </div>
           ))}

@@ -295,8 +295,12 @@ export default function DownloadsAdmin() {
                 <p className="text-xs text-muted">v{d.version} · {d.size}</p>
               </div>
               <div className="flex gap-3 text-sm">
-                <button onClick={() => startEdit(d)} className="text-muted hover:text-text">Editar</button>
-                <button onClick={() => handleDelete(d.id, d.download_url)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                {(isAdmin || d.author_email === userEmail) && (
+                  <>
+                    <button onClick={() => startEdit(d)} className="text-muted hover:text-text">Editar</button>
+                    <button onClick={() => handleDelete(d.id, d.download_url)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                  </>
+                )}
               </div>
             </div>
           ))}

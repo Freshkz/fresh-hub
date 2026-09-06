@@ -12,7 +12,7 @@ import VisibleToPicker from "../../components/admin/VisibleToPicker";
 const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false, visible_to: [], linked_download_id: "" };
 
 export default function ProjectsAdmin() {
-  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
+  const { userEmail, role, isAdmin, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [projects, setProjects] = useState([]);
   const [downloads, setDownloads] = useState([]);
   const [form, setForm] = useState(empty);
@@ -215,8 +215,12 @@ export default function ProjectsAdmin() {
                 <p className="text-xs text-muted">{p.status}</p>
               </div>
               <div className="flex gap-3 text-sm">
-                <button onClick={() => startEdit(p)} className="text-muted hover:text-text">Editar</button>
-                <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                {(isAdmin || p.author_email === userEmail) && (
+                  <>
+                    <button onClick={() => startEdit(p)} className="text-muted hover:text-text">Editar</button>
+                    <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                  </>
+                )}
               </div>
             </div>
           ))}
