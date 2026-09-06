@@ -8,6 +8,7 @@ import ConfirmModal from "../../components/ui/ConfirmModal";
 import GuideCard from "../../components/guides/GuideCard";
 import GuideContent from "../../components/guides/GuideContent";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
+import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
@@ -105,8 +106,25 @@ export default function GuidesAdmin() {
     };
 
     try {
-      if (editingId) await updateGuide(editingId, payload);
-      else await createGuide(payload);
+      if (editingId) {
+        await updateGuide(editingId, payload);
+      } else {
+        await createGuide(payload);
+        if (form.published) {
+          sendDiscordNotification({
+            title: form.title,
+            description: form.summary,
+            imageUrl: form.image,
+            type: "Guía",
+            authorName: displayName,
+            authorAvatarUrl: authorAvatarUrl,
+            fields: [
+              { name: "Juego / Tema", value: (form.tags && form.tags[0]) || "General", inline: true },
+              { name: "Categoría", value: (form.categories && form.categories[0]) || "—", inline: true },
+            ],
+          });
+        }
+      }
       setForm(initialForm);
       setEditingId(null);
       load();
@@ -190,7 +208,7 @@ export default function GuidesAdmin() {
         <p className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">{errorMsg}</p>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_160px] lg:items-start">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px] lg:items-start">
       <form onSubmit={handleSubmit} className="space-y-4 rounded-[28px] border border-border bg-surface p-5">
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -301,7 +319,7 @@ export default function GuidesAdmin() {
         </button>
 
         {showMiniPreview && (
-          <div className="pointer-events-none mx-auto w-full max-w-[140px] origin-top scale-90">
+          <div className="pointer-events-none mx-auto w-full max-w-[240px]">
             <GuideCard guide={previewGuide} />
           </div>
         )}

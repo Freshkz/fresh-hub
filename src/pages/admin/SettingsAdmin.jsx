@@ -24,6 +24,10 @@ const blank = {
   default_project_thumbnail: "",
   default_download_thumbnail: "",
   discord_webhook_url: "",
+  discord_webhook_url_guides: "",
+  discord_webhook_url_downloads: "",
+  discord_webhook_url_projects: "",
+  discord_webhook_url_news: "",
   discord_server_id: "",
   private_apps_pin: "1234",
   r2_worker_url: "",
@@ -63,6 +67,10 @@ export default function SettingsAdmin() {
         default_project_thumbnail: settings.default_project_thumbnail || "",
         default_download_thumbnail: settings.default_download_thumbnail || "",
         discord_webhook_url: settings.discord_webhook_url || "",
+        discord_webhook_url_guides: settings.discord_webhook_url_guides || "",
+        discord_webhook_url_downloads: settings.discord_webhook_url_downloads || "",
+        discord_webhook_url_projects: settings.discord_webhook_url_projects || "",
+        discord_webhook_url_news: settings.discord_webhook_url_news || "",
         discord_server_id: settings.discord_server_id || "",
         private_apps_pin: settings.private_apps_pin || "1234",
         r2_worker_url: settings.r2_worker_url || "",
@@ -204,9 +212,38 @@ export default function SettingsAdmin() {
               <input
                 value={form.discord_webhook_url}
                 onChange={(e) => setForm({ ...form, discord_webhook_url: e.target.value })}
-                placeholder="Discord Webhook URL (https://discord.com/api/webhooks/...)"
+                placeholder="Discord Webhook URL general (respaldo si no hay uno específico abajo)"
                 className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
               />
+
+              <div className="rounded-lg border border-border/60 p-3 space-y-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-muted">Webhooks por sección (opcional)</p>
+                <input
+                  value={form.discord_webhook_url_guides}
+                  onChange={(e) => setForm({ ...form, discord_webhook_url_guides: e.target.value })}
+                  placeholder="📖 Webhook solo para Guías"
+                  className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <input
+                  value={form.discord_webhook_url_downloads}
+                  onChange={(e) => setForm({ ...form, discord_webhook_url_downloads: e.target.value })}
+                  placeholder="📥 Webhook solo para Descargas"
+                  className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <input
+                  value={form.discord_webhook_url_projects}
+                  onChange={(e) => setForm({ ...form, discord_webhook_url_projects: e.target.value })}
+                  placeholder="🧩 Webhook solo para Proyectos"
+                  className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <input
+                  value={form.discord_webhook_url_news}
+                  onChange={(e) => setForm({ ...form, discord_webhook_url_news: e.target.value })}
+                  placeholder="📰 Webhook solo para Novedades"
+                  className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <p className="text-[11px] text-muted">Si dejás alguno vacío, esa sección usa el Webhook general de arriba.</p>
+              </div>
               <input
                 value={form.discord_server_id}
                 onChange={(e) => setForm({ ...form, discord_server_id: e.target.value })}

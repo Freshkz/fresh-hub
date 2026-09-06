@@ -91,12 +91,18 @@ export default function DownloadsAdmin() {
           author_avatar_url: authorAvatarUrl,
         });
         sendDiscordNotification({
-          title: `${form.name} ${form.version ? `(v${form.version})` : ""}`,
+          title: form.name,
           description: form.description,
           url: form.download_url,
           imageUrl: form.image,
           type: "Descarga",
-          color: 0x33E6B0,
+          authorName: displayName,
+          authorAvatarUrl: authorAvatarUrl,
+          fields: [
+            { name: "Versión", value: form.version || "—", inline: true },
+            { name: "Tamaño", value: form.size || "—", inline: true },
+            { name: "Categoría", value: form.category || "—", inline: true },
+          ],
         });
       }
       setForm(empty);
@@ -163,7 +169,7 @@ export default function DownloadsAdmin() {
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_160px] lg:items-start mb-10">
+      <div className="grid gap-6 lg:grid-cols-[1fr_260px] lg:items-start mb-10">
       <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-5 space-y-3">
         <input placeholder="Nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
@@ -265,7 +271,7 @@ export default function DownloadsAdmin() {
         </button>
 
         {showMiniPreview && (
-          <div className="pointer-events-none mx-auto w-full max-w-[140px] origin-top scale-90">
+          <div className="pointer-events-none mx-auto w-full max-w-[240px]">
             <DownloadCard item={previewDownload} />
           </div>
         )}

@@ -62,6 +62,12 @@ export default function ProjectsAdmin() {
           description: form.description,
           imageUrl: form.image,
           type: "Proyecto",
+          authorName: displayName,
+          authorAvatarUrl: authorAvatarUrl,
+          fields: [
+            { name: "Estado", value: form.status || "—", inline: true },
+            { name: "Tecnologías", value: form.technologies || "—", inline: true },
+          ],
         });
       }
       setForm(empty);
@@ -120,7 +126,7 @@ export default function ProjectsAdmin() {
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_160px] lg:items-start mb-10">
+      <div className="grid gap-6 lg:grid-cols-[1fr_260px] lg:items-start mb-10">
       <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-5 space-y-3">
         <input placeholder="Nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" required />
@@ -185,7 +191,7 @@ export default function ProjectsAdmin() {
         </button>
 
         {showMiniPreview && (
-          <div className="pointer-events-none mx-auto w-full max-w-[140px] origin-top scale-90">
+          <div className="pointer-events-none mx-auto w-full max-w-[240px]">
             <ProjectCard project={previewProject} />
           </div>
         )}

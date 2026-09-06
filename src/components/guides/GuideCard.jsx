@@ -41,7 +41,7 @@ export default function GuideCard({ guide, settings = {} }) {
               </span>
             </div>
           )}
-          <p className="mb-4 text-sm leading-6 text-muted">{guide.summary}</p>
+          <p className="mb-4 mt-1 text-sm leading-relaxed text-muted">{guide.summary}</p>
           <div className="flex flex-wrap gap-2">
             {(guide.tags || []).slice(1, 4).map((tag) => (
               <span key={tag} className="rounded-full border border-border bg-surface2 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">

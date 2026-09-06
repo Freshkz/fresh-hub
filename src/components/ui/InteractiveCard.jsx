@@ -60,7 +60,7 @@ export default function InteractiveCard({
                   </span>
                 </div>
               )}
-              {description ? <p className="mb-4 line-clamp-3 text-sm leading-6 text-muted">{description}</p> : null}
+              {description ? <p className="mb-4 mt-1 line-clamp-3 text-sm leading-relaxed text-muted">{description}</p> : null}
               {tags.length > 0 ? (
                 <div className="mt-auto flex flex-wrap gap-2">
                   {tags.slice(0, 3).map((tag) => (

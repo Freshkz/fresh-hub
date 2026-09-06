@@ -53,7 +53,8 @@ export default function NewsAdmin() {
             description: form.description,
             imageUrl: form.image,
             type: "Novedad",
-            color: 0x5865F2,
+            authorName: displayName,
+            authorAvatarUrl: authorAvatarUrl,
           });
         }
       }
