@@ -14,7 +14,7 @@ export default function DownloadCard({ item, settings = {} }) {
     : null;
 
   return (
-    <PrivateLock isPrivate={item.is_private} lockIcon={settings.private_lock_downloads}>
+    <PrivateLock isPrivate={item.is_private} authorEmail={item.author_email} visibleTo={item.visible_to} lockIcon={settings.private_lock_downloads}>
       <div className="flex flex-col h-full">
         <InteractiveCard
           to={`/downloads/${item.id}`}

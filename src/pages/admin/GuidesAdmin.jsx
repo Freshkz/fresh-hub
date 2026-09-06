@@ -9,6 +9,7 @@ import GuideCard from "../../components/guides/GuideCard";
 import GuideContent from "../../components/guides/GuideContent";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
 import { useAuth } from "../../hooks/useAuth";
+import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
 const initialForm = {
   title: "",
@@ -21,6 +22,7 @@ const initialForm = {
   published: true,
   featured: false,
   is_private: false,
+  visible_to: [],
 };
 
 function parseTags(value) {
@@ -91,6 +93,7 @@ export default function GuidesAdmin() {
       published: form.published,
       featured: form.featured,
       is_private: form.is_private,
+      visible_to: form.visible_to,
       createdAt: new Date().toISOString(),
       ...(editingId ? {} : {
         author_email: userEmail,
@@ -125,6 +128,7 @@ export default function GuidesAdmin() {
       published: item.published !== false,
       featured: Boolean(item.featured),
       is_private: Boolean(item.is_private),
+      visible_to: Array.isArray(item.visible_to) ? item.visible_to : [],
     });
   };
 
@@ -271,6 +275,9 @@ export default function GuidesAdmin() {
             </label>
           )}
         </div>
+        {canMarkPrivate && form.is_private && (
+          <VisibleToPicker value={form.visible_to} onChange={(visible_to) => setForm({ ...form, visible_to })} />
+        )}
 
         <div className="flex gap-2">
           <button type="submit" className="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white">

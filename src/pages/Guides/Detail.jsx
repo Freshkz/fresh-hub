@@ -8,7 +8,7 @@ import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function GuideDetailPage() {
   const { slug } = useParams();
-  const { session } = useAuth();
+  const { isAdmin, userEmail } = useAuth();
   const settings = useSiteSettings();
   const [guide, setGuide] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,9 +30,14 @@ export default function GuideDetailPage() {
     );
   }
 
-  console.log("[GuideDetail DEBUG]", { guideIsPrivate: guide.is_private, hasSession: Boolean(session), sessionEmail: session?.user?.email });
+  const canSee =
+    isAdmin ||
+    (Boolean(userEmail) && (
+      userEmail === guide.author_email ||
+      (Array.isArray(guide.visible_to) && guide.visible_to.includes(userEmail))
+    ));
 
-  if (guide.is_private && !session) {
+  if (guide.is_private && !canSee) {
     return <PrivateGate backTo="/guides" backLabel="← Volver a guías" lockIcon={settings.private_lock_guides} />;
   }
 

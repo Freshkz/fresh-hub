@@ -8,7 +8,7 @@ export default function NewsItem({ item, settings = {} }) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <PrivateLock isPrivate={item.is_private} lockIcon={settings.private_lock_news} title="Novedad privada">
+    <PrivateLock isPrivate={item.is_private} authorEmail={item.author_email} visibleTo={item.visible_to} lockIcon={settings.private_lock_news} title="Novedad privada">
       <motion.div
         whileHover={reduceMotion ? undefined : { y: -3 }}
         transition={{ duration: 0.18, ease: "easeOut" }}

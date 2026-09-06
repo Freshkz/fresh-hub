@@ -5,8 +5,9 @@ import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
+import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
-const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false };
+const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false, visible_to: [] };
 
 export default function NewsAdmin() {
   const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
@@ -76,6 +77,7 @@ export default function NewsAdmin() {
       source: n.source || "admin",
       sourceId: n.sourceId || "",
       is_private: Boolean(n.is_private),
+      visible_to: Array.isArray(n.visible_to) ? n.visible_to : [],
     });
   };
 
@@ -140,10 +142,15 @@ export default function NewsAdmin() {
             Featured
           </label>
           {canMarkPrivate && (
-            <label className="flex items-center gap-2 text-sm text-muted">
-              <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
-              🔒 Privado
-            </label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm text-muted">
+                <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+                🔒 Privado
+              </label>
+              {form.is_private && (
+                <VisibleToPicker value={form.visible_to} onChange={(visible_to) => setForm({ ...form, visible_to })} />
+              )}
+            </div>
           )}
         </div>
         <div className="flex gap-2">

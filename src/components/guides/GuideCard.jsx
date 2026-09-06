@@ -55,7 +55,7 @@ export default function GuideCard({ guide, settings = {} }) {
   );
 
   return (
-    <PrivateLock isPrivate={guide.is_private} lockIcon={settings.private_lock_guides}>
+    <PrivateLock isPrivate={guide.is_private} authorEmail={guide.author_email} visibleTo={guide.visible_to} lockIcon={settings.private_lock_guides}>
       {card}
     </PrivateLock>
   );

@@ -13,7 +13,7 @@ export default function ProjectCard({ project, settings = {} }) {
     : null;
 
   return (
-    <PrivateLock isPrivate={project.is_private} lockIcon={settings.private_lock_projects}>
+    <PrivateLock isPrivate={project.is_private} authorEmail={project.author_email} visibleTo={project.visible_to} lockIcon={settings.private_lock_projects}>
       <InteractiveCard
         to={`/projects/${project.id}`}
         title={project.name}

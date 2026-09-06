@@ -1,10 +1,16 @@
 import { useAuth } from "../../hooks/useAuth";
 
-export default function PrivateLock({ isPrivate, title = "Contenido privado", lockIcon, children }) {
-  const { session } = useAuth();
-  console.log("[PrivateLock DEBUG]", { isPrivate, hasSession: Boolean(session), sessionEmail: session?.user?.email });
+export default function PrivateLock({ isPrivate, authorEmail, visibleTo = [], title = "Contenido privado", lockIcon, children }) {
+  const { isAdmin, userEmail } = useAuth();
 
-  if (!isPrivate || session) return children;
+  const canSee =
+    isAdmin ||
+    (Boolean(userEmail) && (
+      userEmail === authorEmail ||
+      (Array.isArray(visibleTo) && visibleTo.includes(userEmail))
+    ));
+
+  if (!isPrivate || canSee) return children;
 
   return (
     <div className="relative overflow-hidden rounded-[26px]">

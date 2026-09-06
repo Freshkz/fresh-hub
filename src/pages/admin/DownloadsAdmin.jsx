@@ -7,10 +7,11 @@ import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import DownloadCard from "../../components/downloads/DownloadCard";
+import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
 const empty = {
   name: "", description: "", category: "", version: "", size: "",
-  format: "", download_url: "", image: "", featured: false, status: "published", is_private: false,
+  format: "", download_url: "", image: "", featured: false, status: "published", is_private: false, visible_to: [],
 };
 
 export default function DownloadsAdmin() {
@@ -112,7 +113,7 @@ export default function DownloadsAdmin() {
       name: d.name, description: d.description || "", category: d.category || "",
       version: d.version || "", size: d.size || "", format: d.format || "",
       download_url: d.download_url || "", featured: d.featured, status: d.status,
-      image: d.image || "", is_private: Boolean(d.is_private),
+      image: d.image || "", is_private: Boolean(d.is_private), visible_to: Array.isArray(d.visible_to) ? d.visible_to : [],
     });
   };
 
@@ -231,10 +232,15 @@ export default function DownloadsAdmin() {
             Featured
           </label>
           {canMarkPrivate && (
-            <label className="flex items-center gap-2 text-sm text-muted">
-              <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
-              🔒 Privado
-            </label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm text-muted">
+                <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+                🔒 Privado
+              </label>
+              {form.is_private && (
+                <VisibleToPicker value={form.visible_to} onChange={(visible_to) => setForm({ ...form, visible_to })} />
+              )}
+            </div>
           )}
         </div>
         <div className="flex gap-2">

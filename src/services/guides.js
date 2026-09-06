@@ -159,6 +159,7 @@ function normalizeGuide(raw = {}) {
     published: raw.published !== false,
     featured: Boolean(raw.featured),
     is_private: Boolean(raw.is_private),
+    visible_to: Array.isArray(raw.visible_to) ? raw.visible_to : [],
     author_email: raw.author_email || "",
     author_role: raw.author_role || "",
     author_name: raw.author_name || "",
@@ -236,6 +237,7 @@ export async function createGuide(payload) {
       published: normalized.published,
       featured: normalized.featured,
       is_private: normalized.is_private,
+      visible_to: normalized.visible_to,
       author_email: normalized.author_email || null,
       author_role: normalized.author_role || null,
       author_name: normalized.author_name || null,
@@ -274,7 +276,7 @@ export async function updateGuide(id, payload) {
       published: normalized.published,
       featured: normalized.featured,
       is_private: normalized.is_private,
-    }).eq("id", id).select().single();
+      visible_to: normalized.visible_to,
     if (!error && data) {
       const saved = normalizeGuide(data);
       writeLocalGuides(sortGuides(readLocalGuides().map((guide) => (guide.id === id ? saved : guide))));
@@ -290,16 +292,10 @@ export async function updateGuide(id, payload) {
 }
 
 export async function deleteGuide(id) {
-  try {
-    const { error } = await supabase.from("guides").delete().eq("id", id);
-    if (!error) {
-      writeLocalGuides(readLocalGuides().filter((guide) => guide.id !== id));
-      return;
-    }
-  } catch {
-    // fallback
+  const { data, error } = await supabase.from("guides").delete().eq("id", id).select();
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error("No podés eliminar esto: no te pertenece. Solo el autor original o el Admin pueden borrarlo.");
   }
-
-  const list = readLocalGuides().filter((guide) => guide.id !== id);
-  writeLocalGuides(sortGuides(list));
+  writeLocalGuides(readLocalGuides().filter((guide) => guide.id !== id));
 }
