@@ -34,7 +34,8 @@ export async function fetchChangelogEntries() {
   const { data, error } = await supabase
     .from("changelog_entries")
     .select("*")
-    .order("entry_date", { ascending: false });
+    .order("entry_date", { ascending: false })
+    .order("created_at", { ascending: false });
   if (error) {
     console.error("No se pudo cargar el changelog desde Supabase, muestro el respaldo:", error);
     return legacyFallbackEntries;
@@ -50,6 +51,7 @@ export async function fetchLatestChangelogEntry() {
     .from("changelog_entries")
     .select("*")
     .order("entry_date", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (error) throw error;
