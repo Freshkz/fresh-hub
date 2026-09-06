@@ -39,7 +39,7 @@ export default function Projects() {
         </select>
       </div>
       <div className="grid md:grid-cols-3 gap-4">
-        {filteredProjects.map((p) => <ProjectCard key={p.id} project={{ ...p, image: p.image || settings.default_project_thumbnail }} />)}
+        {filteredProjects.map((p) => <ProjectCard key={p.id} project={{ ...p, image: p.image || settings.default_project_thumbnail }} settings={settings} />)}
       </div>
       {filteredProjects.length === 0 && <p className="text-sm text-muted mt-6">No encontramos proyectos con esos filtros.</p>}
     </div>

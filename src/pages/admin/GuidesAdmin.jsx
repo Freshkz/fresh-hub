@@ -19,6 +19,7 @@ const initialForm = {
   parts: [{ type: "text", title: "", content: "" }],
   published: true,
   featured: false,
+  is_private: false,
 };
 
 function parseTags(value) {
@@ -87,6 +88,7 @@ export default function GuidesAdmin() {
       parts: form.parts.filter((part) => part.content || part.url).map((part) => ({ ...part })),
       published: form.published,
       featured: form.featured,
+      is_private: form.is_private,
       createdAt: new Date().toISOString(),
     };
 
@@ -113,6 +115,7 @@ export default function GuidesAdmin() {
       parts: (item.parts || []).length ? item.parts : [{ type: "text", title: "", content: "" }],
       published: item.published !== false,
       featured: Boolean(item.featured),
+      is_private: Boolean(item.is_private),
     });
   };
 
@@ -251,6 +254,10 @@ export default function GuidesAdmin() {
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} />
             Destacada
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={form.is_private} onChange={(event) => setForm({ ...form, is_private: event.target.checked })} />
+            🔒 Privado (solo vos y tu pareja logueados lo ven)
           </label>
         </div>
 

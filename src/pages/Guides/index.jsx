@@ -116,7 +116,7 @@ export default function GuidesPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {filteredGuides.map((guide) => (
-          <GuideCard key={guide.id} guide={{ ...guide, image: guide.image || settings.default_guide_thumbnail }} />
+          <GuideCard key={guide.id} guide={{ ...guide, image: guide.image || settings.default_guide_thumbnail }} settings={settings} />
         ))}
       </div>
 

@@ -15,6 +15,10 @@ const blank = {
   ecosystem_fresh_thumbnail: "",
   ecosystem_cupons_thumbnail: "",
   ecosystem_ai_stylist_thumbnail: "",
+  private_lock_guides: "",
+  private_lock_downloads: "",
+  private_lock_projects: "",
+  private_lock_news: "",
   og_image_url: "",
   default_guide_thumbnail: "",
   default_project_thumbnail: "",
@@ -50,6 +54,10 @@ export default function SettingsAdmin() {
         ecosystem_fresh_thumbnail: settings.ecosystem_fresh_thumbnail || "",
         ecosystem_cupons_thumbnail: settings.ecosystem_cupons_thumbnail || "",
         ecosystem_ai_stylist_thumbnail: settings.ecosystem_ai_stylist_thumbnail || "",
+        private_lock_guides: settings.private_lock_guides || "",
+        private_lock_downloads: settings.private_lock_downloads || "",
+        private_lock_projects: settings.private_lock_projects || "",
+        private_lock_news: settings.private_lock_news || "",
         og_image_url: settings.og_image_url || "",
         default_guide_thumbnail: settings.default_guide_thumbnail || "",
         default_project_thumbnail: settings.default_project_thumbnail || "",
@@ -215,6 +223,15 @@ export default function SettingsAdmin() {
               <MediaUploadField value={form.ecosystem_fresh_thumbnail} onChange={(ecosystem_fresh_thumbnail) => setForm({ ...form, ecosystem_fresh_thumbnail })} folder="ecosystem" label="Fresh Hub" />
               <MediaUploadField value={form.ecosystem_cupons_thumbnail} onChange={(ecosystem_cupons_thumbnail) => setForm({ ...form, ecosystem_cupons_thumbnail })} folder="ecosystem" label="Cupons" />
               <MediaUploadField value={form.ecosystem_ai_stylist_thumbnail} onChange={(ecosystem_ai_stylist_thumbnail) => setForm({ ...form, ecosystem_ai_stylist_thumbnail })} folder="ecosystem" label="AI Stylist" />
+            </div>
+
+            <div className="mt-6 border-t border-border pt-6">
+              <h2 className="mb-1 text-sm font-semibold text-text">🔒 Íconos de contenido privado</h2>
+              <p className="mb-4 text-xs text-muted">Se muestran en la esquina de la card cuando algo está marcado como privado y el visitante no está logueado.</p>
+              <MediaUploadField value={form.private_lock_guides} onChange={(private_lock_guides) => setForm({ ...form, private_lock_guides })} folder="ui" label="Ícono privado — Guías" />
+              <MediaUploadField value={form.private_lock_downloads} onChange={(private_lock_downloads) => setForm({ ...form, private_lock_downloads })} folder="ui" label="Ícono privado — Descargas" />
+              <MediaUploadField value={form.private_lock_projects} onChange={(private_lock_projects) => setForm({ ...form, private_lock_projects })} folder="ui" label="Ícono privado — Proyectos" />
+              <MediaUploadField value={form.private_lock_news} onChange={(private_lock_news) => setForm({ ...form, private_lock_news })} folder="ui" label="Ícono privado — Novedades" />
             </div>
           </div>
 

@@ -10,7 +10,7 @@ import DownloadCard from "../../components/downloads/DownloadCard";
 
 const empty = {
   name: "", description: "", category: "", version: "", size: "",
-  format: "", download_url: "", image: "", featured: false, status: "published",
+  format: "", download_url: "", image: "", featured: false, status: "published", is_private: false,
 };
 
 export default function DownloadsAdmin() {
@@ -109,7 +109,7 @@ export default function DownloadsAdmin() {
       name: d.name, description: d.description || "", category: d.category || "",
       version: d.version || "", size: d.size || "", format: d.format || "",
       download_url: d.download_url || "", featured: d.featured, status: d.status,
-      image: d.image || "",
+      image: d.image || "", is_private: Boolean(d.is_private),
     });
   };
 
@@ -226,6 +226,10 @@ export default function DownloadsAdmin() {
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
             Featured
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+            🔒 Privado
           </label>
         </div>
         <div className="flex gap-2">

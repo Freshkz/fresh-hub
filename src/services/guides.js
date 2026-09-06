@@ -158,6 +158,7 @@ function normalizeGuide(raw = {}) {
     parts: Array.isArray(raw.parts) ? raw.parts : (raw.content ? [{ type: "text", content: raw.content }] : []),
     published: raw.published !== false,
     featured: Boolean(raw.featured),
+    is_private: Boolean(raw.is_private),
     createdAt: raw.createdAt || raw.created_at || new Date().toISOString(),
   };
 }
@@ -229,6 +230,7 @@ export async function createGuide(payload) {
       created_at: normalized.createdAt,
       published: normalized.published,
       featured: normalized.featured,
+      is_private: normalized.is_private,
     }).select().single();
     if (!error && data) {
       const saved = normalizeGuide(data);
@@ -261,6 +263,7 @@ export async function updateGuide(id, payload) {
       created_at: normalized.createdAt,
       published: normalized.published,
       featured: normalized.featured,
+      is_private: normalized.is_private,
     }).eq("id", id).select().single();
     if (!error && data) {
       const saved = normalizeGuide(data);

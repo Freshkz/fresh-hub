@@ -1,10 +1,11 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
+import PrivateLock from "../ui/PrivateLock";
 
-export default function GuideCard({ guide }) {
+export default function GuideCard({ guide, settings = {} }) {
   const reduceMotion = useReducedMotion();
 
-  return (
+  const card = (
     <motion.article
       whileHover={reduceMotion ? undefined : { y: -6, scale: 1.01 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
@@ -36,5 +37,11 @@ export default function GuideCard({ guide }) {
         </div>
       </Link>
     </motion.article>
+  );
+
+  return (
+    <PrivateLock isPrivate={guide.is_private} lockIcon={settings.private_lock_guides}>
+      {card}
+    </PrivateLock>
   );
 }

@@ -37,7 +37,7 @@ export default function Downloads() {
         </select>
       </div>
       <div className="grid md:grid-cols-3 gap-4">
-        {filteredDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} />)}
+        {filteredDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} settings={settings} />)}
       </div>
       {filteredDownloads.length === 0 && <p className="text-sm text-muted mt-6">No encontramos descargas con esos filtros.</p>}
     </div>

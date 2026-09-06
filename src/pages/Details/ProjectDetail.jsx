@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProject } from "../../services/projects";
+import PrivateGate from "../../components/ui/PrivateGate";
+import { useAuth } from "../../hooks/useAuth";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function ProjectDetail() {
   const { id } = useParams();
+  const { session } = useAuth();
+  const settings = useSiteSettings();
   const [project, setProject] = useState(null);
   const [error, setError] = useState("");
 
@@ -13,6 +18,7 @@ export default function ProjectDetail() {
 
   if (error) return <DetailMessage message={error} />;
   if (!project) return <DetailMessage message="Cargando proyecto..." />;
+  if (project.is_private && !session) return <PrivateGate backTo="/projects" backLabel="← Volver a proyectos" lockIcon={settings.private_lock_projects} />;
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-16">

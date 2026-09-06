@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useMemo } from "react";
 import NewsItem from "../../components/news/NewsItem";
 import { getUnifiedNews } from "../../services/newsSources";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function News() {
+  const settings = useSiteSettings();
   const [news, setNews] = useState([]);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
@@ -43,7 +45,7 @@ export default function News() {
       ) : (
         <>
           <div className="bg-surface border border-border rounded-2xl px-5">
-            {filteredNews.map((n) => <NewsItem key={n.id} item={n} />)}
+            {filteredNews.map((n) => <NewsItem key={n.id} item={n} settings={settings} />)}
           </div>
           {filteredNews.length === 0 && <p className="text-sm text-muted mt-6">No encontramos novedades con esos filtros.</p>}
         </>

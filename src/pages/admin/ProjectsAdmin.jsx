@@ -6,7 +6,7 @@ import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ProjectCard from "../../components/projects/ProjectCard";
 
-const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false };
+const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false };
 
 export default function ProjectsAdmin() {
   const { userEmail, role } = useAuth();
@@ -71,6 +71,7 @@ export default function ProjectsAdmin() {
       technologies: (p.technologies || []).join(", "),
       status: p.status,
       featured: p.featured,
+      is_private: Boolean(p.is_private),
     });
   };
 
@@ -121,6 +122,10 @@ export default function ProjectsAdmin() {
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
             Featured
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+            🔒 Privado
           </label>
         </div>
         <div className="flex gap-2">

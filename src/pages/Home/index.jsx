@@ -110,21 +110,21 @@ export default function Home({ settings = {} }) {
       <section className="py-16">
         <SectionHead eyebrow="Featured" title="Proyectos destacados" to="/projects" />
         <div className="grid md:grid-cols-3 gap-4">
-          {featured.map((p) => <ProjectCard key={p.id} project={p} />)}
+          {featured.map((p) => <ProjectCard key={p.id} project={p} settings={settings} />)}
         </div>
       </section>
 
       <section className="py-16">
         <SectionHead eyebrow="Downloads" title="Últimas descargas" to="/downloads" />
         <div className="grid md:grid-cols-3 gap-4">
-          {latestDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} />)}
+          {latestDownloads.map((d) => <DownloadCard key={d.id} item={{ ...d, image: d.image || settings.default_download_thumbnail }} settings={settings} />)}
         </div>
       </section>
 
       <section className="py-16">
         <SectionHead eyebrow="Feed" title="Novedades" to="/news" />
         <div className="bg-surface border border-border rounded-2xl px-5">
-          {latestNews.map((n) => <NewsItem key={n.id} item={n} />)}
+          {latestNews.map((n) => <NewsItem key={n.id} item={n} settings={settings} />)}
         </div>
       </section>
     </div>

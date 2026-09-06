@@ -1,6 +1,7 @@
 import InteractiveCard from "../ui/InteractiveCard";
+import PrivateLock from "../ui/PrivateLock";
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, settings = {} }) {
   const thumbnail = project.image ? (
     <img src={project.image} alt={project.name} className="h-full w-full object-cover" />
   ) : (
@@ -8,15 +9,17 @@ export default function ProjectCard({ project }) {
   );
 
   return (
-    <InteractiveCard
-      to={`/projects/${project.id}`}
-      title={project.name}
-      description={project.description}
-      meta={project.category || "Project"}
-      badge={project.featured ? "Featured" : undefined}
-      tags={(project.technologies || []).slice(0, 2)}
-      gradientClass="from-accent/18 via-accent2/10 to-transparent"
-      thumbnail={thumbnail}
-    />
+    <PrivateLock isPrivate={project.is_private} lockIcon={settings.private_lock_projects}>
+      <InteractiveCard
+        to={`/projects/${project.id}`}
+        title={project.name}
+        description={project.description}
+        meta={project.category || "Project"}
+        badge={project.featured ? "Featured" : undefined}
+        tags={(project.technologies || []).slice(0, 2)}
+        gradientClass="from-accent/18 via-accent2/10 to-transparent"
+        thumbnail={thumbnail}
+      />
+    </PrivateLock>
   );
 }

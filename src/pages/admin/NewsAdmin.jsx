@@ -5,7 +5,7 @@ import { sendDiscordNotification } from "../../services/discord";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
-const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "" };
+const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false };
 
 export default function NewsAdmin() {
   const { userEmail, role } = useAuth();
@@ -70,6 +70,7 @@ export default function NewsAdmin() {
       featured: n.featured,
       source: n.source || "admin",
       sourceId: n.sourceId || "",
+      is_private: Boolean(n.is_private),
     });
   };
 
@@ -126,6 +127,10 @@ export default function NewsAdmin() {
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
             Featured
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+            🔒 Privado
           </label>
         </div>
         <div className="flex gap-2">

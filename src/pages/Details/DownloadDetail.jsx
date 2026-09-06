@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDownload, rateDownload } from "../../services/downloads";
 import StarRating from "../../components/ui/StarRating";
+import PrivateGate from "../../components/ui/PrivateGate";
+import { useAuth } from "../../hooks/useAuth";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function DownloadDetail() {
   const { id } = useParams();
+  const { session } = useAuth();
+  const settings = useSiteSettings();
   const [download, setDownload] = useState(null);
   const [error, setError] = useState("");
 
@@ -24,6 +29,7 @@ export default function DownloadDetail() {
 
   if (error) return <p className="max-w-3xl mx-auto px-6 py-16 text-red-400">{error}</p>;
   if (!download) return <p className="max-w-3xl mx-auto px-6 py-16 text-muted">Cargando descarga...</p>;
+  if (download.is_private && !session) return <PrivateGate backTo="/downloads" backLabel="← Volver a descargas" lockIcon={settings.private_lock_downloads} />;
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-16">

@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getNewsItem } from "../../services/news";
+import PrivateGate from "../../components/ui/PrivateGate";
+import { useAuth } from "../../hooks/useAuth";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function NewsDetail() {
   const { id } = useParams();
+  const { session } = useAuth();
+  const settings = useSiteSettings();
   const [item, setItem] = useState(null);
   const [error, setError] = useState("");
 
@@ -13,6 +18,7 @@ export default function NewsDetail() {
 
   if (error) return <p className="max-w-3xl mx-auto px-6 py-16 text-red-400">{error}</p>;
   if (!item) return <p className="max-w-3xl mx-auto px-6 py-16 text-muted">Cargando novedad...</p>;
+  if (item.is_private && !session) return <PrivateGate backTo="/news" backLabel="← Volver a novedades" lockIcon={settings.private_lock_news} />;
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-16">

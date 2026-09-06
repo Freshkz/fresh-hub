@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchGuideBySlug } from "../../services/guides";
 import GuideContent from "../../components/guides/GuideContent";
+import PrivateGate from "../../components/ui/PrivateGate";
+import { useAuth } from "../../hooks/useAuth";
+import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function GuideDetailPage() {
   const { slug } = useParams();
+  const { session } = useAuth();
+  const settings = useSiteSettings();
   const [guide, setGuide] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +28,10 @@ export default function GuideDetailPage() {
         <p className="mt-4 text-sm text-muted">No encontramos esta guía.</p>
       </div>
     );
+  }
+
+  if (guide.is_private && !session) {
+    return <PrivateGate backTo="/guides" backLabel="← Volver a guías" lockIcon={settings.private_lock_guides} />;
   }
 
   return (
