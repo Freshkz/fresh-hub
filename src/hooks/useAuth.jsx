@@ -63,7 +63,11 @@ export function AuthProvider({ children }) {
 
   const userRole = useMemo(() => {
     if (!session) return null;
-    return session.user?.user_metadata?.role || "admin";
+    // Antes esto caía en "admin" por defecto para cualquier sesión sin rol
+    // explícito. Con registro público abierto, eso le daría acceso de admin
+    // a cualquiera que se registre. El default correcto es "visitor":
+    // alguien logueado pero sin permisos de edición.
+    return session.user?.user_metadata?.role || "visitor";
   }, [session]);
 
   const value = useMemo(() => ({
@@ -72,14 +76,26 @@ export function AuthProvider({ children }) {
     role: userRole,
     isAdmin: userRole === "admin",
     isEditor: userRole === "editor",
-    canEdit: Boolean(session),
+    isVisitor: userRole === "visitor",
+    // Antes era "Boolean(session)" (cualquiera logueado entraba al panel).
+    // Ahora exige rol de admin o editor de verdad.
+    canEdit: userRole === "admin" || userRole === "editor",
     userEmail: session?.user?.email || "",
     collaborator,
-    displayName: collaborator?.display_name || (userRole === "admin" ? "Admin" : "Colaborador"),
+    displayName: collaborator?.display_name || (userRole === "admin" ? "Admin" : userRole === "editor" ? "Colaborador" : session?.user?.email || "Visitante"),
     authorColor: collaborator?.color || (userRole === "admin" ? "#33E6B0" : "#9CA3AF"),
     authorAvatarUrl: collaborator?.avatar_url || "",
     canMarkPrivate: userRole === "admin" || Boolean(collaborator?.can_mark_private),
     signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
+    signUp: (email, password) => supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}` },
+    }),
+    signInWithOAuth: (provider) => supabase.auth.signInWithOAuth({
+      provider, // "google" | "azure"
+      options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}` },
+    }),
     signOut: () => supabase.auth.signOut(),
     resetPassword: (email) => supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}admin`,

@@ -1,6 +1,7 @@
 export const changelogEntries = [
 
 
+    
     {
     version: "v1.6.1",
     date: "2026-09-06",

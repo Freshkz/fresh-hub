@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import SiteAuthGate from "./components/auth/SiteAuthGate";
 import useSiteSettings from "./hooks/useSiteSettings";
 import Home from "./pages/Home";
 import Downloads from "./pages/Downloads";
@@ -28,33 +29,35 @@ export default function App() {
   const settings = useSiteSettings();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar settings={settings} />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home settings={settings} />} />
-          <Route path="/downloads" element={<Downloads />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/guides" element={<GuidesPage />} />
-          <Route path="/guides/:slug" element={<GuideDetailPage />} />
-          <Route path="/changelog" element={<ChangelogPage />} />
-          <Route path="/status" element={<StatusPage />} />
-          <Route path="/projects/:id" element={<ProjectDetail />} />
-          <Route path="/downloads/:id" element={<DownloadDetail />} />
-          <Route path="/news/:id" element={<NewsDetail />} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/admin/projects" element={<ProtectedRoute><ProjectsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/downloads" element={<ProtectedRoute><DownloadsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/news" element={<ProtectedRoute><NewsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/guides" element={<ProtectedRoute><GuidesAdmin /></ProtectedRoute>} />
-          <Route path="/admin/socials" element={<ProtectedRoute requireAdmin><SocialsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><SettingsAdmin /></ProtectedRoute>} />
-          <Route path="/admin/collaborators" element={<ProtectedRoute requireAdmin><CollaboratorsAdmin /></ProtectedRoute>} />
-        </Routes>
-      </main>
-      <Footer settings={settings} />
-    </div>
+    <SiteAuthGate>
+      <div className="min-h-screen flex flex-col">
+        <Navbar settings={settings} />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home settings={settings} />} />
+            <Route path="/downloads" element={<Downloads />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/guides" element={<GuidesPage />} />
+            <Route path="/guides/:slug" element={<GuideDetailPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/status" element={<StatusPage />} />
+            <Route path="/projects/:id" element={<ProjectDetail />} />
+            <Route path="/downloads/:id" element={<DownloadDetail />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/admin/projects" element={<ProtectedRoute><ProjectsAdmin /></ProtectedRoute>} />
+            <Route path="/admin/downloads" element={<ProtectedRoute><DownloadsAdmin /></ProtectedRoute>} />
+            <Route path="/admin/news" element={<ProtectedRoute><NewsAdmin /></ProtectedRoute>} />
+            <Route path="/admin/guides" element={<ProtectedRoute><GuidesAdmin /></ProtectedRoute>} />
+            <Route path="/admin/socials" element={<ProtectedRoute requireAdmin><SocialsAdmin /></ProtectedRoute>} />
+            <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><SettingsAdmin /></ProtectedRoute>} />
+            <Route path="/admin/collaborators" element={<ProtectedRoute requireAdmin><CollaboratorsAdmin /></ProtectedRoute>} />
+          </Routes>
+        </main>
+        <Footer settings={settings} />
+      </div>
+    </SiteAuthGate>
   );
 }
