@@ -277,6 +277,7 @@ export async function updateGuide(id, payload) {
       featured: normalized.featured,
       is_private: normalized.is_private,
       visible_to: normalized.visible_to,
+    }).eq("id", id).select().single();
     if (!error && data) {
       const saved = normalizeGuide(data);
       writeLocalGuides(sortGuides(readLocalGuides().map((guide) => (guide.id === id ? saved : guide))));
