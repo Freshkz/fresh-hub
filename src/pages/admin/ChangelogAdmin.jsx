@@ -117,14 +117,14 @@ export default function ChangelogAdmin() {
     try {
       if (editingId) {
         await updateChangelogEntry(editingId, payload);
-        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl, actorColor, action: "updated", entityType: "changelog", entityId: editingId, entityTitle: payload.version });
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "updated", entityType: "changelog", entityId: editingId, entityTitle: payload.version });
       } else {
         await createChangelogEntry({
           ...payload,
           source: commitInfo ? "github" : "manual",
           lastCommitSha: commitInfo?.latestSha || null,
         });
-        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl, actorColor, action: "created", entityType: "changelog", entityTitle: payload.version });
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "created", entityType: "changelog", entityTitle: payload.version });
       }
       resetForm();
       load();
