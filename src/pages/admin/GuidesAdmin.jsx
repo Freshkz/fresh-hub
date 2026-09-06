@@ -267,7 +267,7 @@ export default function GuidesAdmin() {
           {canMarkPrivate && (
             <label className="flex items-center gap-2 text-sm text-muted">
               <input type="checkbox" checked={form.is_private} onChange={(event) => setForm({ ...form, is_private: event.target.checked })} />
-              🔒 Privado (solo vos y tu pareja logueados lo ven)
+              🔒 Privado
             </label>
           )}
         </div>

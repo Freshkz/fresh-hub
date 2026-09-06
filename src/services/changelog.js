@@ -2,6 +2,25 @@ export const changelogEntries = [
 
 
     {
+    version: "v1.6.0",
+    date: "2026-09-06",
+    title: "Sistema de colaboradores con permisos",
+    summary: "Cada persona ahora tiene su propio nombre, color y foto/GIF en las cards, permisos individuales para marcar contenido como privado, y solo puede editar o borrar lo que ella misma creó.",
+    added: [
+      "Panel nuevo 'Colaboradores' en el Admin: nombre, color, imagen/GIF y permiso de 'marcar como privado' por persona",
+      "Las cards de Descargas, Proyectos y Guías ahora muestran el nombre, color y foto/GIF real de quien creó el contenido",
+      "Guías ahora trackea quién la creó (antes no mostraba autor)",
+    ],
+    fixed: [
+      "El Dashboard mostraba siempre 'Editor / Amigo' en verde sin importar el colaborador logueado; ahora muestra su nombre y color reales",
+      "El checkbox '🔒 Privado' ahora solo aparece si esa persona tiene el permiso habilitado, en vez de estar disponible para cualquier logueado",
+    ],
+    changed: [
+      "Cada colaborador (no-admin) ahora solo puede editar o eliminar el contenido que él mismo creó; el Admin sigue con acceso total",
+      "Texto del checkbox de Privado en Guías simplificado a '🔒 Privado'",
+    ],
+  },
+    {
     version: "v1.5.0",
     date: "2026-09-05",
     title: "App instalable (PWA) y mejoras de mobile",
