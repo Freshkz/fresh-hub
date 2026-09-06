@@ -2,6 +2,22 @@ export const changelogEntries = [
 
 
     {
+    version: "v1.6.1",
+    date: "2026-09-06",
+    title: "Privacidad selectiva por publicación",
+    summary: "El contenido privado ya no lo ve 'cualquier logueado' — ahora se elige exactamente quién puede verlo, publicación por publicación.",
+    added: [
+      "Selector 'Quién más puede ver esto' en los 4 formularios (Descargas, Proyectos, Novedades, Guías), con chips de cada colaborador",
+    ],
+    fixed: [
+      "El contenido privado se mostraba sin blur a CUALQUIER persona logueada, sin importar quién lo creó ni si tenía permiso; ahora solo lo ven el Admin, el autor, y los colaboradores elegidos explícitamente",
+    ],
+    changed: [
+      "'Privado' pasó de ser una regla global (logueado = ve todo) a una regla por publicación (autor + Admin + elegidos)",
+    ],
+  },
+
+    {
     version: "v1.6.0",
     date: "2026-09-06",
     title: "Sistema de colaboradores con permisos",
