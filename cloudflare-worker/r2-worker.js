@@ -16,6 +16,51 @@ export default {
 
     const url = new URL(request.url);
 
+    // -1. Proxy autenticado a la API de commits de GitHub (evita el rate limit
+    //    de 60 req/hora sin auth: con token pasa a 5000 req/hora). El token
+    //    vive SOLO acá como secret de Cloudflare, nunca en el frontend.
+    //    GET /github-commits?repo=Freshkz/fresh-hub&branch=main&page=1&per_page=100&since=2026-01-01T00:00:00Z
+    if (request.method === "GET" && url.pathname === "/github-commits") {
+      try {
+        const repo = url.searchParams.get("repo");
+        if (!repo) {
+          return new Response(JSON.stringify({ error: "Falta el parámetro 'repo'" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const branch = url.searchParams.get("branch") || "main";
+        const page = url.searchParams.get("page") || "1";
+        const perPage = url.searchParams.get("per_page") || "100";
+        const since = url.searchParams.get("since");
+
+        const ghUrl = new URL(`https://api.github.com/repos/${repo}/commits`);
+        ghUrl.searchParams.set("sha", branch);
+        ghUrl.searchParams.set("per_page", perPage);
+        ghUrl.searchParams.set("page", page);
+        if (since) ghUrl.searchParams.set("since", since);
+
+        const ghRes = await fetch(ghUrl.toString(), {
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+            "User-Agent": "freshkz-hub-worker",
+          },
+        });
+
+        const body = await ghRes.text();
+        return new Response(body, {
+          status: ghRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // 0. Generar URL prefirmada para subir DIRECTO a R2 (sin pasar por el proxy de Cloudflare)
     //    GET /presign?filename=archivo.zip&role=admin&contentType=application/zip
     if (request.method === "GET" && url.pathname === "/presign") {

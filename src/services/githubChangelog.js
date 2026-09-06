@@ -1,7 +1,13 @@
 // Trae commits de un repo PÚBLICO de GitHub y los agrupa en Added/Fixed/Changed
-// según el prefijo de Conventional Commits (feat:, fix:, etc). No hace falta token
-// porque el repo es público (el límite sin auth es 60 req/hora por IP, más que de
-// sobra para "traer commits nuevos" cada tanto desde el Admin).
+// según el prefijo de Conventional Commits (feat:, fix:, etc).
+//
+// OJO: esto NO le pega directo a api.github.com. Le pega al Worker de Cloudflare
+// (mismo que maneja R2), que reenvía la request a GitHub con un token guardado
+// como secret del lado del servidor. Sin esto, el límite sin auth es 60
+// req/hora POR IP PÚBLICA — se agota fácil si varios dispositivos salen por la
+// misma IP (NAT del ISP), y devuelve 403 "API rate limit exceeded". Con token
+// el límite sube a 5000/hora. El token nunca viaja al navegador porque GitHub
+// Pages no puede esconder secretos (todo el JS del build es público).
 
 const DEFAULT_REPO = import.meta.env.VITE_GITHUB_REPO || "Freshkz/fresh-hub";
 const DEFAULT_BRANCH = import.meta.env.VITE_GITHUB_BRANCH || "main";
@@ -61,25 +67,44 @@ export function categorizeCommitMessage(message) {
   return { category: classifyFreeText(subject), text: subject, conventional: false };
 }
 
+// Resuelve la URL del Worker igual que r2Upload.js: primero Settings (Supabase),
+// después la env var, para que sea configurable desde /admin/settings sin redeploy.
+async function resolveWorkerUrl() {
+  const { getSettings } = await import("./settings");
+  const settings = await getSettings().catch(() => ({}));
+  let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
+  if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
+    workerUrl = `https://${workerUrl}`;
+  }
+  if (!workerUrl || !workerUrl.startsWith("http")) {
+    throw new Error(
+      "URL de Cloudflare Worker no configurada. Ingresá en Admin -> Settings y guardá la URL (ej: https://fresh-hub-r2-worker...)."
+    );
+  }
+  return workerUrl.replace(/\/$/, "");
+}
+
 /**
  * Trae los commits de la rama `branch` posteriores a `sinceIso` (o a partir de
  * `sinceSha` exclusive, si se pasa). Pagina automáticamente hasta 300 commits.
+ * Pasa por el Worker de Cloudflare (endpoint /github-commits) en vez de pegarle
+ * directo a api.github.com, para usar el token autenticado guardado ahí.
  */
 export async function fetchCommitsSince({ repo = DEFAULT_REPO, branch = DEFAULT_BRANCH, sinceIso, sinceSha, maxCommits = 300 } = {}) {
   const commits = [];
   let page = 1;
   const perPage = 100;
+  const workerUrl = await resolveWorkerUrl();
 
   while (commits.length < maxCommits) {
-    const url = new URL(`https://api.github.com/repos/${repo}/commits`);
-    url.searchParams.set("sha", branch);
+    const url = new URL(`${workerUrl}/github-commits`);
+    url.searchParams.set("repo", repo);
+    url.searchParams.set("branch", branch);
     url.searchParams.set("per_page", String(perPage));
     url.searchParams.set("page", String(page));
     if (sinceIso) url.searchParams.set("since", sinceIso);
 
-    const res = await fetch(url.toString(), {
-      headers: { Accept: "application/vnd.github+json" },
-    });
+    const res = await fetch(url.toString());
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       throw new Error(`GitHub API respondió ${res.status}: ${body || res.statusText}`);
