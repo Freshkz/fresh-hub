@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/projects";
 import { getDownloads } from "../../services/downloads";
 import { sendDiscordNotification } from "../../services/discord";
+import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ProjectCard from "../../components/projects/ProjectCard";
@@ -48,6 +49,7 @@ export default function ProjectsAdmin() {
     try {
       if (editingId) {
         await updateProject(editingId, payload);
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "updated", entityType: "project", entityId: editingId, entityTitle: form.name });
       } else {
         await createProject({
           ...payload,
@@ -57,6 +59,7 @@ export default function ProjectsAdmin() {
           author_color: authorColor,
           author_avatar_url: authorAvatarUrl,
         });
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "created", entityType: "project", entityTitle: form.name });
         sendDiscordNotification({
           title: form.name,
           description: form.description,
@@ -100,8 +103,13 @@ export default function ProjectsAdmin() {
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     const id = pendingDelete;
+    const deletedItem = projects.find((p) => p.id === id);
     setPendingDelete(null);
-    try { await deleteProject(id); load(); }
+    try {
+      await deleteProject(id);
+      logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "project", entityId: id, entityTitle: deletedItem?.name });
+      load();
+    }
     catch (err) { setErrorMsg(err.message || "Error eliminando proyecto"); }
   };
 
@@ -214,12 +222,14 @@ export default function ProjectsAdmin() {
                 <p className="text-sm font-medium">{p.name} {p.featured && <span className="text-accent text-xs ml-1">★</span>}</p>
                 <p className="text-xs text-muted">{p.status}</p>
               </div>
-              <div className="flex gap-3 text-sm">
-                {(isAdmin || p.author_email === userEmail) && (
+              <div className="flex items-center gap-3 text-sm">
+                {(isAdmin || p.author_email === userEmail) ? (
                   <>
                     <button onClick={() => startEdit(p)} className="text-muted hover:text-text">Editar</button>
                     <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
                   </>
+                ) : (
+                  <span className="text-xs font-medium text-red-400">🔒 No es tuya, no podés modificarla</span>
                 )}
               </div>
             </div>

@@ -6,6 +6,7 @@ import { getDownloads } from "../../services/downloads";
 import { getNews } from "../../services/news";
 import { getGuides } from "../../services/guides";
 import { getSocials } from "../../services/socials";
+import ActivityLogDropdown from "../../components/admin/ActivityLogDropdown";
 
 const links = [
   { to: "/admin/projects", label: "Projects", adminOnly: false },
@@ -56,9 +57,12 @@ export default function Dashboard() {
             </span>
           </p>
         </div>
-        <button onClick={signOut} className="text-sm text-muted hover:text-text">
-          Cerrar sesión
-        </button>
+        <div className="flex items-center gap-2">
+          <ActivityLogDropdown />
+          <button onClick={signOut} className="text-sm text-muted hover:text-text">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
       {errorMsg && <p className="text-red-400 text-sm mb-4">{errorMsg}</p>}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">

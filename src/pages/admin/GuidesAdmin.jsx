@@ -9,6 +9,7 @@ import GuideCard from "../../components/guides/GuideCard";
 import GuideContent from "../../components/guides/GuideContent";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
 import { sendDiscordNotification } from "../../services/discord";
+import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
 import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
@@ -108,8 +109,10 @@ export default function GuidesAdmin() {
     try {
       if (editingId) {
         await updateGuide(editingId, payload);
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "updated", entityType: "guide", entityId: editingId, entityTitle: form.title });
       } else {
         await createGuide(payload);
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "created", entityType: "guide", entityTitle: form.title });
         if (form.published) {
           sendDiscordNotification({
             title: form.title,
@@ -175,9 +178,11 @@ export default function GuidesAdmin() {
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     const id = pendingDelete;
+    const deletedItem = items.find((item) => item.id === id);
     setPendingDelete(null);
     try {
       await deleteGuide(id);
+      logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "guide", entityId: id, entityTitle: deletedItem?.title });
       load();
     } catch (err) {
       setErrorMsg(err.message || "Error eliminando la guía");
@@ -347,12 +352,14 @@ export default function GuidesAdmin() {
                   {item.categories?.length ? ` · ${item.categories.join(", ")}` : ""} · {item.published ? "Publicada" : "Borrador"}
                 </p>
               </div>
-              <div className="flex gap-3 text-sm text-muted">
-                {(isAdmin || item.author_email === userEmail) && (
+              <div className="flex items-center gap-3 text-sm text-muted">
+                {(isAdmin || item.author_email === userEmail) ? (
                   <>
                     <button onClick={() => startEdit(item)} className="hover:text-text">Editar</button>
                     <button onClick={() => handleDelete(item.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
                   </>
+                ) : (
+                  <span className="text-xs font-medium text-red-400">🔒 No es tuya, no podés modificarla</span>
                 )}
               </div>
             </div>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
 import { uploadToR2, deleteFromR2 } from "../../services/r2Upload";
 import { sendDiscordNotification } from "../../services/discord";
+import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
@@ -80,6 +81,7 @@ export default function DownloadsAdmin() {
     try {
       if (editingId) {
         await updateDownload(editingId, form);
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "updated", entityType: "download", entityId: editingId, entityTitle: form.name });
       } else {
         await createDownload({
           ...form,
@@ -90,6 +92,7 @@ export default function DownloadsAdmin() {
           author_color: authorColor,
           author_avatar_url: authorAvatarUrl,
         });
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "created", entityType: "download", entityTitle: form.name });
         sendDiscordNotification({
           title: form.name,
           description: form.description,
@@ -130,6 +133,7 @@ export default function DownloadsAdmin() {
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     const { id, downloadUrl } = pendingDelete;
+    const deletedItem = items.find((d) => d.id === id);
     setPendingDelete(null);
     setErrorMsg("");
     try {
@@ -137,6 +141,7 @@ export default function DownloadsAdmin() {
         await deleteFromR2(downloadUrl);
       }
       await deleteDownload(id);
+      logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "download", entityId: id, entityTitle: deletedItem?.name });
       load();
     } catch (err) {
       setErrorMsg(err.message || "Error eliminando descarga");
@@ -294,12 +299,14 @@ export default function DownloadsAdmin() {
                 <p className="text-sm font-medium">{d.name} {d.featured && <span className="text-accent text-xs ml-1">★</span>}</p>
                 <p className="text-xs text-muted">v{d.version} · {d.size}</p>
               </div>
-              <div className="flex gap-3 text-sm">
-                {(isAdmin || d.author_email === userEmail) && (
+              <div className="flex items-center gap-3 text-sm">
+                {(isAdmin || d.author_email === userEmail) ? (
                   <>
                     <button onClick={() => startEdit(d)} className="text-muted hover:text-text">Editar</button>
                     <button onClick={() => handleDelete(d.id, d.download_url)} className="text-red-400 hover:text-red-300">Eliminar</button>
                   </>
+                ) : (
+                  <span className="text-xs font-medium text-red-400">🔒 No es tuya, no podés modificarla</span>
                 )}
               </div>
             </div>

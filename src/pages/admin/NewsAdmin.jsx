@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getNews, createNews, updateNews, deleteNews } from "../../services/news";
 import { sendDiscordNotification } from "../../services/discord";
+import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
@@ -34,6 +35,7 @@ export default function NewsAdmin() {
     try {
       if (editingId) {
         await updateNews(editingId, form);
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "updated", entityType: "news", entityId: editingId, entityTitle: form.title });
       } else {
         await createNews({
           ...form,
@@ -46,6 +48,7 @@ export default function NewsAdmin() {
           author_color: authorColor,
           author_avatar_url: authorAvatarUrl,
         });
+        logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "created", entityType: "news", entityTitle: form.title });
 
         if (form.published) {
           sendDiscordNotification({
@@ -89,8 +92,13 @@ export default function NewsAdmin() {
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     const id = pendingDelete;
+    const deletedItem = items.find((n) => n.id === id);
     setPendingDelete(null);
-    try { await deleteNews(id); load(); }
+    try {
+      await deleteNews(id);
+      logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "news", entityId: id, entityTitle: deletedItem?.title });
+      load();
+    }
     catch (err) { setErrorMsg(err.message || "Error eliminando novedad"); }
   };
 
@@ -174,12 +182,14 @@ export default function NewsAdmin() {
                 <p className="text-sm font-medium">{n.title} {!n.published && <span className="text-muted text-xs ml-1">(borrador)</span>}</p>
                 <p className="text-xs text-muted">{n.type} · {n.source}</p>
               </div>
-              <div className="flex gap-3 text-sm">
-                {(isAdmin || n.author_email === userEmail) && (
+              <div className="flex items-center gap-3 text-sm">
+                {(isAdmin || n.author_email === userEmail) ? (
                   <>
                     <button onClick={() => startEdit(n)} className="text-muted hover:text-text">Editar</button>
                     <button onClick={() => handleDelete(n.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
                   </>
+                ) : (
+                  <span className="text-xs font-medium text-red-400">🔒 No es tuya, no podés modificarla</span>
                 )}
               </div>
             </div>
