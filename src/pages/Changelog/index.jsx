@@ -1,9 +1,18 @@
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { changelogEntries } from "../../services/changelog";
+import { fetchChangelogEntries } from "../../services/changelog";
 
 export default function ChangelogPage() {
   const reduceMotion = useReducedMotion();
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchChangelogEntries()
+      .then(setEntries)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
@@ -15,10 +24,12 @@ export default function ChangelogPage() {
         <Link to="/" className="text-sm text-muted hover:text-text">← Volver</Link>
       </div>
 
+      {loading && <p className="text-sm text-muted">Cargando…</p>}
+
       <div className="space-y-6">
-        {changelogEntries.map((entry, index) => (
+        {entries.map((entry, index) => (
           <motion.article
-            key={entry.version}
+            key={entry.id || entry.version}
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.24, delay: index * 0.06 }}
@@ -38,19 +49,19 @@ export default function ChangelogPage() {
               <div>
                 <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Added</h3>
                 <ul className="space-y-2 text-sm text-muted">
-                  {entry.added.map((item) => <li key={item}>+ {item}</li>)}
+                  {(entry.added || []).map((item) => <li key={item}>+ {item}</li>)}
                 </ul>
               </div>
               <div>
                 <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-accent2">Changed</h3>
                 <ul className="space-y-2 text-sm text-muted">
-                  {entry.changed.map((item) => <li key={item}>≈ {item}</li>)}
+                  {(entry.changed || []).map((item) => <li key={item}>≈ {item}</li>)}
                 </ul>
               </div>
               <div>
                 <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-300">Fixed</h3>
                 <ul className="space-y-2 text-sm text-muted">
-                  {entry.fixed.map((item) => <li key={item}>- {item}</li>)}
+                  {(entry.fixed || []).map((item) => <li key={item}>- {item}</li>)}
                 </ul>
               </div>
             </div>

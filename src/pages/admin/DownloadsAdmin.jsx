@@ -136,10 +136,20 @@ export default function DownloadsAdmin() {
     const deletedItem = items.find((d) => d.id === id);
     setPendingDelete(null);
     setErrorMsg("");
-    try {
-      if (downloadUrl) {
+
+    // Intentamos borrar el archivo real de R2, pero si esto falla (worker caído,
+    // CORS, archivo ya no existe, etc.) NO debe impedir que se borre el registro
+    // ni que se registre en el log — son dos pasos independientes.
+    if (downloadUrl) {
+      try {
         await deleteFromR2(downloadUrl);
+      } catch (err) {
+        console.error("No se pudo borrar el archivo en R2 (se continúa borrando el registro):", err);
+        setErrorMsg(`El archivo puede haber quedado huérfano en R2: ${err.message || "error desconocido"}`);
       }
+    }
+
+    try {
       await deleteDownload(id);
       logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "download", entityId: id, entityTitle: deletedItem?.name });
       load();

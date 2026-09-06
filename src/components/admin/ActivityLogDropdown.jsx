@@ -13,6 +13,7 @@ const entityLabels = {
   project: "proyecto",
   download: "descarga",
   news: "novedad",
+  changelog: "versión del changelog",
 };
 
 function timeAgo(dateString) {
@@ -88,12 +89,12 @@ export default function ActivityLogDropdown() {
                       className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
                       style={{ backgroundColor: entry.actor_color || meta.color }}
                     >
-                      {(entry.actor_name || entry.actor_email || "?")[0].toUpperCase()}
+                      {(entry.actor_name || "?")[0].toUpperCase()}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-xs leading-snug text-text">
-                      <span className="font-medium">{entry.actor_name || entry.actor_email}</span>{" "}
+                      <span className="font-medium">{entry.actor_name || "Alguien"}</span>{" "}
                       <span>{meta.icon} {meta.label}</span>{" "}
                       <span className="text-muted">{entityLabel}</span>
                       {entry.entity_title && <span className="text-muted"> — "{entry.entity_title}"</span>}

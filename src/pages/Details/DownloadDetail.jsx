@@ -40,8 +40,16 @@ export default function DownloadDetail() {
       <div className="flex items-start justify-between gap-4 mt-6 mb-3">
         <h1 className="font-display text-3xl font-bold">{download.name}</h1>
         {download.author_role && (
-          <span className="px-3 py-1 rounded-full bg-surface border border-border text-xs text-muted">
-            {download.author_role === "admin" ? "👑 Creado por Admin" : "👤 Creado por Colaborador"}
+          <span
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border text-xs font-medium"
+            style={download.author_color ? { borderColor: `${download.author_color}55`, color: download.author_color } : { borderColor: undefined }}
+          >
+            {download.author_avatar_url ? (
+              <img src={download.author_avatar_url} alt="" className="w-4 h-4 rounded-full object-cover" />
+            ) : (
+              <span>{download.author_role === "admin" ? "👑" : "👤"}</span>
+            )}
+            Creado por {download.author_name || (download.author_role === "admin" ? "Admin" : "Colaborador")}
           </span>
         )}
       </div>

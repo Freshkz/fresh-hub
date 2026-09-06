@@ -17,6 +17,7 @@ import SocialsAdmin from "./pages/admin/SocialsAdmin";
 import SettingsAdmin from "./pages/admin/SettingsAdmin";
 import CollaboratorsAdmin from "./pages/admin/CollaboratorsAdmin";
 import ActivityLogAdmin from "./pages/admin/ActivityLogAdmin";
+import ChangelogAdmin from "./pages/admin/ChangelogAdmin";
 import ProjectDetail from "./pages/Details/ProjectDetail";
 import DownloadDetail from "./pages/Details/DownloadDetail";
 import NewsDetail from "./pages/Details/NewsDetail";
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><SettingsAdmin /></ProtectedRoute>} />
             <Route path="/admin/collaborators" element={<ProtectedRoute requireAdmin><CollaboratorsAdmin /></ProtectedRoute>} />
             <Route path="/admin/activity-log" element={<ProtectedRoute><ActivityLogAdmin /></ProtectedRoute>} />
+            <Route path="/admin/changelog" element={<ProtectedRoute requireAdmin><ChangelogAdmin /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer settings={settings} />

@@ -15,6 +15,7 @@ const links = [
   { to: "/admin/guides", label: "Guides", adminOnly: false },
   { to: "/admin/socials", label: "Social Links", adminOnly: true },
   { to: "/admin/collaborators", label: "Colaboradores", adminOnly: true },
+  { to: "/admin/changelog", label: "Changelog", adminOnly: true },
   { to: "/admin/settings", label: "Settings", adminOnly: true },
 ];
 

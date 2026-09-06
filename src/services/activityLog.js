@@ -25,3 +25,26 @@ export async function fetchActivityLog({ limit = 200 } = {}) {
   if (error) throw error;
   return data;
 }
+
+// Borra una entrada puntual del log. Solo debe exponerse en la UI a usuarios admin
+// (las políticas RLS en Supabase también deberían restringir el delete a admin).
+export async function deleteActivityLogEntry(id) {
+  const { error } = await supabase.from("activity_log").delete().eq("id", id);
+  if (error) throw error;
+  return true;
+}
+
+// Borra varias entradas a la vez (selección múltiple / "vaciar log").
+export async function deleteActivityLogEntries(ids) {
+  if (!ids || ids.length === 0) return true;
+  const { error } = await supabase.from("activity_log").delete().in("id", ids);
+  if (error) throw error;
+  return true;
+}
+
+// Borra todo el historial anterior a una fecha (útil para "limpiar log viejo").
+export async function deleteActivityLogOlderThan(dateIso) {
+  const { error } = await supabase.from("activity_log").delete().lt("created_at", dateIso);
+  if (error) throw error;
+  return true;
+}
