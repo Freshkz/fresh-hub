@@ -28,6 +28,11 @@ const blank = {
   discord_webhook_url_downloads: "",
   discord_webhook_url_projects: "",
   discord_webhook_url_news: "",
+  discord_forum_tag_general: "",
+  discord_forum_tag_guides: "",
+  discord_forum_tag_downloads: "",
+  discord_forum_tag_projects: "",
+  discord_forum_tag_news: "",
   discord_server_id: "",
   private_apps_pin: "1234",
   r2_worker_url: "",
@@ -71,6 +76,11 @@ export default function SettingsAdmin() {
         discord_webhook_url_downloads: settings.discord_webhook_url_downloads || "",
         discord_webhook_url_projects: settings.discord_webhook_url_projects || "",
         discord_webhook_url_news: settings.discord_webhook_url_news || "",
+        discord_forum_tag_general: settings.discord_forum_tag_general || "",
+        discord_forum_tag_guides: settings.discord_forum_tag_guides || "",
+        discord_forum_tag_downloads: settings.discord_forum_tag_downloads || "",
+        discord_forum_tag_projects: settings.discord_forum_tag_projects || "",
+        discord_forum_tag_news: settings.discord_forum_tag_news || "",
         discord_server_id: settings.discord_server_id || "",
         private_apps_pin: settings.private_apps_pin || "1234",
         r2_worker_url: settings.r2_worker_url || "",
@@ -225,10 +235,22 @@ export default function SettingsAdmin() {
                   className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
                 />
                 <input
+                  value={form.discord_forum_tag_guides}
+                  onChange={(e) => setForm({ ...form, discord_forum_tag_guides: e.target.value })}
+                  placeholder="ID de etiqueta del foro para Guías (solo si el canal es un Foro)"
+                  className="w-full bg-surface2 border border-border/60 rounded-lg px-3 py-2 text-xs text-muted"
+                />
+                <input
                   value={form.discord_webhook_url_downloads}
                   onChange={(e) => setForm({ ...form, discord_webhook_url_downloads: e.target.value })}
                   placeholder="📥 Webhook solo para Descargas"
                   className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <input
+                  value={form.discord_forum_tag_downloads}
+                  onChange={(e) => setForm({ ...form, discord_forum_tag_downloads: e.target.value })}
+                  placeholder="ID de etiqueta del foro para Descargas (solo si el canal es un Foro)"
+                  className="w-full bg-surface2 border border-border/60 rounded-lg px-3 py-2 text-xs text-muted"
                 />
                 <input
                   value={form.discord_webhook_url_projects}
@@ -237,12 +259,30 @@ export default function SettingsAdmin() {
                   className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
                 />
                 <input
+                  value={form.discord_forum_tag_projects}
+                  onChange={(e) => setForm({ ...form, discord_forum_tag_projects: e.target.value })}
+                  placeholder="ID de etiqueta del foro para Proyectos (solo si el canal es un Foro)"
+                  className="w-full bg-surface2 border border-border/60 rounded-lg px-3 py-2 text-xs text-muted"
+                />
+                <input
                   value={form.discord_webhook_url_news}
                   onChange={(e) => setForm({ ...form, discord_webhook_url_news: e.target.value })}
                   placeholder="📰 Webhook solo para Novedades"
                   className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm"
                 />
-                <p className="text-[11px] text-muted">Si dejás alguno vacío, esa sección usa el Webhook general de arriba.</p>
+                <input
+                  value={form.discord_forum_tag_news}
+                  onChange={(e) => setForm({ ...form, discord_forum_tag_news: e.target.value })}
+                  placeholder="ID de etiqueta del foro para Novedades (solo si el canal es un Foro)"
+                  className="w-full bg-surface2 border border-border/60 rounded-lg px-3 py-2 text-xs text-muted"
+                />
+                <input
+                  value={form.discord_forum_tag_general}
+                  onChange={(e) => setForm({ ...form, discord_forum_tag_general: e.target.value })}
+                  placeholder="ID de etiqueta del foro para el webhook general (solo si el canal es un Foro)"
+                  className="w-full bg-surface2 border border-border/60 rounded-lg px-3 py-2 text-xs text-muted"
+                />
+                <p className="text-[11px] text-muted">Si dejás alguno vacío, esa sección usa el Webhook general de arriba. El "ID de etiqueta" solo hace falta si ese webhook apunta a un canal de tipo Foro y querés que el post se etiquete solo (click derecho en la etiqueta dentro de Discord → Copiar ID; necesitás el modo desarrollador activado).</p>
               </div>
               <input
                 value={form.discord_server_id}

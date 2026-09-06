@@ -1,11 +1,11 @@
 import { getSettings } from "./settings";
 
 const TYPE_DEFAULTS = {
-  "Proyecto": { emoji: "🧩", color: 0x7C5CFF, webhookKey: "discord_webhook_url_projects" },
-  "Descarga": { emoji: "📥", color: 0x33E6B0, webhookKey: "discord_webhook_url_downloads" },
-  "Novedad": { emoji: "📰", color: 0x5865F2, webhookKey: "discord_webhook_url_news" },
-  "Guía": { emoji: "📖", color: 0xFFB020, webhookKey: "discord_webhook_url_guides" },
-  "Publicación": { emoji: "📌", color: 0x7C5CFF, webhookKey: null },
+  "Proyecto": { emoji: "🧩", color: 0x7C5CFF, webhookKey: "discord_webhook_url_projects", forumTagKey: "discord_forum_tag_projects" },
+  "Descarga": { emoji: "📥", color: 0x33E6B0, webhookKey: "discord_webhook_url_downloads", forumTagKey: "discord_forum_tag_downloads" },
+  "Novedad": { emoji: "📰", color: 0x5865F2, webhookKey: "discord_webhook_url_news", forumTagKey: "discord_forum_tag_news" },
+  "Guía": { emoji: "📖", color: 0xFFB020, webhookKey: "discord_webhook_url_guides", forumTagKey: "discord_forum_tag_guides" },
+  "Publicación": { emoji: "📌", color: 0x7C5CFF, webhookKey: null, forumTagKey: "discord_forum_tag_general" },
 };
 
 /**
@@ -73,6 +73,7 @@ export async function sendDiscordNotification({
     }
 
     const basePayload = { embeds: [embed] };
+    if (url) basePayload.content = url;
 
     let response = await fetch(webhookUrl, {
       method: "POST",
@@ -82,17 +83,23 @@ export async function sendDiscordNotification({
 
     // Si el Webhook apunta a un canal de Foro, Discord rechaza el mensaje y
     // pide un "thread_name" para crear el post. Reintentamos automáticamente
-    // usando el título como nombre del nuevo post del foro.
+    // usando el título como nombre del nuevo post del foro, y le sumamos
+    // "applied_tags" con el ID de etiqueta configurado (si hay uno).
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
       const needsThreadName = JSON.stringify(errorBody).toLowerCase().includes("thread_name");
 
       if (needsThreadName) {
         const threadName = title.length > 90 ? `${title.slice(0, 87)}...` : title;
+        const forumTagId = settings?.[typeDefaults.forumTagKey];
+
+        const forumPayload = { ...basePayload, thread_name: threadName };
+        if (forumTagId) forumPayload.applied_tags = [String(forumTagId)];
+
         response = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...basePayload, thread_name: threadName }),
+          body: JSON.stringify(forumPayload),
         });
       }
     }
