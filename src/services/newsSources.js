@@ -42,7 +42,7 @@ function normalizeSourceEntry(entry) {
     date: entry.date || new Date().toISOString(),
     published: entry.published ?? true,
     source: entry.source || (isDbItem ? "admin" : "github"),
-    sourceId: entry.sourceId || (isDbItem ? `db-news:${entry.id}` : `${entry.source || "github"}:${entry.title}`),
+    sourceId: entry.sourceId || entry.source_id || (isDbItem ? `db-news:${entry.id}` : `${entry.source || "github"}:${entry.title}`),
     featured: entry.featured ?? false,
     type: entry.type || "update",
   };

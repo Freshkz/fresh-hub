@@ -16,13 +16,17 @@ export default function GuidesPage() {
     fetchGuides().then(setGuides).finally(() => setLoading(false));
   }, []);
 
-  // Juegos/temas disponibles: la lista fija + cualquier tag propio que ya se haya usado
+  // Juegos/temas disponibles: solo los que efectivamente tiene alguna guía
+  // (igual que las categorías), manteniendo el orden de la lista fija y
+  // agregando al final cualquier juego/tema personalizado que se haya usado.
   const availableGames = useMemo(() => {
-    const set = new Set(guideGameOptions);
+    const used = new Set();
     guides.forEach((guide) => {
-      if (Array.isArray(guide.tags)) guide.tags.forEach((tag) => set.add(tag));
+      if (Array.isArray(guide.tags)) guide.tags.forEach((tag) => used.add(tag));
     });
-    return Array.from(set);
+    const known = guideGameOptions.filter((game) => used.has(game));
+    const custom = Array.from(used).filter((tag) => !guideGameOptions.includes(tag));
+    return [...known, ...custom];
   }, [guides]);
 
   // Categorías disponibles: solo las que efectivamente tiene alguna guía publicada
@@ -73,19 +77,21 @@ export default function GuidesPage() {
       </div>
 
       <div className="mb-8 flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <select
-            value={selectedGame}
-            onChange={(event) => setSelectedGame(event.target.value)}
-            className="appearance-none rounded-xl border border-border bg-surface px-3.5 py-2 pr-9 text-sm text-text outline-none transition-colors hover:border-accent/40 focus:border-accent"
-          >
-            <option value="all">Todos los juegos</option>
-            {availableGames.map((game) => (
-              <option key={game} value={game}>#{game}</option>
-            ))}
-          </select>
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">▾</span>
-        </div>
+        {availableGames.length > 0 && (
+          <div className="relative">
+            <select
+              value={selectedGame}
+              onChange={(event) => setSelectedGame(event.target.value)}
+              className="appearance-none rounded-xl border border-border bg-surface px-3.5 py-2 pr-9 text-sm text-text outline-none transition-colors hover:border-accent/40 focus:border-accent"
+            >
+              <option value="all">Todos los juegos</option>
+              {availableGames.map((game) => (
+                <option key={game} value={game}>#{game}</option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">▾</span>
+          </div>
+        )}
 
         {availableCategories.length > 0 && (
           <div className="relative">

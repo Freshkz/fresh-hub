@@ -7,7 +7,7 @@ import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import VisibleToPicker from "../../components/admin/VisibleToPicker";
 
-const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false, visible_to: [] };
+const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", source_id: "", is_private: false, visible_to: [] };
 
 export default function NewsAdmin() {
   const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
@@ -39,7 +39,7 @@ export default function NewsAdmin() {
           ...form,
           date: new Date().toISOString(),
           source: form.source || "admin",
-          sourceId: form.sourceId || null,
+          source_id: form.source_id || null,
           author_email: userEmail,
           author_role: role || "admin",
           author_name: displayName,
@@ -76,7 +76,7 @@ export default function NewsAdmin() {
       published: n.published,
       featured: n.featured,
       source: n.source || "admin",
-      sourceId: n.sourceId || "",
+      source_id: n.source_id || "",
       is_private: Boolean(n.is_private),
       visible_to: Array.isArray(n.visible_to) ? n.visible_to : [],
     });
@@ -130,8 +130,8 @@ export default function NewsAdmin() {
             <option value="rss">RSS / Feed</option>
           </select>
         </div>
-        <input value={form.sourceId} onChange={(e) => setForm({ ...form, sourceId: e.target.value })}
-          placeholder="sourceId (opcional: GitHub, release, feed, etc.)"
+        <input value={form.source_id} onChange={(e) => setForm({ ...form, source_id: e.target.value })}
+          placeholder="source_id (opcional: GitHub, release, feed, etc.)"
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-muted">
