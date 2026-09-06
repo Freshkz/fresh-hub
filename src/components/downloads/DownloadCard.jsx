@@ -9,7 +9,9 @@ export default function DownloadCard({ item, settings = {} }) {
     <span className="font-mono text-xs uppercase tracking-[0.18em] text-white/75">v{item.version}</span>
   );
 
-  const authorObj = item.author_role ? { role: item.author_role, email: item.author_email } : null;
+  const authorObj = item.author_role
+    ? { role: item.author_role, email: item.author_email, name: item.author_name, color: item.author_color, avatarUrl: item.author_avatar_url }
+    : null;
 
   return (
     <PrivateLock isPrivate={item.is_private} lockIcon={settings.private_lock_downloads}>

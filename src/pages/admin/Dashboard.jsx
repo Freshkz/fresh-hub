@@ -13,11 +13,12 @@ const links = [
   { to: "/admin/news", label: "News", adminOnly: false },
   { to: "/admin/guides", label: "Guides", adminOnly: false },
   { to: "/admin/socials", label: "Social Links", adminOnly: true },
+  { to: "/admin/collaborators", label: "Colaboradores", adminOnly: true },
   { to: "/admin/settings", label: "Settings", adminOnly: true },
 ];
 
 export default function Dashboard() {
-  const { signOut, userEmail, isAdmin, role } = useAuth();
+  const { signOut, userEmail, isAdmin, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [stats, setStats] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -44,8 +45,14 @@ export default function Dashboard() {
           <h1 className="font-display text-xl font-semibold">Dashboard</h1>
           <p className="text-xs text-muted mt-1 flex items-center gap-2">
             <span>{userEmail}</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${isAdmin ? "bg-accent/20 text-accent border border-accent/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"}`}>
-              {isAdmin ? "Admin" : "Editor / Amigo"}
+            {authorAvatarUrl && (
+              <img src={authorAvatarUrl} alt="" className="w-4 h-4 rounded-full object-cover border border-border" />
+            )}
+            <span
+              className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border"
+              style={{ color: authorColor, borderColor: `${authorColor}55`, backgroundColor: `${authorColor}22` }}
+            >
+              {isAdmin ? "👑 " : "👤 "}{displayName}
             </span>
           </p>
         </div>

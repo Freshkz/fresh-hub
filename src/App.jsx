@@ -14,6 +14,7 @@ import DownloadsAdmin from "./pages/admin/DownloadsAdmin";
 import NewsAdmin from "./pages/admin/NewsAdmin";
 import SocialsAdmin from "./pages/admin/SocialsAdmin";
 import SettingsAdmin from "./pages/admin/SettingsAdmin";
+import CollaboratorsAdmin from "./pages/admin/CollaboratorsAdmin";
 import ProjectDetail from "./pages/Details/ProjectDetail";
 import DownloadDetail from "./pages/Details/DownloadDetail";
 import NewsDetail from "./pages/Details/NewsDetail";
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/admin/guides" element={<ProtectedRoute><GuidesAdmin /></ProtectedRoute>} />
           <Route path="/admin/socials" element={<ProtectedRoute requireAdmin><SocialsAdmin /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><SettingsAdmin /></ProtectedRoute>} />
+          <Route path="/admin/collaborators" element={<ProtectedRoute requireAdmin><CollaboratorsAdmin /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer settings={settings} />

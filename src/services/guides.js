@@ -159,6 +159,11 @@ function normalizeGuide(raw = {}) {
     published: raw.published !== false,
     featured: Boolean(raw.featured),
     is_private: Boolean(raw.is_private),
+    author_email: raw.author_email || "",
+    author_role: raw.author_role || "",
+    author_name: raw.author_name || "",
+    author_color: raw.author_color || "",
+    author_avatar_url: raw.author_avatar_url || "",
     createdAt: raw.createdAt || raw.created_at || new Date().toISOString(),
   };
 }
@@ -231,6 +236,11 @@ export async function createGuide(payload) {
       published: normalized.published,
       featured: normalized.featured,
       is_private: normalized.is_private,
+      author_email: normalized.author_email || null,
+      author_role: normalized.author_role || null,
+      author_name: normalized.author_name || null,
+      author_color: normalized.author_color || null,
+      author_avatar_url: normalized.author_avatar_url || null,
     }).select().single();
     if (!error && data) {
       const saved = normalizeGuide(data);

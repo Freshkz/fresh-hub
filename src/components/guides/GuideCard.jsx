@@ -26,6 +26,21 @@ export default function GuideCard({ guide, settings = {} }) {
         </div>
         <div className="p-4">
           <h3 className="mb-2 text-base font-semibold text-text">{guide.title}</h3>
+          {guide.author_role && (
+            <div className="mb-2 flex items-center gap-1.5 text-[11px] text-muted">
+              <span
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface2 border font-medium"
+                style={guide.author_color ? { borderColor: `${guide.author_color}55`, color: guide.author_color } : undefined}
+              >
+                {guide.author_avatar_url ? (
+                  <img src={guide.author_avatar_url} alt="" className="w-3.5 h-3.5 rounded-full object-cover" />
+                ) : (
+                  <span>{guide.author_role === "admin" ? "👑" : "👤"}</span>
+                )}
+                {guide.author_name || (guide.author_role === "admin" ? "Admin" : "Colaborador")}
+              </span>
+            </div>
+          )}
           <p className="mb-4 text-sm leading-6 text-muted">{guide.summary}</p>
           <div className="flex flex-wrap gap-2">
             {(guide.tags || []).slice(1, 4).map((tag) => (

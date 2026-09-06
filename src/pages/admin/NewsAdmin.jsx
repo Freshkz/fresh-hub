@@ -9,7 +9,7 @@ import ConfirmModal from "../../components/ui/ConfirmModal";
 const empty = { title: "", description: "", image: "", type: "update", published: true, featured: false, source: "admin", sourceId: "", is_private: false };
 
 export default function NewsAdmin() {
-  const { userEmail, role } = useAuth();
+  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -41,6 +41,9 @@ export default function NewsAdmin() {
           sourceId: form.sourceId || null,
           author_email: userEmail,
           author_role: role || "admin",
+          author_name: displayName,
+          author_color: authorColor,
+          author_avatar_url: authorAvatarUrl,
         });
 
         if (form.published) {
@@ -136,10 +139,12 @@ export default function NewsAdmin() {
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
             Featured
           </label>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
-            🔒 Privado
-          </label>
+          {canMarkPrivate && (
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+              🔒 Privado
+            </label>
+          )}
         </div>
         <div className="flex gap-2">
           <button type="submit" className="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg">

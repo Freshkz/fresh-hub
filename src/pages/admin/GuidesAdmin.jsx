@@ -8,6 +8,7 @@ import ConfirmModal from "../../components/ui/ConfirmModal";
 import GuideCard from "../../components/guides/GuideCard";
 import GuideContent from "../../components/guides/GuideContent";
 import { fetchGuides, createGuide, updateGuide, deleteGuide, guideGameOptions, guideContentCategories } from "../../services/guides";
+import { useAuth } from "../../hooks/useAuth";
 
 const initialForm = {
   title: "",
@@ -50,6 +51,7 @@ function slugify(value) {
 }
 
 export default function GuidesAdmin() {
+  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -90,6 +92,13 @@ export default function GuidesAdmin() {
       featured: form.featured,
       is_private: form.is_private,
       createdAt: new Date().toISOString(),
+      ...(editingId ? {} : {
+        author_email: userEmail,
+        author_role: role || "admin",
+        author_name: displayName,
+        author_color: authorColor,
+        author_avatar_url: authorAvatarUrl,
+      }),
     };
 
     try {
@@ -255,10 +264,12 @@ export default function GuidesAdmin() {
             <input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} />
             Destacada
           </label>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" checked={form.is_private} onChange={(event) => setForm({ ...form, is_private: event.target.checked })} />
-            🔒 Privado (solo vos y tu pareja logueados lo ven)
-          </label>
+          {canMarkPrivate && (
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="checkbox" checked={form.is_private} onChange={(event) => setForm({ ...form, is_private: event.target.checked })} />
+              🔒 Privado (solo vos y tu pareja logueados lo ven)
+            </label>
+          )}
         </div>
 
         <div className="flex gap-2">

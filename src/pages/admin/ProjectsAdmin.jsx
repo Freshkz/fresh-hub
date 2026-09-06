@@ -10,7 +10,7 @@ import ConfirmModal from "../../components/ui/ConfirmModal";
 const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false };
 
 export default function ProjectsAdmin() {
-  const { userEmail, role } = useAuth();
+  const { userEmail, role, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
@@ -48,6 +48,9 @@ export default function ProjectsAdmin() {
           ...payload,
           author_email: userEmail,
           author_role: role || "admin",
+          author_name: displayName,
+          author_color: authorColor,
+          author_avatar_url: authorAvatarUrl,
         });
         sendDiscordNotification({
           title: form.name,
@@ -131,10 +134,12 @@ export default function ProjectsAdmin() {
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
             Featured
           </label>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
-            🔒 Privado
-          </label>
+          {canMarkPrivate && (
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="checkbox" checked={form.is_private} onChange={(e) => setForm({ ...form, is_private: e.target.checked })} />
+              🔒 Privado
+            </label>
+          )}
         </div>
         <div className="flex gap-2">
           <button type="submit" className="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg">

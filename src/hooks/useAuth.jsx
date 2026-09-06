@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "../services/supabaseClient";
+import { getCollaboratorByEmail } from "../services/collaborators";
 
 const AuthContext = createContext(null);
 
@@ -12,6 +13,20 @@ function isInvalidTokenError(error) {
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [collaborator, setCollaborator] = useState(null);
+
+  useEffect(() => {
+    const email = session?.user?.email;
+    if (!email) {
+      setCollaborator(null);
+      return;
+    }
+    let cancelled = false;
+    getCollaboratorByEmail(email)
+      .then((data) => { if (!cancelled) setCollaborator(data); })
+      .catch(() => { if (!cancelled) setCollaborator(null); });
+    return () => { cancelled = true; };
+  }, [session?.user?.email]);
 
   useEffect(() => {
     let mounted = true;
@@ -59,12 +74,17 @@ export function AuthProvider({ children }) {
     isEditor: userRole === "editor",
     canEdit: Boolean(session),
     userEmail: session?.user?.email || "",
+    collaborator,
+    displayName: collaborator?.display_name || (userRole === "admin" ? "Admin" : "Colaborador"),
+    authorColor: collaborator?.color || (userRole === "admin" ? "#33E6B0" : "#9CA3AF"),
+    authorAvatarUrl: collaborator?.avatar_url || "",
+    canMarkPrivate: userRole === "admin" || Boolean(collaborator?.can_mark_private),
     signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signOut: () => supabase.auth.signOut(),
     resetPassword: (email) => supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}admin`,
     }),
-  }), [session, loading, userRole]);
+  }), [session, loading, userRole, collaborator]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -47,8 +47,16 @@ export default function InteractiveCard({
               </div>
               {author && (
                 <div className="mb-2.5 flex items-center gap-1.5 text-[11px] text-muted">
-                  <span className="px-2 py-0.5 rounded-full bg-surface2 border border-border font-medium text-text/80">
-                    {author.role === "admin" ? "👑 Admin" : author.role === "editor" ? "👤 Colaborador" : `👤 ${author.name || "Usuario"}`}
+                  <span
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface2 border font-medium"
+                    style={author.color ? { borderColor: `${author.color}55`, color: author.color } : undefined}
+                  >
+                    {author.avatarUrl ? (
+                      <img src={author.avatarUrl} alt="" className="w-3.5 h-3.5 rounded-full object-cover" />
+                    ) : (
+                      <span>{author.role === "admin" ? "👑" : "👤"}</span>
+                    )}
+                    {author.name || (author.role === "admin" ? "Admin" : "Colaborador")}
                   </span>
                 </div>
               )}
