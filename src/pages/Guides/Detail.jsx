@@ -30,6 +30,8 @@ export default function GuideDetailPage() {
     );
   }
 
+  console.log("[GuideDetail DEBUG]", { guideIsPrivate: guide.is_private, hasSession: Boolean(session), sessionEmail: session?.user?.email });
+
   if (guide.is_private && !session) {
     return <PrivateGate backTo="/guides" backLabel="← Volver a guías" lockIcon={settings.private_lock_guides} />;
   }

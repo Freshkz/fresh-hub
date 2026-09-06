@@ -2,6 +2,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function PrivateLock({ isPrivate, title = "Contenido privado", lockIcon, children }) {
   const { session } = useAuth();
+  console.log("[PrivateLock DEBUG]", { isPrivate, hasSession: Boolean(session), sessionEmail: session?.user?.email });
 
   if (!isPrivate || session) return children;
 
