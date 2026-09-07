@@ -241,8 +241,9 @@ export default function ProjectsAdmin() {
         <div
           className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm"
           style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+          onClick={() => setShowFullPreview(false)}
         >
-          <div className="mx-auto max-w-3xl px-6 py-10">
+          <div className="mx-auto max-w-3xl px-6 py-10" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={() => setShowFullPreview(false)}
