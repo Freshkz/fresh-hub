@@ -43,7 +43,7 @@ export default function NewsAdmin() {
           source: form.source || "admin",
           source_id: form.source_id || null,
           author_email: userEmail,
-          author_role: role || "admin",
+          author_role: role,
           author_name: displayName,
           author_color: authorColor,
           author_avatar_url: authorAvatarUrl,

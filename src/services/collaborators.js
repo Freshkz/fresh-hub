@@ -9,6 +9,15 @@ function normalizeEmail(email) {
   return (email || "").trim().toLowerCase();
 }
 
+// Rol real según la base ('admin' | 'editor' | 'visitor'). Es la misma función
+// que usan las políticas RLS, así la UI nunca muestra más permisos de los que
+// la base realmente concede (ver supabase/security-roles-migration.sql).
+export async function getCurrentRole() {
+  const { data, error } = await supabase.rpc("current_app_role");
+  if (error) throw error;
+  return data || "visitor";
+}
+
 export async function getCollaborators() {
   const { data, error } = await supabase
     .from("collaborators")

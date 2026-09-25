@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "../services/supabaseClient";
-import { getCollaboratorByEmail } from "../services/collaborators";
+import { getCollaboratorByEmail, getCurrentRole } from "../services/collaborators";
 
 const AuthContext = createContext(null);
 
@@ -12,21 +12,32 @@ function isInvalidTokenError(error) {
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [collaborator, setCollaborator] = useState(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  // `email` marca para qué usuario se resolvió el rol: mientras no coincida con
+  // la sesión actual, seguimos "cargando" (si no, ProtectedRoute redirige al
+  // login durante el instante en que el rol todavía no llegó).
+  const [access, setAccess] = useState({ email: null, role: null, collaborator: null });
+
+  const sessionEmail = session?.user?.email || null;
 
   useEffect(() => {
-    const email = session?.user?.email;
-    if (!email) {
-      setCollaborator(null);
-      return;
-    }
+    if (!sessionEmail) return;
     let cancelled = false;
-    getCollaboratorByEmail(email)
-      .then((data) => { if (!cancelled) setCollaborator(data); })
-      .catch(() => { if (!cancelled) setCollaborator(null); });
+    Promise.all([
+      getCollaboratorByEmail(sessionEmail).catch(() => null),
+      getCurrentRole().catch((error) => {
+        console.error("No se pudo obtener el rol:", error);
+        return "visitor";
+      }),
+    ]).then(([collaborator, role]) => {
+      if (!cancelled) setAccess({ email: sessionEmail, role, collaborator });
+    });
     return () => { cancelled = true; };
-  }, [session?.user?.email]);
+  }, [sessionEmail]);
+
+  const accessReady = !sessionEmail || access.email === sessionEmail;
+  const collaborator = sessionEmail && accessReady ? access.collaborator : null;
+  const loading = sessionLoading || !accessReady;
 
   useEffect(() => {
     let mounted = true;
@@ -45,7 +56,7 @@ export function AuthProvider({ children }) {
         if (mounted) setSession(null);
         if (!isInvalidTokenError(error)) console.error("No se pudo recuperar la sesión:", error);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) setSessionLoading(false);
       }
     };
 
@@ -61,14 +72,10 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const userRole = useMemo(() => {
-    if (!session) return null;
-    // Antes esto caía en "admin" por defecto para cualquier sesión sin rol
-    // explícito. Con registro público abierto, eso le daría acceso de admin
-    // a cualquiera que se registre. El default correcto es "visitor":
-    // alguien logueado pero sin permisos de edición.
-    return session.user?.user_metadata?.role || "visitor";
-  }, [session]);
+  // El rol NUNCA se lee de user_metadata: el usuario lo puede editar desde el
+  // navegador. Viene de la base (collaborators.role vía current_app_role()).
+  // Esto solo decide qué se muestra; lo que se puede hacer lo decide la RLS.
+  const userRole = !session ? null : accessReady ? access.role || "visitor" : "visitor";
 
   const value = useMemo(() => ({
     session,

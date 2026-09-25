@@ -99,7 +99,7 @@ export default function GuidesAdmin() {
       createdAt: new Date().toISOString(),
       ...(editingId ? {} : {
         author_email: userEmail,
-        author_role: role || "admin",
+        author_role: role,
         author_name: displayName,
         author_color: authorColor,
         author_avatar_url: authorAvatarUrl,

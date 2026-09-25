@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { getCollaborators, createCollaborator, updateCollaborator, deleteCollaborator } from "../../services/collaborators";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import MediaUploadField from "../../components/admin/MediaUploadField";
+import { useAuth } from "../../hooks/useAuth";
 
-const empty = { email: "", display_name: "", color: "#33E6B0", avatar_url: "", can_mark_private: false };
+const empty = { email: "", display_name: "", color: "#33E6B0", avatar_url: "", can_mark_private: false, role: "editor" };
+
+const ROLE_LABELS = { admin: "👑 Admin", editor: "👤 Editor" };
 
 export default function CollaboratorsAdmin() {
   const [items, setItems] = useState([]);
@@ -13,6 +16,9 @@ export default function CollaboratorsAdmin() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [pendingDelete, setPendingDelete] = useState(null);
+  const { userEmail } = useAuth();
+  // Evita que el Admin se saque su propio rol (o se borre) y quede afuera del panel.
+  const isSelf = (email) => (email || "").toLowerCase() === userEmail.toLowerCase();
 
   const load = async () => {
     setLoading(true);
@@ -49,6 +55,7 @@ export default function CollaboratorsAdmin() {
       color: c.color,
       avatar_url: c.avatar_url || "",
       can_mark_private: Boolean(c.can_mark_private),
+      role: c.role || "editor",
     });
   };
 
@@ -65,8 +72,8 @@ export default function CollaboratorsAdmin() {
       <Link to="/admin/dashboard" className="text-xs text-muted hover:text-text">← Dashboard</Link>
       <h1 className="font-display text-xl font-semibold mt-2 mb-1">Colaboradores — Admin</h1>
       <p className="text-xs text-muted mb-4">
-        Vinculá cada email (ya creado en Supabase Auth) con un nombre y color propio,
-        y decidí quién puede marcar contenido como privado.
+        Vinculá cada email (ya creado en Supabase Auth) con un nombre, color y rol.
+        Quien no esté en esta lista puede ver el sitio pero no publicar nada.
       </p>
 
       {errorMsg && (
@@ -115,6 +122,20 @@ export default function CollaboratorsAdmin() {
           />
           🔒 Puede marcar contenido como privado
         </label>
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-muted">Rol:</label>
+          <select
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            disabled={isSelf(form.email)}
+            className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-60"
+          >
+            {Object.entries(ROLE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+          {isSelf(form.email) && <span className="text-xs text-muted">No podés cambiar tu propio rol.</span>}
+        </div>
         <div className="flex gap-2">
           <button type="submit" className="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg">
             {editingId ? "Guardar cambios" : "Agregar colaborador"}
@@ -139,12 +160,14 @@ export default function CollaboratorsAdmin() {
                 )}
                 <div>
                   <p className="text-sm font-medium">{c.display_name}</p>
-                  <p className="text-xs text-muted">{c.email} {c.can_mark_private && "· 🔒 puede marcar privado"}</p>
+                  <p className="text-xs text-muted">{ROLE_LABELS[c.role] || ROLE_LABELS.editor} · {c.email} {c.can_mark_private && "· 🔒 puede marcar privado"}</p>
                 </div>
               </div>
               <div className="flex gap-3 text-sm">
                 <button onClick={() => startEdit(c)} className="text-muted hover:text-text">Editar</button>
-                <button onClick={() => setPendingDelete(c.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                {!isSelf(c.email) && (
+                  <button onClick={() => setPendingDelete(c.id)} className="text-red-400 hover:text-red-300">Eliminar</button>
+                )}
               </div>
             </div>
           ))}
