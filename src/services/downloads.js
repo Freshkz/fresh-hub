@@ -13,8 +13,10 @@ export async function getDownloads() {
 }
 
 export async function getDownload(id) {
-  const { data, error } = await supabase.from("downloads").select("*").eq("id", id).single();
+  // maybeSingle: si es privado y no tenés acceso, la base no devuelve la fila (no es un error).
+  const { data, error } = await supabase.from("downloads").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error("Esta descarga no existe o no tenés acceso.");
   return data;
 }
 

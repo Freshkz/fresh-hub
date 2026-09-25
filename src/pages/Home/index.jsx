@@ -87,7 +87,6 @@ export default function Home({ settings = {} }) {
         isOpen={Boolean(privateAppModal)}
         onClose={() => setPrivateAppModal(null)}
         targetApp={privateAppModal}
-        requiredPin={settings.private_apps_pin || "1234"}
       />
 
       <section className="py-6">

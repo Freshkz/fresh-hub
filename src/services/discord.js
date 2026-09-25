@@ -1,11 +1,12 @@
 import { getSettings } from "./settings";
+import { supabase } from "./supabaseClient";
 
 const TYPE_DEFAULTS = {
-  "Proyecto": { emoji: "🧩", color: 0x7C5CFF, webhookKey: "discord_webhook_url_projects", forumTagKey: "discord_forum_tag_projects" },
-  "Descarga": { emoji: "📥", color: 0x33E6B0, webhookKey: "discord_webhook_url_downloads", forumTagKey: "discord_forum_tag_downloads" },
-  "Novedad": { emoji: "📰", color: 0x5865F2, webhookKey: "discord_webhook_url_news", forumTagKey: "discord_forum_tag_news" },
-  "Guía": { emoji: "📖", color: 0xFFB020, webhookKey: "discord_webhook_url_guides", forumTagKey: "discord_forum_tag_guides" },
-  "Publicación": { emoji: "📌", color: 0x7C5CFF, webhookKey: null, forumTagKey: "discord_forum_tag_general" },
+  "Proyecto": { emoji: "🧩", color: 0x7C5CFF, webhookSection: "projects", forumTagKey: "discord_forum_tag_projects" },
+  "Descarga": { emoji: "📥", color: 0x33E6B0, webhookSection: "downloads", forumTagKey: "discord_forum_tag_downloads" },
+  "Novedad": { emoji: "📰", color: 0x5865F2, webhookSection: "news", forumTagKey: "discord_forum_tag_news" },
+  "Guía": { emoji: "📖", color: 0xFFB020, webhookSection: "guides", forumTagKey: "discord_forum_tag_guides" },
+  "Publicación": { emoji: "📌", color: 0x7C5CFF, webhookSection: null, forumTagKey: "discord_forum_tag_general" },
 };
 
 /**
@@ -38,11 +39,12 @@ export async function sendDiscordNotification({
     const settings = await getSettings().catch(() => ({}));
     const typeDefaults = TYPE_DEFAULTS[type] || TYPE_DEFAULTS["Publicación"];
 
-    // Prioridad: webhook específico de la sección > webhook general > variable de entorno
-    const webhookUrl =
-      (typeDefaults.webhookKey && settings?.[typeDefaults.webhookKey]) ||
-      settings?.discord_webhook_url ||
-      import.meta.env.VITE_DISCORD_WEBHOOK_URL;
+    // El webhook vive en private_settings (no en la tabla pública `settings`).
+    // La base devuelve el de la sección o, si no hay, el general; solo a editores/admin.
+    const { data: webhookUrl, error: webhookError } = await supabase.rpc("get_discord_webhook", {
+      section: typeDefaults.webhookSection,
+    });
+    if (webhookError) throw webhookError;
 
     if (!webhookUrl || !webhookUrl.startsWith("http")) {
       console.log("Discord Webhook no configurado o no válido.");

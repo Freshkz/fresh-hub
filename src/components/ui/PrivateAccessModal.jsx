@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { checkPrivateAppsPin } from "../../services/settings";
 
-export default function PrivateAccessModal({ isOpen, onClose, targetApp, requiredPin = "1234" }) {
+export default function PrivateAccessModal({ isOpen, onClose, targetApp }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
   const { isAdmin } = useAuth();
 
   if (!isOpen || !targetApp) return null;
@@ -15,16 +17,24 @@ export default function PrivateAccessModal({ isOpen, onClose, targetApp, require
     return null;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setChecking(true);
 
-    if (pin.trim() === requiredPin.trim()) {
-      window.open(targetApp.url, "_blank", "noreferrer");
-      setPin("");
-      onClose();
-    } else {
-      setError("PIN o clave de acceso incorrecta.");
+    try {
+      // El PIN se compara en la base: el navegador nunca recibe el PIN real.
+      if (await checkPrivateAppsPin(pin)) {
+        window.open(targetApp.url, "_blank", "noreferrer");
+        setPin("");
+        onClose();
+      } else {
+        setError("PIN o clave de acceso incorrecta.");
+      }
+    } catch {
+      setError("No se pudo verificar el PIN. Probá de nuevo.");
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -76,9 +86,10 @@ export default function PrivateAccessModal({ isOpen, onClose, targetApp, require
             </button>
             <button
               type="submit"
-              className="flex-1 bg-accent text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity"
+              disabled={checking}
+              className="flex-1 bg-accent text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
             >
-              Desbloquear
+              {checking ? "Verificando..." : "Desbloquear"}
             </button>
           </div>
         </form>

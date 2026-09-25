@@ -1,5 +1,56 @@
 import { supabase } from "./supabaseClient";
 
+// Estos valores NO viven en `settings` (pública): están en `private_settings`,
+// que solo el admin puede leer/escribir (ver supabase/private-data-migration.sql).
+export const PRIVATE_SETTING_KEYS = [
+  "discord_webhook_url",
+  "discord_webhook_url_guides",
+  "discord_webhook_url_downloads",
+  "discord_webhook_url_projects",
+  "discord_webhook_url_news",
+  "private_apps_pin",
+];
+
+function splitPrivateSettings(formData = {}) {
+  const publicData = { ...formData };
+  const privateData = {};
+  PRIVATE_SETTING_KEYS.forEach((key) => {
+    if (key in publicData) privateData[key] = publicData[key] ?? "";
+    delete publicData[key];
+  });
+  return { publicData, privateData };
+}
+
+export async function getPrivateSettings() {
+  const { data, error } = await supabase.from("private_settings").select("key, value");
+  if (error) throw error;
+  return settingsFromKeyValueRows(data || []);
+}
+
+async function savePrivateSettings(privateData) {
+  const rows = Object.entries(privateData).map(([key, value]) => ({
+    key,
+    value: String(value ?? ""),
+    updated_at: new Date().toISOString(),
+  }));
+  if (rows.length === 0) return;
+  const { error } = await supabase.from("private_settings").upsert(rows, { onConflict: "key" });
+  if (error) throw error;
+}
+
+// true si el PIN de las apps privadas es correcto (la comparación la hace la base).
+export async function checkPrivateAppsPin(pin) {
+  const { data, error } = await supabase.rpc("check_private_apps_pin", { pin: pin || "" });
+  if (error) throw error;
+  return data === true;
+}
+
+// Settings completos para el panel de Admin (públicos + privados).
+export async function getAdminSettings() {
+  const [publicSettings, privateSettings] = await Promise.all([getSettings(), getPrivateSettings()]);
+  return { ...publicSettings, ...privateSettings };
+}
+
 export const DEFAULT_SETTINGS = {
   id: null,
   site_name: "Fresh",
@@ -17,14 +68,12 @@ export const DEFAULT_SETTINGS = {
   default_guide_thumbnail: "",
   default_project_thumbnail: "",
   default_download_thumbnail: "",
-  discord_webhook_url: "",
   discord_server_id: "",
   discord_forum_tag_general: "",
   discord_forum_tag_guides: "",
   discord_forum_tag_downloads: "",
   discord_forum_tag_projects: "",
   discord_forum_tag_news: "",
-  private_apps_pin: "1234",
   r2_worker_url: "",
   r2_admin_limit_gb: 5,
   r2_editor_limit_gb: 1,
@@ -50,14 +99,12 @@ function normalizeSettings(row = {}) {
     default_guide_thumbnail: row.default_guide_thumbnail || "",
     default_project_thumbnail: row.default_project_thumbnail || "",
     default_download_thumbnail: row.default_download_thumbnail || "",
-    discord_webhook_url: row.discord_webhook_url || "",
     discord_server_id: row.discord_server_id || "",
     discord_forum_tag_general: row.discord_forum_tag_general || "",
     discord_forum_tag_guides: row.discord_forum_tag_guides || "",
     discord_forum_tag_downloads: row.discord_forum_tag_downloads || "",
     discord_forum_tag_projects: row.discord_forum_tag_projects || "",
     discord_forum_tag_news: row.discord_forum_tag_news || "",
-    private_apps_pin: row.private_apps_pin || "1234",
     r2_worker_url: row.r2_worker_url || "",
     r2_admin_limit_gb: row.r2_admin_limit_gb ?? 5,
     r2_editor_limit_gb: row.r2_editor_limit_gb ?? 1,
@@ -82,14 +129,12 @@ function buildSettingsPayloadVariants(normalized) {
       default_guide_thumbnail: normalized.default_guide_thumbnail,
       default_project_thumbnail: normalized.default_project_thumbnail,
       default_download_thumbnail: normalized.default_download_thumbnail,
-      discord_webhook_url: normalized.discord_webhook_url,
       discord_server_id: normalized.discord_server_id,
       discord_forum_tag_general: normalized.discord_forum_tag_general,
       discord_forum_tag_guides: normalized.discord_forum_tag_guides,
       discord_forum_tag_downloads: normalized.discord_forum_tag_downloads,
       discord_forum_tag_projects: normalized.discord_forum_tag_projects,
       discord_forum_tag_news: normalized.discord_forum_tag_news,
-      private_apps_pin: normalized.private_apps_pin,
       r2_worker_url: normalized.r2_worker_url,
       r2_admin_limit_gb: normalized.r2_admin_limit_gb,
       r2_editor_limit_gb: normalized.r2_editor_limit_gb,
@@ -123,7 +168,10 @@ export async function getSettings() {
 }
 
 export async function saveSettings(formData) {
-  const normalized = normalizeSettings(formData);
+  const { publicData, privateData } = splitPrivateSettings(formData);
+  await savePrivateSettings(privateData);
+
+  const normalized = normalizeSettings(publicData);
   const { data: existingRows, error: fetchError } = await supabase.from("settings").select("*");
   if (fetchError) throw fetchError;
 

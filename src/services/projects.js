@@ -10,8 +10,10 @@ export async function getProjects() {
 }
 
 export async function getProject(id) {
-  const { data, error } = await supabase.from("projects").select("*").eq("id", id).single();
+  // maybeSingle: si es privado y no tenés acceso, la base no devuelve la fila (no es un error).
+  const { data, error } = await supabase.from("projects").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error("Este proyecto no existe o no tenés acceso.");
   return data;
 }
 

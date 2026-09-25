@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getSettings, saveSettings } from "../../services/settings";
+import { getAdminSettings, saveSettings } from "../../services/settings";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 
 const blank = {
@@ -34,7 +34,7 @@ const blank = {
   discord_forum_tag_projects: "",
   discord_forum_tag_news: "",
   discord_server_id: "",
-  private_apps_pin: "1234",
+  private_apps_pin: "",
   r2_worker_url: "",
   r2_admin_limit_gb: 5,
   r2_editor_limit_gb: 1,
@@ -50,7 +50,7 @@ export default function SettingsAdmin() {
   const load = async () => {
     setLoading(true);
     try {
-      const settings = await getSettings();
+      const settings = await getAdminSettings();
       setForm({
         site_name: settings.site_name || "",
         site_tagline: settings.site_tagline || "",
@@ -82,7 +82,7 @@ export default function SettingsAdmin() {
         discord_forum_tag_projects: settings.discord_forum_tag_projects || "",
         discord_forum_tag_news: settings.discord_forum_tag_news || "",
         discord_server_id: settings.discord_server_id || "",
-        private_apps_pin: settings.private_apps_pin || "1234",
+        private_apps_pin: settings.private_apps_pin || "",
         r2_worker_url: settings.r2_worker_url || "",
         r2_admin_limit_gb: settings.r2_admin_limit_gb ?? 5,
         r2_editor_limit_gb: settings.r2_editor_limit_gb ?? 1,
