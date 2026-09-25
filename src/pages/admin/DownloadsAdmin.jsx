@@ -6,6 +6,8 @@ import { sendDiscordNotification } from "../../services/discord";
 import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
 import useR2FileDraft from "../../hooks/useR2FileDraft";
+import { formatBytes } from "../../utils/formatBytes";
+import R2OrphanCleaner from "../../components/admin/R2OrphanCleaner";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import DownloadCard from "../../components/downloads/DownloadCard";
@@ -56,10 +58,7 @@ export default function DownloadsAdmin() {
       });
       fileDraft.replaceUpload(publicUrl);
 
-      // Calcular tamaño legible automáticamente
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      const sizeGb = (file.size / (1024 * 1024 * 1024)).toFixed(2);
-      const formattedSize = file.size > 1024 * 1024 * 1024 ? `${sizeGb} GB` : `${sizeMb} MB`;
+      const formattedSize = formatBytes(file.size);
       const extension = file.name.split(".").pop()?.toUpperCase() || "ZIP";
 
       setForm((current) => ({
@@ -331,6 +330,8 @@ export default function DownloadsAdmin() {
           ))}
         </div>
       )}
+
+      {isAdmin && <R2OrphanCleaner />}
 
       <ConfirmModal
         isOpen={!!pendingDelete}

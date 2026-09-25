@@ -28,5 +28,6 @@ export async function getCaller(request, env) {
   const role = await roleRes.json();
   if (!user?.id) return null;
 
-  return { id: user.id, email: user.email, role };
+  // token: para consultas a Supabase en nombre del usuario (respetan su RLS).
+  return { id: user.id, email: user.email, role, token };
 }

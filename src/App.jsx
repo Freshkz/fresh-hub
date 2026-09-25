@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -9,23 +10,26 @@ import Downloads from "./pages/Downloads";
 import Projects from "./pages/Projects";
 import News from "./pages/News";
 import AdminLogin from "./pages/admin/Login";
-import Dashboard from "./pages/admin/Dashboard";
-import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
-import DownloadsAdmin from "./pages/admin/DownloadsAdmin";
-import NewsAdmin from "./pages/admin/NewsAdmin";
-import SocialsAdmin from "./pages/admin/SocialsAdmin";
-import SettingsAdmin from "./pages/admin/SettingsAdmin";
-import CollaboratorsAdmin from "./pages/admin/CollaboratorsAdmin";
-import ActivityLogAdmin from "./pages/admin/ActivityLogAdmin";
-import ChangelogAdmin from "./pages/admin/ChangelogAdmin";
 import ProjectDetail from "./pages/Details/ProjectDetail";
 import DownloadDetail from "./pages/Details/DownloadDetail";
 import NewsDetail from "./pages/Details/NewsDetail";
 import ChangelogPage from "./pages/Changelog";
 import GuidesPage from "./pages/Guides";
 import GuideDetailPage from "./pages/Guides/Detail";
-import GuidesAdmin from "./pages/admin/GuidesAdmin";
 import StatusPage from "./pages/Status";
+
+// El panel de Admin se carga recién cuando alguien entra: un visitante no
+// descarga ese código (antes todo iba en un solo bundle).
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const ProjectsAdmin = lazy(() => import("./pages/admin/ProjectsAdmin"));
+const DownloadsAdmin = lazy(() => import("./pages/admin/DownloadsAdmin"));
+const NewsAdmin = lazy(() => import("./pages/admin/NewsAdmin"));
+const SocialsAdmin = lazy(() => import("./pages/admin/SocialsAdmin"));
+const SettingsAdmin = lazy(() => import("./pages/admin/SettingsAdmin"));
+const CollaboratorsAdmin = lazy(() => import("./pages/admin/CollaboratorsAdmin"));
+const ActivityLogAdmin = lazy(() => import("./pages/admin/ActivityLogAdmin"));
+const ChangelogAdmin = lazy(() => import("./pages/admin/ChangelogAdmin"));
+const GuidesAdmin = lazy(() => import("./pages/admin/GuidesAdmin"));
 
 export default function App() {
   const settings = useSiteSettings();
@@ -35,6 +39,7 @@ export default function App() {
       <div className="min-h-screen flex flex-col">
         <Navbar settings={settings} />
         <main className="flex-1">
+          <Suspense fallback={<p className="px-6 py-16 text-center text-sm text-muted">Cargando...</p>}>
           <Routes>
             <Route path="/" element={<Home settings={settings} />} />
             <Route path="/downloads" element={<Downloads />} />
@@ -59,6 +64,7 @@ export default function App() {
             <Route path="/admin/activity-log" element={<ProtectedRoute><ActivityLogAdmin /></ProtectedRoute>} />
             <Route path="/admin/changelog" element={<ProtectedRoute requireAdmin><ChangelogAdmin /></ProtectedRoute>} />
           </Routes>
+          </Suspense>
         </main>
         <Footer settings={settings} />
       </div>

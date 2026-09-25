@@ -36,8 +36,6 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_DOWNLOADS_BUCKET: ${{ vars.VITE_DOWNLOADS_BUCKET }}
-          VITE_DOWNLOADS_FOLDER: ${{ vars.VITE_DOWNLOADS_FOLDER }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

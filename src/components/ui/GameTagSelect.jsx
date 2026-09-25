@@ -37,10 +37,6 @@ export default function GameTagSelect({ selectedTags = [], onChange, options, la
     setShowModal(false);
   };
 
-  const removeTag = (tag) => {
-    onChange(selectedTags.filter((t) => t !== tag));
-  };
-
   return (
     <div className="space-y-2">
       {label && <label className="block text-xs uppercase tracking-[0.18em] text-muted">{label}</label>}

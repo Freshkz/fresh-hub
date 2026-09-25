@@ -71,6 +71,56 @@ export async function serveFile(request, env, key) {
   return new Response(object.body, { headers });
 }
 
+// Archivos subidos hace menos de esto no se consideran huérfanos: pueden ser
+// de un formulario que alguien está completando ahora mismo.
+const ORPHAN_MIN_AGE_MS = 24 * 60 * 60 * 1000;
+
+// Keys de R2 que aparecen en la base (links de descargas y de guías).
+// Se consulta con el token del admin: la RLS le devuelve todo, incluso lo privado.
+async function referencedFileKeys(env, token) {
+  const headers = { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` };
+  const sources = ["downloads?select=download_url", "guides?select=links"];
+  const keys = new Set();
+
+  for (const source of sources) {
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${source}`, { headers });
+    // Si no se puede leer la base, cortamos: sin esto, TODO parecería huérfano.
+    if (!res.ok) throw new Error(`No se pudo leer ${source} (${res.status})`);
+    const text = await res.text();
+    for (const match of text.matchAll(/\/files\/([^"\s?#\\]+)/g)) {
+      keys.add(decodeURIComponent(match[1]));
+    }
+  }
+  return keys;
+}
+
+// GET /orphans → solo admin. Lista archivos de R2 que ninguna descarga ni guía usa.
+// No borra nada: el panel muestra la lista y el admin confirma el borrado.
+export async function listOrphanFiles(env, caller, token, cors) {
+  if (caller.role !== "admin") {
+    return json({ error: "Solo el admin puede buscar archivos huérfanos." }, 403, cors);
+  }
+
+  const referenced = await referencedFileKeys(env, token);
+  const cutoff = Date.now() - ORPHAN_MIN_AGE_MS;
+  const orphans = [];
+  let scanned = 0;
+  let cursor;
+
+  do {
+    const page = await env.MY_BUCKET.list({ cursor, limit: 1000 });
+    for (const object of page.objects) {
+      scanned += 1;
+      if (!referenced.has(object.key) && object.uploaded.getTime() < cutoff) {
+        orphans.push({ key: object.key, size: object.size, uploaded: object.uploaded.toISOString() });
+      }
+    }
+    cursor = page.truncated ? page.cursor : undefined;
+  } while (cursor);
+
+  return json({ orphans, scanned, totalSize: orphans.reduce((sum, file) => sum + file.size, 0) }, 200, cors);
+}
+
 // DELETE /files/<key> → admin borra cualquier archivo; un editor, solo los suyos.
 export async function deleteFile(env, caller, key, cors) {
   const isAdmin = caller.role === "admin";

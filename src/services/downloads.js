@@ -1,9 +1,6 @@
 import { supabase } from "./supabaseClient";
 import { withPrivateTeasers } from "./privateTeasers";
 
-export const DOWNLOAD_BUCKET = import.meta.env.VITE_DOWNLOADS_BUCKET || "downloads";
-export const DOWNLOADS_FOLDER = import.meta.env.VITE_DOWNLOADS_FOLDER || "downloads";
-
 // includePrivateTeasers: suma las cards tapadas del contenido exclusivo (solo
 // listados públicos; el panel de Admin no las usa).
 export async function getDownloads({ includePrivateTeasers = false } = {}) {
@@ -24,28 +21,6 @@ export async function getDownload(id) {
   if (error) throw error;
   if (!data) throw new Error("Esta descarga no existe o no tenés acceso.");
   return data;
-}
-
-export async function uploadDownloadFile(file) {
-  if (!file) throw new Error("Seleccioná un archivo para subir.");
-
-  const safeName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-  const filePath = `${DOWNLOADS_FOLDER}/${safeName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(DOWNLOAD_BUCKET)
-    .upload(filePath, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: file.type || "application/octet-stream",
-    });
-
-  if (uploadError) throw uploadError;
-
-  const { data: urlData } = supabase.storage.from(DOWNLOAD_BUCKET).getPublicUrl(filePath);
-  if (!urlData?.publicUrl) throw new Error("No se pudo generar la URL pública del archivo.");
-
-  return urlData.publicUrl;
 }
 
 export async function createDownload(item) {
@@ -73,15 +48,24 @@ export async function deleteDownload(id) {
   if (!data?.length) throw new Error("No se pudo borrar: no tenés permiso o la descarga ya no existe.");
 }
 
-export async function rateDownload(id, score, currentSum = 0, currentCount = 0) {
-  const newSum = (currentSum || 0) + score;
-  const newCount = (currentCount || 0) + 1;
-  const { data, error } = await supabase
-    .from("downloads")
-    .update({ rating_sum: newSum, rating_count: newCount })
-    .eq("id", id)
-    .select()
-    .single();
+// Un voto por usuario y descarga; votar de nuevo cambia el voto. La base
+// recalcula rating_sum/rating_count con un trigger
+// (ver supabase/ratings-and-project-types-migration.sql).
+export async function rateDownload(id, score) {
+  const { error } = await supabase
+    .from("download_ratings")
+    .upsert({ download_id: id, score, updated_at: new Date().toISOString() }, { onConflict: "download_id,user_id" });
   if (error) throw error;
-  return data;
+  return getDownload(id);
+}
+
+// Voto del usuario actual (1-5) o 0 si todavía no votó.
+export async function getMyRating(id) {
+  const { data, error } = await supabase
+    .from("download_ratings")
+    .select("score")
+    .eq("download_id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.score || 0;
 }

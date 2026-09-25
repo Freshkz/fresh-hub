@@ -5,11 +5,12 @@
 //   GET    /presign          editor/admin → URL firmada para subir directo a R2
 //   DELETE /files/<key>      admin cualquiera; editor solo sus archivos
 //   GET    /github-commits   solo admin, repos de GITHUB_ALLOWED_REPOS
+//   GET    /orphans          solo admin → archivos de R2 que nada usa
 //
 // Todo lo que no es descarga pública exige "Authorization: Bearer <token de Supabase>".
 
 import { getCaller } from "./auth.js";
-import { deleteFile, fileKeyFromPath, presignUpload, serveFile } from "./files.js";
+import { deleteFile, fileKeyFromPath, listOrphanFiles, presignUpload, serveFile } from "./files.js";
 import { proxyGithubCommits } from "./github.js";
 import { corsHeaders, json } from "./http.js";
 
@@ -37,6 +38,9 @@ export default {
       }
       if (request.method === "DELETE" && isFileRoute) {
         return await deleteFile(env, caller, fileKeyFromPath(url.pathname), cors);
+      }
+      if (request.method === "GET" && url.pathname === "/orphans") {
+        return await listOrphanFiles(env, caller, caller.token, cors);
       }
       if (request.method === "GET" && url.pathname === "/github-commits") {
         return await proxyGithubCommits(url, env, caller, cors);

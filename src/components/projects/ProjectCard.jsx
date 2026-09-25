@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import InteractiveCard from "../ui/InteractiveCard";
 import PrivateLock from "../ui/PrivateLock";
+import { projectTypeMeta } from "../../constants/projectOptions";
+import { isSafeExternalUrl } from "../../utils/urls";
+
+const QUICK_ACTION_CLASS =
+  "rounded-full border border-accent/40 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-accent backdrop-blur hover:bg-accent hover:text-white transition-colors";
 
 export default function ProjectCard({ project, settings = {} }) {
   const thumbnail = project.image ? (
@@ -8,6 +13,9 @@ export default function ProjectCard({ project, settings = {} }) {
   ) : (
     <span className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-white/80">{project.name}</span>
   );
+
+  const type = projectTypeMeta(project.project_type);
+  const websiteUrl = isSafeExternalUrl(project.website_url) ? project.website_url : "";
 
   const authorObj = project.author_role
     ? { role: project.author_role, email: project.author_email, name: project.author_name, color: project.author_color, avatarUrl: project.author_avatar_url }
@@ -20,21 +28,36 @@ export default function ProjectCard({ project, settings = {} }) {
           to={`/projects/${project.id}`}
           title={project.name}
           description={project.description}
-          meta={project.category || "Project"}
+          meta={`${type.icon} ${type.label}`}
           badge={project.featured ? "Featured" : undefined}
           author={authorObj}
           tags={(project.technologies || []).slice(0, 2)}
           gradientClass="from-accent/18 via-accent2/10 to-transparent"
           thumbnail={thumbnail}
         />
-        {project.linked_download_id && (
-          <Link
-            to={`/downloads/${project.linked_download_id}`}
-            onClick={(event) => event.stopPropagation()}
-            className="absolute bottom-3 right-3 z-10 rounded-full border border-accent/40 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-accent backdrop-blur hover:bg-accent hover:text-white transition-colors"
-          >
-            📥 Descargar
-          </Link>
+        {(websiteUrl || project.linked_download_id) && (
+          <div className="absolute bottom-3 right-3 z-10 flex gap-1.5">
+            {websiteUrl && (
+              <a
+                href={websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(event) => event.stopPropagation()}
+                className={QUICK_ACTION_CLASS}
+              >
+                🌐 Visitar
+              </a>
+            )}
+            {project.linked_download_id && (
+              <Link
+                to={`/downloads/${project.linked_download_id}`}
+                onClick={(event) => event.stopPropagation()}
+                className={QUICK_ACTION_CLASS}
+              >
+                📥 Descargar
+              </Link>
+            )}
+          </div>
         )}
       </div>
     </PrivateLock>

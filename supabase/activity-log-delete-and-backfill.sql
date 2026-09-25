@@ -13,24 +13,25 @@ create policy "Admin can delete activity log"
 --    "congelados" al momento de crearlos (a propósito, ver collaborators-migration.sql).
 --    Por eso cambiar el perfil de un colaborador en /admin/collaborators no actualiza
 --    retroactivamente lo que ya se había publicado antes. Corré esto UNA VEZ para
---    igualar los items viejos de dragon2_online@hotmail.com con su perfil actual:
+--    igualar los items viejos de un colaborador con su perfil actual
+--    (reemplazá el email de ejemplo por el real antes de correrlo):
 
 update public.downloads d
 set author_name = c.display_name, author_color = c.color, author_avatar_url = c.avatar_url
 from public.collaborators c
-where c.email = 'dragon2_online@hotmail.com' and d.author_email = c.email;
+where c.email = 'email@del-colaborador.com' and d.author_email = c.email;
 
 update public.projects p
 set author_name = c.display_name, author_color = c.color, author_avatar_url = c.avatar_url
 from public.collaborators c
-where c.email = 'dragon2_online@hotmail.com' and p.author_email = c.email;
+where c.email = 'email@del-colaborador.com' and p.author_email = c.email;
 
 update public.news n
 set author_name = c.display_name, author_color = c.color, author_avatar_url = c.avatar_url
 from public.collaborators c
-where c.email = 'dragon2_online@hotmail.com' and n.author_email = c.email;
+where c.email = 'email@del-colaborador.com' and n.author_email = c.email;
 
 update public.guides g
 set author_name = c.display_name, author_color = c.color, author_avatar_url = c.avatar_url
 from public.collaborators c
-where c.email = 'dragon2_online@hotmail.com' and g.author_email = c.email;
+where c.email = 'email@del-colaborador.com' and g.author_email = c.email;

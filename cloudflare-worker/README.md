@@ -8,6 +8,7 @@ Worker de Cloudflare que maneja los archivos de R2 y el proxy de commits de GitH
 | `GET /presign?filename=` | Editor / Admin | URL firmada para subir directo a R2 |
 | `DELETE /files/<key>` | Admin: cualquiera. Editor: solo sus archivos | Borra de R2 |
 | `GET /github-commits` | Admin | Commits de los repos de `GITHUB_ALLOWED_REPOS` |
+| `GET /orphans` | Admin | Lista archivos de R2 que ninguna descarga ni guía usa (no borra nada) |
 
 Las rutas protegidas exigen `Authorization: Bearer <access_token de Supabase>`.
 El Worker valida el token y obtiene el rol con `current_app_role()` (ver

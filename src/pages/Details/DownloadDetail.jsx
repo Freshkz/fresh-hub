@@ -1,38 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getDownload, rateDownload } from "../../services/downloads";
+import { getDownload, getMyRating, rateDownload } from "../../services/downloads";
 import { getProjectByLinkedDownload } from "../../services/projects";
 import StarRating from "../../components/ui/StarRating";
-import PrivateGate from "../../components/ui/PrivateGate";
-import { useAuth } from "../../hooks/useAuth";
-import useSiteSettings from "../../hooks/useSiteSettings";
 
 export default function DownloadDetail() {
   const { id } = useParams();
-  const { session } = useAuth();
-  const settings = useSiteSettings();
   const [download, setDownload] = useState(null);
+  const [myScore, setMyScore] = useState(0);
+  const [rateError, setRateError] = useState("");
   const [linkedProject, setLinkedProject] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     getDownload(id).then(setDownload).catch((err) => setError(err.message || "No se pudo cargar la descarga."));
     getProjectByLinkedDownload(id).then(setLinkedProject).catch(() => {});
+    getMyRating(id).then(setMyScore).catch(() => {});
   }, [id]);
 
   const handleRate = async (score) => {
     if (!download) return;
+    setRateError("");
     try {
-      const updated = await rateDownload(download.id, score, download.rating_sum, download.rating_count);
-      setDownload(updated);
+      setDownload(await rateDownload(download.id, score));
+      setMyScore(score);
     } catch (err) {
       console.warn("No se pudo guardar la calificación:", err.message);
+      setRateError("No se pudo guardar tu voto. Probá de nuevo.");
     }
   };
 
   if (error) return <p className="max-w-3xl mx-auto px-6 py-16 text-red-400">{error}</p>;
   if (!download) return <p className="max-w-3xl mx-auto px-6 py-16 text-muted">Cargando descarga...</p>;
-  if (download.is_private && !session) return <PrivateGate backTo="/downloads" backLabel="← Volver a descargas" lockIcon={settings.private_lock_downloads} />;
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-16">
@@ -58,9 +57,11 @@ export default function DownloadDetail() {
         <StarRating
           ratingSum={download.rating_sum}
           ratingCount={download.rating_count}
+          userScore={myScore}
           onRate={handleRate}
           interactive={true}
         />
+        {rateError && <p className="mt-1 text-xs text-red-400">{rateError}</p>}
       </div>
 
       <p className="text-muted leading-7 mb-6">{download.description || "Sin descripción."}</p>

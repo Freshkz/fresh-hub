@@ -9,8 +9,9 @@ import MediaUploadField from "../../components/admin/MediaUploadField";
 import ProjectCard from "../../components/projects/ProjectCard";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import VisibleToPicker from "../../components/admin/VisibleToPicker";
+import { PROJECT_STATUSES, PROJECT_TYPES } from "../../constants/projectOptions";
 
-const empty = { name: "", description: "", technologies: "", image: "", status: "active", featured: false, is_private: false, visible_to: [], linked_download_id: "" };
+const empty = { name: "", description: "", technologies: "", image: "", status: "active", project_type: "app", website_url: "", featured: false, is_private: false, visible_to: [], linked_download_id: "" };
 
 export default function ProjectsAdmin() {
   const { userEmail, role, isAdmin, canMarkPrivate, displayName, authorColor, authorAvatarUrl } = useAuth();
@@ -45,6 +46,7 @@ export default function ProjectsAdmin() {
       ...form,
       technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean),
       linked_download_id: form.linked_download_id || null,
+      website_url: form.website_url.trim() || null,
     };
     try {
       if (editingId) {
@@ -89,6 +91,8 @@ export default function ProjectsAdmin() {
       image: p.image || "",
       technologies: (p.technologies || []).join(", "),
       status: p.status,
+      project_type: p.project_type || "app",
+      website_url: p.website_url || "",
       featured: p.featured,
       is_private: Boolean(p.is_private),
       visible_to: Array.isArray(p.visible_to) ? p.visible_to : [],
@@ -120,6 +124,8 @@ export default function ProjectsAdmin() {
     image: form.image,
     technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean),
     status: form.status,
+    project_type: form.project_type,
+    website_url: form.website_url,
     featured: form.featured,
   };
 
@@ -141,6 +147,16 @@ export default function ProjectsAdmin() {
         <textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
         <MediaUploadField value={form.image} onChange={(image) => setForm({ ...form, image })} folder="projects" label="Miniatura del proyecto" />
+        <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
+          <select value={form.project_type} onChange={(e) => setForm({ ...form, project_type: e.target.value })}
+            className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent">
+            {PROJECT_TYPES.map((type) => <option key={type.value} value={type.value}>{type.icon} {type.label}</option>)}
+          </select>
+          <input type="url" placeholder="🌐 Link al sitio (opcional, ej. https://freshkz.github.io/mi-web/)" value={form.website_url}
+            onChange={(e) => setForm({ ...form, website_url: e.target.value })}
+            pattern="https?://.+" title="Tiene que empezar con http:// o https://"
+            className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
+        </div>
         <input placeholder="Tecnologías (separadas por coma)" value={form.technologies} onChange={(e) => setForm({ ...form, technologies: e.target.value })}
           className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" />
 
@@ -156,10 +172,7 @@ export default function ProjectsAdmin() {
         <div className="flex items-center gap-4">
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="bg-surface2 border border-border rounded-lg px-3 py-2 text-sm">
-            <option value="active">Active</option>
-            <option value="in-development">In development</option>
-            <option value="archived">Archived</option>
-            <option value="experimental">Experimental</option>
+            {PROJECT_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
           </select>
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />

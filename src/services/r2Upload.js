@@ -98,3 +98,14 @@ export function discardR2File(url) {
   if (!isR2FileUrl(url)) return;
   deleteFromR2(url).catch((err) => console.warn("No se pudo borrar el archivo descartado de R2:", url, err));
 }
+
+/**
+ * Busca archivos de R2 que ninguna descarga ni guía usa (solo admin).
+ * No borra nada; los de las últimas 24 h se ignoran por si están en un formulario abierto.
+ * @returns {Promise<{ orphans: Array<{key: string, size: number, uploaded: string}>, scanned: number, totalSize: number }>}
+ */
+export async function findR2Orphans() {
+  const res = await workerFetch("/orphans");
+  if (!res.ok) throw new Error(await workerErrorMessage(res));
+  return res.json();
+}
