@@ -11,7 +11,7 @@ export default function Downloads() {
   const [category, setCategory] = useState("all");
 
   useEffect(() => {
-    getDownloads().then(setDownloads).catch(() => {});
+    getDownloads({ includePrivateTeasers: true }).then(setDownloads).catch(() => {});
   }, []);
 
   const categories = useMemo(() => [...new Set(downloads.map((download) => download.category).filter(Boolean))], [downloads]);

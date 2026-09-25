@@ -37,15 +37,15 @@ export default function Home({ settings = {} }) {
   const [privateAppModal, setPrivateAppModal] = useState(null);
 
   useEffect(() => {
-    getProjects().then((data) => {
+    getProjects({ includePrivateTeasers: true }).then((data) => {
       setFeatured(data.filter((p) => p.featured));
       setStats((current) => ({ ...current, projects: data.length }));
     }).catch(() => {});
-    getDownloads().then((data) => {
+    getDownloads({ includePrivateTeasers: true }).then((data) => {
       setLatestDownloads(data.slice(0, 3));
       setStats((current) => ({ ...current, downloads: data.length }));
     }).catch(() => {});
-    getUnifiedNews().then((data) => {
+    getUnifiedNews({ includePrivateTeasers: true }).then((data) => {
       const latestReleases = data
         .filter((item) => item.source === "github" && item.serviceId)
         .reduce((releases, item) => {

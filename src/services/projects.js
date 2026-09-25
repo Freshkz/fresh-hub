@@ -1,12 +1,18 @@
 import { supabase } from "./supabaseClient";
+import { withPrivateTeasers } from "./privateTeasers";
 
-export async function getProjects() {
+// includePrivateTeasers: suma las cards tapadas del contenido exclusivo (solo
+// listados públicos; el panel de Admin no las usa).
+export async function getProjects({ includePrivateTeasers = false } = {}) {
   const { data, error } = await supabase
     .from("projects")
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data;
+  if (!includePrivateTeasers) return data;
+  return withPrivateTeasers(data, "projects", (t) => ({
+    id: t.id, name: t.title, image: t.image, featured: t.featured, status: t.category, created_at: t.sort_date,
+  }), "created_at");
 }
 
 export async function getProject(id) {

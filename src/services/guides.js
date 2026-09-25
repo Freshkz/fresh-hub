@@ -1,4 +1,5 @@
 import { supabase } from "./supabaseClient";
+import { withPrivateTeasers } from "./privateTeasers";
 
 // Lista de JUEGOS/TEMAS. Se usa en el desplegable de "Juegos / Temas" del
 // admin (con opción de agregar uno propio) y en el filtro de la página
@@ -195,13 +196,18 @@ export function getGuides() {
   return sortGuides(readLocalGuides().filter((guide) => guide.published !== false));
 }
 
-export async function fetchGuides({ includeDrafts = false } = {}) {
+// includePrivateTeasers: suma las cards tapadas del contenido exclusivo (solo
+// listados públicos; no se guardan en el caché local).
+export async function fetchGuides({ includeDrafts = false, includePrivateTeasers = false } = {}) {
   try {
     const { data, error } = await supabase.from("guides").select("*").order("created_at", { ascending: false });
     if (!error && Array.isArray(data)) {
       const normalized = data.map(normalizeGuide).filter((item) => includeDrafts || item.published !== false);
       writeLocalGuides(normalized);
-      return sortGuides(normalized);
+      if (!includePrivateTeasers) return sortGuides(normalized);
+      return withPrivateTeasers(sortGuides(normalized), "guides", (t) => normalizeGuide({
+        id: t.id, slug: t.slug, title: t.title, image_url: t.image, featured: t.featured, created_at: t.sort_date, is_private: true,
+      }), "createdAt");
     }
   } catch {
     // fallback to local storage / seed below

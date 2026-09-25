@@ -93,8 +93,8 @@ export async function getAutomaticNews() {
   return getGitHubNews();
 }
 
-export async function getUnifiedNews() {
-  const results = await Promise.allSettled([getNews(), getAutomaticNews()]);
+export async function getUnifiedNews({ includePrivateTeasers = false } = {}) {
+  const results = await Promise.allSettled([getNews({ includePrivateTeasers }), getAutomaticNews()]);
   const dbNews = results[0].status === "fulfilled" ? results[0].value || [] : [];
   const autoNews = results[1].status === "fulfilled" ? results[1].value || [] : [];
 

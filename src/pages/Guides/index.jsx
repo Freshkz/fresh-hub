@@ -13,7 +13,7 @@ export default function GuidesPage() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    fetchGuides().then(setGuides).finally(() => setLoading(false));
+    fetchGuides({ includePrivateTeasers: true }).then(setGuides).finally(() => setLoading(false));
   }, []);
 
   // Juegos/temas disponibles: solo los que efectivamente tiene alguna guía

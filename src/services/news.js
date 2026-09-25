@@ -1,12 +1,18 @@
 import { supabase } from "./supabaseClient";
+import { withPrivateTeasers } from "./privateTeasers";
 
-export async function getNews() {
+// includePrivateTeasers: suma las cards tapadas del contenido exclusivo (solo
+// listados públicos; el panel de Admin no las usa).
+export async function getNews({ includePrivateTeasers = false } = {}) {
   const { data, error } = await supabase
     .from("news")
     .select("*")
     .order("date", { ascending: false });
   if (error) throw error;
-  return data;
+  if (!includePrivateTeasers) return data;
+  return withPrivateTeasers(data, "news", (t) => ({
+    id: t.id, title: t.title, image: t.image, featured: t.featured, type: t.category, date: t.sort_date, published: true,
+  }), "date");
 }
 
 export async function getNewsItem(id) {

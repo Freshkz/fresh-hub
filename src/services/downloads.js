@@ -1,15 +1,21 @@
 import { supabase } from "./supabaseClient";
+import { withPrivateTeasers } from "./privateTeasers";
 
 export const DOWNLOAD_BUCKET = import.meta.env.VITE_DOWNLOADS_BUCKET || "downloads";
 export const DOWNLOADS_FOLDER = import.meta.env.VITE_DOWNLOADS_FOLDER || "downloads";
 
-export async function getDownloads() {
+// includePrivateTeasers: suma las cards tapadas del contenido exclusivo (solo
+// listados públicos; el panel de Admin no las usa).
+export async function getDownloads({ includePrivateTeasers = false } = {}) {
   const { data, error } = await supabase
     .from("downloads")
     .select("*")
     .order("release_date", { ascending: false });
   if (error) throw error;
-  return data;
+  if (!includePrivateTeasers) return data;
+  return withPrivateTeasers(data, "downloads", (t) => ({
+    id: t.id, name: t.title, image: t.image, featured: t.featured, category: t.category, release_date: t.sort_date,
+  }), "release_date");
 }
 
 export async function getDownload(id) {

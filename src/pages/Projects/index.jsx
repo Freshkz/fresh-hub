@@ -11,7 +11,7 @@ export default function Projects() {
   const [status, setStatus] = useState("all");
 
   useEffect(() => {
-    getProjects().then(setProjects).catch(() => {});
+    getProjects({ includePrivateTeasers: true }).then(setProjects).catch(() => {});
   }, []);
 
   const filteredProjects = useMemo(() => {

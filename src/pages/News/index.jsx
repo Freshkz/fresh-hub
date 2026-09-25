@@ -13,7 +13,7 @@ export default function News() {
 
   useEffect(() => {
     setLoading(true);
-    getUnifiedNews()
+    getUnifiedNews({ includePrivateTeasers: true })
       .then((data) => setNews(data.filter((n) => n.published !== false)))
       .catch((err) => console.error("Error al cargar novedades:", err))
       .finally(() => setLoading(false));
