@@ -9,7 +9,7 @@ export default function AdminLogin() {
   const [message, setMessage] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { signIn, resetPassword, canEdit, loading } = useAuth();
+  const { signIn, resetPassword, canEdit, loading, session, userEmail } = useAuth();
   const navigate = useNavigate();
 
   if (!loading && canEdit) {
@@ -44,6 +44,12 @@ export default function AdminLogin() {
   return (
     <div className="max-w-sm mx-auto px-6 py-24">
       <h1 className="font-display text-xl font-semibold mb-2">Admin login</h1>
+      {session && !canEdit && !resetMode && (
+        <p className="text-sm text-amber-300 bg-amber-400/10 border border-amber-400/30 rounded-lg px-3 py-2 mb-4">
+          Estás conectado como <span className="font-medium">{userEmail}</span>, que no tiene permisos para
+          editar. Si tenés una cuenta de editor o admin, ingresá con ella abajo.
+        </p>
+      )}
       <p className="text-sm text-muted mb-6">
         {resetMode ? "Te enviaremos un enlace para recuperar el acceso." : "Ingresá para administrar el contenido del sitio."}
       </p>

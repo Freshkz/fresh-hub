@@ -9,6 +9,8 @@
 // el límite sube a 5000/hora. El token nunca viaja al navegador porque GitHub
 // Pages no puede esconder secretos (todo el JS del build es público).
 
+import { workerErrorMessage, workerFetch } from "./worker";
+
 const DEFAULT_REPO = import.meta.env.VITE_GITHUB_REPO || "Freshkz/fresh-hub";
 const DEFAULT_BRANCH = import.meta.env.VITE_GITHUB_BRANCH || "main";
 
@@ -67,23 +69,6 @@ export function categorizeCommitMessage(message) {
   return { category: classifyFreeText(subject), text: subject, conventional: false };
 }
 
-// Resuelve la URL del Worker igual que r2Upload.js: primero Settings (Supabase),
-// después la env var, para que sea configurable desde /admin/settings sin redeploy.
-async function resolveWorkerUrl() {
-  const { getSettings } = await import("./settings");
-  const settings = await getSettings().catch(() => ({}));
-  let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
-  if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
-    workerUrl = `https://${workerUrl}`;
-  }
-  if (!workerUrl || !workerUrl.startsWith("http")) {
-    throw new Error(
-      "URL de Cloudflare Worker no configurada. Ingresá en Admin -> Settings y guardá la URL (ej: https://fresh-hub-r2-worker...)."
-    );
-  }
-  return workerUrl.replace(/\/$/, "");
-}
-
 /**
  * Trae los commits de la rama `branch` posteriores a `sinceIso` (o a partir de
  * `sinceSha` exclusive, si se pasa). Pagina automáticamente hasta 300 commits.
@@ -94,20 +79,14 @@ export async function fetchCommitsSince({ repo = DEFAULT_REPO, branch = DEFAULT_
   const commits = [];
   let page = 1;
   const perPage = 100;
-  const workerUrl = await resolveWorkerUrl();
 
   while (commits.length < maxCommits) {
-    const url = new URL(`${workerUrl}/github-commits`);
-    url.searchParams.set("repo", repo);
-    url.searchParams.set("branch", branch);
-    url.searchParams.set("per_page", String(perPage));
-    url.searchParams.set("page", String(page));
-    if (sinceIso) url.searchParams.set("since", sinceIso);
+    const params = new URLSearchParams({ repo, branch, per_page: String(perPage), page: String(page) });
+    if (sinceIso) params.set("since", sinceIso);
 
-    const res = await fetch(url.toString());
+    const res = await workerFetch(`/github-commits?${params}`);
     if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      throw new Error(`GitHub API respondió ${res.status}: ${body || res.statusText}`);
+      throw new Error(`GitHub API respondió ${res.status}: ${await workerErrorMessage(res)}`);
     }
     const batch = await res.json();
     if (!Array.isArray(batch) || batch.length === 0) break;

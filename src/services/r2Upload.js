@@ -1,8 +1,11 @@
 import { getSettings } from "./settings";
+import { workerErrorMessage, workerFetch } from "./worker";
 
 /**
- * Subida directa a Cloudflare R2 vía Cloudflare Worker con barra de progreso y control de límites por rol.
- * 
+ * Subida directa a Cloudflare R2 vía Cloudflare Worker con barra de progreso.
+ * El Worker decide la carpeta según tu rol real (verificado con Supabase);
+ * `role` acá solo se usa para avisar antes de subir si el archivo supera tu límite.
+ *
  * @param {Object} options
  * @param {File} options.file - Archivo seleccionado del input
  * @param {string} [options.role="editor"] - Rol del usuario ("admin" u "editor")
@@ -11,21 +14,9 @@ import { getSettings } from "./settings";
 export async function uploadToR2({ file, role = "editor", onProgress }) {
   if (!file) throw new Error("Selecciona un archivo para subir.");
 
-  // Cargar configuración de Settings para obtener workerUrl y límites
+  // TODO(escala): este límite solo se chequea en el navegador. Para que sea
+  // obligatorio, el Worker tendría que verificar el tamaño del objeto después de subirlo.
   const settings = await getSettings().catch(() => ({}));
-  let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
-
-  if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
-    workerUrl = `https://${workerUrl}`;
-  }
-
-  if (!workerUrl || !workerUrl.startsWith("http")) {
-    throw new Error(
-      "URL de Cloudflare Worker no configurada. Ingresa en Admin -> Settings y guarda la URL (ej: https://fresh-hub-r2-worker...)."
-    );
-  }
-
-  // Determinar el límite máximo en GB según el rol
   const isAdmin = role === "admin";
   const limitGb = isAdmin
     ? parseFloat(settings?.r2_admin_limit_gb) || 5
@@ -41,17 +32,11 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
 
   // Paso 1: pedirle al Worker una URL prefirmada (esta petición es liviana, no lleva el archivo,
   // así que nunca choca con el límite de tamaño del proxy de Cloudflare).
-  const presignUrl = new URL(`${workerUrl.replace(/\/$/, "")}/presign`);
-  presignUrl.searchParams.set("filename", file.name);
-  presignUrl.searchParams.set("role", role);
-
-  const presignRes = await fetch(presignUrl.toString());
+  const presignRes = await workerFetch(`/presign?filename=${encodeURIComponent(file.name)}`);
   if (!presignRes.ok) {
-    const text = await presignRes.text().catch(() => "");
-    throw new Error(`No se pudo generar la URL de subida (Status ${presignRes.status}): ${text}`);
+    throw new Error(`No se pudo generar la URL de subida: ${await workerErrorMessage(presignRes)}`);
   }
-  const { uploadUrl, publicUrl, error: presignError } = await presignRes.json();
-  if (presignError) throw new Error(presignError);
+  const { uploadUrl, publicUrl } = await presignRes.json();
   if (!uploadUrl || !publicUrl) throw new Error("Respuesta de /presign incompleta.");
 
   // Paso 2: subir el archivo DIRECTO a R2 con la URL prefirmada, sin pasar por el proxy del Worker.
@@ -85,32 +70,31 @@ export async function uploadToR2({ file, role = "editor", onProgress }) {
   });
 }
 
+export function isR2FileUrl(url) {
+  return Boolean(url) && url.includes("/files/");
+}
+
 /**
- * Elimina automáticamente el archivo de Cloudflare R2 si la URL proviene del Worker.
+ * Borra el archivo de Cloudflare R2 si la URL proviene del Worker.
+ * Devuelve false si no es un archivo de R2 (ej. link externo de Drive).
+ * Si el archivo ya no existía, lo da por borrado.
  * @param {string} downloadUrl
  */
 export async function deleteFromR2(downloadUrl) {
-  if (!downloadUrl) return false;
-
-  const settings = await getSettings().catch(() => ({}));
-  let workerUrl = settings?.r2_worker_url || import.meta.env.VITE_R2_WORKER_URL || "";
-  if (workerUrl && !workerUrl.startsWith("http://") && !workerUrl.startsWith("https://")) {
-    workerUrl = `https://${workerUrl}`;
-  }
-
-  if (!workerUrl) throw new Error("URL de Worker no configurada en Settings.");
-  if (!downloadUrl.includes("/files/")) return false; // no es un archivo de R2 (ej. link externo)
+  if (!isR2FileUrl(downloadUrl)) return false;
 
   const fileKey = downloadUrl.split("/files/")[1];
   if (!fileKey) throw new Error("No se pudo extraer la key del archivo desde la URL guardada.");
 
-  const deleteTargetUrl = `${workerUrl.replace(/\/$/, "")}/files/${fileKey}`;
-  const res = await fetch(deleteTargetUrl, { method: "DELETE" });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`El Worker rechazó el borrado (Status ${res.status}): ${text}`);
-  }
-
+  const res = await workerFetch(`/files/${fileKey}`, { method: "DELETE" });
+  if (res.status === 404) return true;
+  if (!res.ok) throw new Error(await workerErrorMessage(res));
   return true;
+}
+
+// Para limpiezas "de fondo" (archivos reemplazados o descartados): si falla,
+// solo se registra en consola, no interrumpe lo que el usuario está haciendo.
+export function discardR2File(url) {
+  if (!isR2FileUrl(url)) return;
+  deleteFromR2(url).catch((err) => console.warn("No se pudo borrar el archivo descartado de R2:", url, err));
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getDownloads, createDownload, updateDownload, deleteDownload, uploadDownloadFile } from "../../services/downloads";
+import { getDownloads, createDownload, updateDownload, deleteDownload } from "../../services/downloads";
 import { uploadToR2, deleteFromR2 } from "../../services/r2Upload";
 import { sendDiscordNotification } from "../../services/discord";
 import { logActivity } from "../../services/activityLog";
 import { useAuth } from "../../hooks/useAuth";
+import useR2FileDraft from "../../hooks/useR2FileDraft";
 import MediaUploadField from "../../components/admin/MediaUploadField";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import DownloadCard from "../../components/downloads/DownloadCard";
@@ -27,6 +28,7 @@ export default function DownloadsAdmin() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [showMiniPreview, setShowMiniPreview] = useState(false);
   const [showFullPreview, setShowFullPreview] = useState(false);
+  const fileDraft = useR2FileDraft();
 
   const load = async () => {
     setLoading(true);
@@ -52,6 +54,7 @@ export default function DownloadsAdmin() {
         role: role || "editor",
         onProgress: (percent) => setUploadProgress(percent),
       });
+      fileDraft.replaceUpload(publicUrl);
 
       // Calcular tamaño legible automáticamente
       const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
@@ -108,6 +111,7 @@ export default function DownloadsAdmin() {
           ],
         });
       }
+      fileDraft.commit(form.download_url);
       setForm(empty);
       setEditingId(null);
       load();
@@ -117,6 +121,8 @@ export default function DownloadsAdmin() {
   };
 
   const startEdit = (d) => {
+    fileDraft.cancel();
+    fileDraft.start(d.download_url || "");
     setEditingId(d.id);
     setForm({
       name: d.name, description: d.description || "", category: d.category || "",
@@ -137,25 +143,27 @@ export default function DownloadsAdmin() {
     setPendingDelete(null);
     setErrorMsg("");
 
-    // Intentamos borrar el archivo real de R2, pero si esto falla (worker caído,
-    // CORS, archivo ya no existe, etc.) NO debe impedir que se borre el registro
-    // ni que se registre en el log — son dos pasos independientes.
-    if (downloadUrl) {
-      try {
-        await deleteFromR2(downloadUrl);
-      } catch (err) {
-        console.error("No se pudo borrar el archivo en R2 (se continúa borrando el registro):", err);
-        setErrorMsg(`El archivo puede haber quedado huérfano en R2: ${err.message || "error desconocido"}`);
-      }
-    }
-
+    // Primero el registro: la base decide si tenés permiso. Recién si se borró,
+    // se borra el archivo (al revés, un borrado rechazado dejaba la descarga sin archivo).
     try {
       await deleteDownload(id);
-      logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "download", entityId: id, entityTitle: deletedItem?.name });
-      load();
     } catch (err) {
       setErrorMsg(err.message || "Error eliminando descarga");
+      return;
     }
+    logActivity({ actorEmail: userEmail, actorName: displayName, actorAvatarUrl: authorAvatarUrl, actorColor: authorColor, action: "deleted", entityType: "download", entityId: id, entityTitle: deletedItem?.name });
+
+    let r2Error = "";
+    try {
+      await deleteFromR2(downloadUrl);
+    } catch (err) {
+      console.error("No se pudo borrar el archivo en R2:", err);
+      r2Error = `La descarga se borró, pero el archivo quedó en R2: ${err.message || "error desconocido"}`;
+    }
+
+    // load() limpia el mensaje de error, así que el aviso de R2 va después.
+    await load();
+    if (r2Error) setErrorMsg(r2Error);
   };
 
   const previewDownload = {
@@ -269,7 +277,7 @@ export default function DownloadsAdmin() {
             {uploading ? "Subiendo archivo..." : editingId ? "Guardar cambios" : "Crear descarga"}
           </button>
           {editingId && (
-            <button type="button" onClick={() => { setEditingId(null); setForm(empty); }} className="text-sm text-muted">
+            <button type="button" onClick={() => { fileDraft.cancel(); setEditingId(null); setForm(empty); }} className="text-sm text-muted">
               Cancelar
             </button>
           )}

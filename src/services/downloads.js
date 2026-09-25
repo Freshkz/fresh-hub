@@ -58,8 +58,11 @@ export async function updateDownload(id, updates) {
 }
 
 export async function deleteDownload(id) {
-  const { error } = await supabase.from("downloads").delete().eq("id", id);
+  // Si la RLS no deja borrar, Supabase NO devuelve error: borra 0 filas.
+  // Pedimos las filas borradas para distinguir "borrado" de "rechazado".
+  const { data, error } = await supabase.from("downloads").delete().eq("id", id).select("id");
   if (error) throw error;
+  if (!data?.length) throw new Error("No se pudo borrar: no tenés permiso o la descarga ya no existe.");
 }
 
 export async function rateDownload(id, score, currentSum = 0, currentCount = 0) {
